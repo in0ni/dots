@@ -1,0 +1,11 @@
+[Unit]
+Description=(thunar) file manager
+Documentation=https://docs.xfce.org/xfce/thunar/start
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/thunar --daemon
+
+[Install]
+WantedBy=sway-session.target

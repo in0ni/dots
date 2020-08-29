@@ -1,0 +1,20 @@
+layer=overlay
+default-timeout=5000
+font=Source Sans Pro 10
+icon-path=/usr/share/icons/Tela-red
+width=400
+padding=10
+text-color=#1e2128ff
+background-color=#eaeaebd9
+border-size=3
+border-color=#eaeaebd9
+progress-color=#aaaaaaff
+
+[app-name=Spotify]
+ignore-timeout=1
+
+[app-name=kyz]
+height=15
+default-timeout=2500
+padding=4,8
+max-icon-size=16

@@ -1,0 +1,5 @@
+#!/bin/bash
+prompt="password"
+path=$(gopass list --flat | rofi -dmenu -p "$prompt")
+[[ -z $path ]] && exit 1
+gopass show -c $path

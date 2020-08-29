@@ -1,0 +1,138 @@
+{
+  "layer": "top", // Waybar at top layer
+  "height": 25, // Waybar height (to be removed for auto height)
+  "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
+  "modules-center": ["custom/updates", "clock", "custom/gammastep"],
+  "modules-right": [
+    "idle_inhibitor",
+    "network",
+    "cpu",
+    "memory",
+    "temperature",
+    "battery",
+    "pulseaudio",
+    "tray"
+  ],
+  "sway/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+      "1": "", // network-wired
+      "2": "", // terminal
+      "3": "", // code
+      "4": "", // music
+      "5": "", // palette
+      "6": "", // sticky-note
+      "7": "", // cogs
+      "urgent": "" // exclamation
+    }
+  },
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
+    }
+  },
+  "sway/window": {
+    "format": "{}",
+    "max-length": 40
+  },
+  "sway/mode": {
+    "format": "{}"
+  },
+  "tray": {
+    "spacing": 10
+  },
+  "clock": {
+    "interval": 1,
+    "tooltip-format": "<big>{:%Y ~ %B}</big>\n<tt>{calendar}</tt>",
+    "format": "{:%a %b %d %T}",
+    "format-alt": "{:%T}"
+  },
+  "cpu": {
+    "interval": 5,
+    "states": {
+      "critical": 90
+    },
+    "format": "{usage}% ", // brain
+    "tooltip": false
+  },
+  "memory": {
+    "interval": 10,
+    "format": "{}% " // microchip
+  },
+  "temperature": {
+    // "thermal-zone": 2,
+    // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "interval": 5,
+    "critical-threshold": 80,
+    // "format-critical": "{temperatureC}°C {icon}",
+    "format": "{temperatureC}°C {icon}",
+    "format-icons": [""]
+  },
+  "battery": {
+    "states": {
+      // "good": 95,
+      "warning": 20,
+      "critical": 5
+    },
+    "format": "{capacity}% {icon}",
+    "format-charging": "{capacity}% ",
+    "format-plugged": "{capacity}% ",
+    "format-alt": "{time} {icon}",
+    // "format-good": "", // An empty format will hide the module
+    // "format-full": "",
+    "format-icons": [""] // bolt
+    // "format-icons": ["", "", "", "", ""]
+  },
+  "network": {
+    // "interface": "wlp2*", // (Optional) To force the use of this interface
+    "format-wifi": "",
+    "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
+    "format-linked": "{ifname} (No IP) ",
+    "format-disconnected": "Disconnected ⚠",
+    "format-alt": "{ifname}: {ipaddr}/{cidr}",
+    "on-click-right": "networkmanager_dmenu",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
+  },
+  "pulseaudio": {
+    // "scroll-step": 1, // %, can be a float
+    "format": "{icon} {format_source}",
+    "format-muted": " {format_source}",
+    "format-bluetooth": " {icon} {format_source}",
+    "format-bluetooth-muted": "  {format_source}",
+    "format-source": "",
+    "format-source-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", ""]
+    },
+    "on-click-right": "pavucontrol"
+  },
+  "custom/updates": {
+    "signal": 7,
+    "format": "{}",
+    "interval": 3600, // every hour
+    "return-type": "json",
+    "exec": "wayupdates", // # of updates
+    "exec-if": "exit 0" // always run; consider advanced run conditions
+    // "on-click": "kitty --class pacman-updates sudo pacman -Syu; pkill -SIGRTMIN+7 waybar"
+  },
+  "custom/gammastep": {
+    "signal": 8,
+    "format": "{icon}",
+    "format-icons": ["", "", "", ""],
+    "interval": 5,
+    "exec": "waystep",
+    "exec-if": "exit 0",
+    "return-type": "json",
+    "on-click-right": "waystep toggle; pkill -SIGRTMIN+8 waybar"
+  }
+}

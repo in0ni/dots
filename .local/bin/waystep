@@ -1,0 +1,67 @@
+#!/bin/bash
+status="$(systemctl --user status gammastep.service | awk '
+  BEGIN{ FS=": " }
+  /Active: (in)?active /{
+    print gensub(/^((in)?active) .*/, "\\1", "G", $2)
+  }
+')"
+
+# TODO: need update module (use signal?)
+toggle_service () {
+  if [ "$status" = "inactive" ]; then
+    systemctl --user start gammastep.service
+  else
+    systemctl --user stop gammastep.service
+  fi
+  exit 1
+}
+
+update_status () {
+  # gets current mode based on location -- this is irrespective of service running
+  modeline=$(gammastep -p 2> /dev/null | awk 'BEGIN{ ORS="|" }1')
+
+  # TODO: should be able to pass variable to awk, not pipe
+  period="$(echo $modeline | awk '
+    BEGIN{ RS="|"; FS=": " }
+    /^Period: Transition/{
+      dig=gensub(/Transition \(([0-9])[0-9]?\.[0-9][0-9]?% day\)/, "\\1", "G", $2);
+      if (dig < 5) print "TransitionNight"
+      else print "TransitionDay"
+      exit
+    }
+    /^Period/{ print $2}
+  ')"
+
+  tooltip="$(echo $modeline | awk '
+    BEGIN{ FS=": "; RS="|"; ORS=""; OFS=""}
+    /^Location/{
+      gsub(",", " - ")
+      print gensub(/([0-9]{2}\.[0-9]{2}) (N|W|S|E)/, "\\2:\\1", "G", $2), ", ";
+      next
+    }
+    /^Period/{ next }
+    { if(NR < 5) print $2; if (NR < 4) print ", " }
+  ')"
+
+  case $period in
+  Daytime)
+    percentage="0";;
+  TransitionDay)
+    percentage="34";;
+  TransitionNight)
+    percentage="67";;
+  Night)
+    percentage="100";;
+  *)
+    echo -e $usage
+    exit 1;;
+  esac
+
+  echo "{\"percentage\":$percentage,\"tooltip\":\"$tooltip\",\"class\":\"$status\"}"
+}
+
+if [ "$1" = "toggle" ]; then
+  toggle_service
+else 
+  update_status
+fi

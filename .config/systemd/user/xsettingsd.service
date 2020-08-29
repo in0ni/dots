@@ -1,0 +1,11 @@
+[Unit]
+Description=(xsettingsd) daemon that implements the XSETTINGS specification
+Documentation=https://github.com/derat/xsettingsd/wiki
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xsettingsd
+
+[Install]
+WantedBy=sway-session.target

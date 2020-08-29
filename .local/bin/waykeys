@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# see https://bbs.archlinux.org/viewtopic.php?id=69589
+#
+# see (based off) https://gist.github.com/kui/4691809
+# TODO: clean-up as this is based on github and made significant changes
+file=$(basename "$0")
+usage="usage:\n\t $file COMMAND\nCOMMAND:\n vi\tVolume Increase\n vd\tVolume Decrease\n vm\tVolume Mute\n mt\tMicrophone Toggle\n bi\tBrightness Increase\n bd\tBrightness Decrease"
+
+command=$1
+increment=5
+
+current_value=0
+mic_mute=""
+icon_name=""
+key_leds="/sys/devices/platform/thinkpad_acpi/leds/platform::"
+
+# take action
+case $command in
+vi)
+  pamixer -ui $increment;;
+vd)
+  pamixer -ud $increment;;
+vm)
+  pactl set-sink-mute @DEFAULT_SINK@ toggle;;
+mt)
+  pactl set-source-mute @DEFAULT_SOURCE@ toggle;;
+bi)
+  brightnessctl set +$increment%;;
+bd)
+  brightnessctl set $increment%-;;
+*)
+  echo -e $usage
+  exit 1;;
+esac
+
+# set title & get value
+if [[ "$command" =~ ^b ]]; then
+  txt_header="Brightness"
+  current_value=$(brightnessctl | awk 'match($0, /\((.*)%\)/, arr) { print arr[1] }')
+elif [[ "$command" = "mt" ]]; then
+  txt_header="Mic"
+  mic_mute=$(pactl list sources | grep "Mute: " | sed -n -e 's/.*\(Mute\)\:\s\(.*\)/\2/' -e '6p')
+  if [[ "$mic_mute" = "yes" ]]; then
+    current_value="Muted"
+  else
+    current_value="RECORDING"
+  fi
+else
+  txt_header="Volume"
+  current_value=$(pamixer --get-volume-human)
+  if [[ "$current_value" = "muted" ]]; then
+    current_value=0
+  else
+    current_value=$(pamixer --get-volume)
+  fi
+fi
+
+# set icon
+if [[ "$command" = "mt" ]]; then
+  if [[ "$mic_mute" = "yes" ]]; then
+    icon_name="mic-on"
+  else
+    icon_name="mic-off"
+  fi
+elif [[ "$command" =~ ^b ]]; then
+  icon_name="gpm-brightness-lcd"
+else
+  # TODO: just one one? progress bar does + text indicator is more than enough
+  if [[ "$current_value" -eq "0" ]]; then
+    icon_name="audio-volume-muted"
+  elif [[ "$current_value" -lt "33" ]]; then
+    icon_name="audio-volume-low"
+  elif [[ "$current_value" -lt "67" ]]; then
+    icon_name="audio-volume-medium"
+  else
+    icon_name="audio-volume-high"
+  fi
+fi
+
+# notify that bitch
+if [[ "$command" = "mt" ]]; then
+  notify-send.sh --replace-file=/tmp/kyz -a kyz -i $icon_name "${txt_header}: ${current_value}"
+else
+  notify-send.sh --replace-file=/tmp/kyz -a kyz -i $icon_name -h int:value:$current_value "${txt_header}: ${current_value}%"
+fi
