@@ -14,6 +14,24 @@ hook global RegisterModified '"' %{ nop %sh{
   printf %s "$kak_main_reg_dquote" | wl-copy > /dev/null 2>&1 &
 }}
 
+# position in file as percent
+decl str cursor_percent
+
+hook global WinCreate .* %{
+  hook window NormalIdle .* %{ evaluate-commands %sh{
+    if [ -f "${kak_buffile}" ]; then
+      echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $(wc -l < $kak_buffile)))%'"
+    else
+      echo "
+        eval -save-regs 'm' %{
+          exec -draft '%<a-s>:reg m %reg{#}<ret>'
+          set window cursor_percent %sh{echo \$((\$kak_cursor_line * 100 / \$kak_reg_m))}
+        }
+      "
+    fi
+  } }
+}
+
 def ide -docstring 'open 3 client windows: main, docs, tools'%{
   rename-client main
   set global jumpclient main
@@ -26,8 +44,8 @@ def ide -docstring 'open 3 client windows: main, docs, tools'%{
 }
 
 evaluate-commands %sh{:
-    pad='{value}·{default}'
-    div='{comment}  {default}'
+    pad='{comment}·{default}'
+    div='{comment} {default}'
     at='{comment}@{default}'
 
     bufname='%val{bufname}'
@@ -35,8 +53,9 @@ evaluate-commands %sh{:
     ft='%sh{ echo "${kak_opt_filetype:-noft}" }'
     eol='%val{opt_eolformat}'
     cursor='%val{cursor_line}:%val{cursor_char_column}'
+    cursor_percent='{comment}%opt{cursor_percent}{default}'
     client='%val{client}'
     session='%val{session}'
 
-    echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${pad}${cursor}${div}${client}${at}${session} {{context_info}}'"
+    echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${div}${cursor_percent}${div}${cursor}${div}${client}${at}${session} {{context_info}}'"
 }
