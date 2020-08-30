@@ -18,7 +18,7 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 
 ### Aliases
 #
-alias dotz='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias vi='nvim'
 alias ls='ls -hN --color=auto'
 alias ll='ls -l'
