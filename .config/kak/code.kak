@@ -12,7 +12,7 @@ hook global ModuleLoaded kitty %{
   set-option global kitty_window_type 'os'
 }
 
-hook global WinCreate ^[^*]+$	%{editorconfig-load}
+# hook global WinCreate ^[^*]+$	%{editorconfig-load}
 hook global BufWritePost ^[^*]+$ %{ git show-diff }
 hook global BufReload ^[^*]+$ %{ git show-diff }
 
