@@ -1,6 +1,6 @@
-colorscheme gruvbox-nobg
+colorscheme gruv-light-hard
 
-add-highlighter global/ number-lines	-hlcursor -separator " "
+add-highlighter global/ number-lines	-hlcursor -separator ""
 add-highlighter global/ show-matching
 add-highlighter global/ wrap			-indent
 add-highlighter global/ show-whitespaces
@@ -14,14 +14,29 @@ hook global RegisterModified '"' %{ nop %sh{
   printf %s "$kak_main_reg_dquote" | wl-copy > /dev/null 2>&1 &
 }}
 
+def ide -docstring 'open 3 client windows: main, docs, tools'%{
+  rename-client main
+  set global jumpclient main
 
-evaluate-commands %sh{
-    # cwd='at {cyan}%sh{ pwd | sed "s|^$HOME|~|" }{default}'
-    bufname='{bright-green}%val{bufname}{default}'
-    modified='{black,bright-red+b}%sh{ $kak_modified && echo "*" }{default}%sh{ $kak_modified && echo " "}'
-    ft='{bright-blue}%sh{ echo "${kak_opt_filetype:-noft}" }{default}'
-    eol='%val{opt_eolformat}'
-    cursor='%val{cursor_line}{default}:%val{cursor_char_column}{default}'
+  new rename-client tools
+  set global toolsclient tools
+
+  new rename-client docs
+  set global docsclient docs
+}
+
+evaluate-commands %sh{:
+    pad='{value}·{default}'
+    div='{comment}  {default}'
+    at='{comment}@{default}'
+
+    bufname='%val{bufname}'
     readonly='{red+b}%sh{ [ -f "$kak_buffile" ] && [ ! -w "$kak_buffile" ] && echo " " }{default}'
-    echo set global modelinefmt "'{{mode_info}} ${bufname} ${readonly}${modified}${ft} ${eol} ${cursor}'"
+    ft='%sh{ echo "${kak_opt_filetype:-noft}" }'
+    eol='%val{opt_eolformat}'
+    cursor='%val{cursor_line}:%val{cursor_char_column}'
+    client='%val{client}'
+    session='%val{session}'
+
+    echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${pad}${cursor}${div}${client}${at}${session} {{context_info}}'"
 }

@@ -1,4 +1,4 @@
-# gruvbox-no-bg theme
+# gruvbox theme
 
 evaluate-commands %sh{
     gray="rgb:928374"
@@ -16,7 +16,7 @@ evaluate-commands %sh{
     bg3="rgb:665c54"
     bg4="rgb:7c6f64"
 
-    fg0="rgb:fbf1c7"
+    fg0="rgb:f9f5d7"
     fg="rgb:ebdbb2"
     fg2="rgb:d5c4a1"
     fg3="rgb:bdae93"
@@ -28,13 +28,14 @@ evaluate-commands %sh{
         face global type          ${yellow}
         face global variable      ${blue}
         face global module        ${green}
-        face global function      ${fg}
+        face global function      ${blue}
         face global string        ${green}
         face global keyword       ${red}
-        face global operator      ${fg}
+        face global operator      ${aqua}
         face global attribute     ${orange}
-        face global comment       ${gray}+i
+        face global comment       ${bg4}+i
         face global documentation comment
+
         face global meta          ${aqua}
         face global builtin       ${fg}+b
 
@@ -47,29 +48,29 @@ evaluate-commands %sh{
         face global bullet    ${yellow}
         face global list      ${fg}
 
-        face global Default            ${fg},default
-        face global PrimarySelection   ${fg},${blue}+fg
-        face global SecondarySelection ${bg},${blue}+fg
-        face global PrimaryCursor      ${bg},${fg}+fg
-        face global SecondaryCursor    ${bg},${bg4}+fg
+        face global Default            ${fg},${bg}
+        face global PrimarySelection   ${bg},${orange}+fg
+        face global SecondarySelection ${bg2},${orange}+fg
+        face global PrimaryCursor      ${bg},${red}+fg
+        face global SecondaryCursor    ${bg},${gray}+fg
         face global PrimaryCursorEol   ${bg},${fg4}+fg
         face global SecondaryCursorEol ${bg},${bg2}+fg
         face global LineNumbers        ${bg4}
         face global LineNumberCursor   ${yellow},${bg1}
         face global LineNumbersWrapped ${bg1}
-        face global MenuForeground     ${bg2},${blue}
+        face global MenuForeground     ${bg2},${orange}
         face global MenuBackground     ${fg},${bg2}
         face global MenuInfo           ${bg}
-        face global Information        ${bg},${fg}
+        face global Information        ${bg},${fg2}
         face global Error              ${bg},${red}
-        face global StatusLine         ${fg},${bg}
-        face global StatusLineMode     ${yellow}+b
-        face global StatusLineInfo     ${purple}
+        face global StatusLine         ${yellow},${bg1}
+        face global StatusLineMode     ${red}+b
+        face global StatusLineInfo     ${aqua}
         face global StatusLineValue    ${red}
-        face global StatusCursor       ${bg},${fg}
-        face global Prompt             ${yellow}
+        face global StatusCursor       ${bg1},${red}
+        face global Prompt             ${gray}
         face global MatchingChar       ${fg},${bg3}+b
-        face global BufferPadding      ${bg2},default
+        face global BufferPadding      ${bg2},${bg}
         face global Whitespace         ${bg2}+f
     "
 }
