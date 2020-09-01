@@ -47,9 +47,11 @@
   },
   "clock": {
     "interval": 1,
-    "tooltip-format": "<big>{:%Y ~ %B}</big>\n<tt>{calendar}</tt>",
+    "tooltip": false,
     "format": "{:%a %b %d %T}",
-    "format-alt": "{:%T}"
+    "on-click": "gsimplecal"
+    //"tooltip-format": "<big>{:%Y ~ %B}</big>\n<tt>{calendar}</tt>",
+    //"format-alt": "{:%T}"
   },
   "cpu": {
     "interval": 5,
