@@ -1,3 +1,16 @@
+#
+# Filetypes
+#
+hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
+  set buffer filetype i3
+}
+hook global BufCreate .*waybar/config %{
+  set buffer filetype json
+}
+
+#
+# Navigating Files & Buffers
+#
 define-command files -docstring 'Open one or many files' %{ evaluate-commands %sh{
   FILES=$(rg --files | rofi -dmenu -p files -multi-select)
   for file in $FILES; do
