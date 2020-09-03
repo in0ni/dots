@@ -4,6 +4,7 @@ add-highlighter global/ number-lines	-hlcursor -separator ""
 add-highlighter global/ show-matching
 add-highlighter global/ wrap			-indent
 add-highlighter global/ show-whitespaces
+add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
 
 set-option global ui_options	'ncurses_assistant=none' 'ncurses_status_on_top=yes'
 set-option global tabstop		4

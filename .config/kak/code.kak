@@ -8,6 +8,10 @@ define-command disable-autoformat -docstring 'disable auto-format' %{
   unset-option buffer formatcmd
   remove-hooks buffer format
 }
+
+#
+# Hooks
+#
 hook global ModuleLoaded kitty %{
   set-option global kitty_window_type 'os'
 }
@@ -16,6 +20,12 @@ hook global ModuleLoaded kitty %{
 hook global BufWritePost ^[^*]+$ %{ git show-diff }
 hook global BufReload ^[^*]+$ %{ git show-diff }
 
+#
+# Format & Lint
+#
+
+# NOTE: npx usage -- if tools are not installed (in local project or globally) it will be
+#       temporarily downloaded.
 hook global BufSetOption filetype=(javascript|typescript|css|scss|json|markdown|yaml|html) %{
   set-option buffer formatcmd "npx prettier --stdin-filepath=%val{buffile}"
   hook buffer -group format BufWritePre .* format
