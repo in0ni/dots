@@ -1,3 +1,10 @@
+source "%val{config}/plugins/plug.kak/rc/plug.kak"
+plug "andreyorst/smarttab.kak" defer smarttab %{
+  set-option global softtabstop 2
+} config %{
+  hook global WinSetOption filetype=.* expandtab
+}
+
 source "~/.config/kak/code.kak"
 source "~/.config/kak/mappings.kak"
 source "~/.config/kak/files.kak"
