@@ -3,37 +3,6 @@
 # debug: see if using xwayland
 # for_window [shell=".*"] title_format "%title :: %shell"
 
-### NOTES
-#
-# Migration from Gnome to Sway, first time so still tweaking
-# currently using the following:
-#   - !~bash_profile:
-#     - auto-started on tty1
-#     - logged to journalctl
-#   - swaybg: (systemd --user)
-#   - swayidle: (systemd --user)
-#   - waybar: (systemd --user)
-#   - thunar: (systemd --user)
-#   - mako: (systemd --user)
-#   - wofi: (sway exec)
-#   - swaylock: (sway exec)
-#   - grimshot: (sway exec)
-#   - kyz: valume, mic, brightness (~/.local/bin/)
-#   - xsettingsd: for gtk theme (systemd --user)
-#   !~ redshift-gtk: (systemd)
-#       !! switch to 'gammastep'
-#   !~  swaynag
-#
-# TODO:
-#   - clamshell mode
-#   - test hdmi output
-#   - move gsettings from this file to systemd? or create .ini file?
-#       see: https://github.com/swaywm/sway/wiki/GTK-3-settings-on-Wayland
-#   - fonts, and optimal settings (lcd/etc)
-#   - backup update w/ new .config
-#   - full GTK: https://wiki.archlinux.org/index.php/GTK#Configuration_tools
-
-
 ### Variables
 #
 set $Super Mod4
@@ -48,6 +17,8 @@ set $term kitty
 set $menu rofi -show drun
 set $laptop_screen 'ePD-1'
 
+# Clamshell mode
+# NOTE: seems like thinkpad does this in hardware. need to test again and remove
 output ePD-1 subpixel rgb
 bindswitch --reload --locked lid:on output $laptop_screen disable
 bindswitch --reload --locked lid:off output $laptop_screen enable
