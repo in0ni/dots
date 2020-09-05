@@ -1,6 +1,7 @@
 map global normal '#' :comment-line<ret> -docstring 'comment line'
 map global normal '<a-#>' :comment-block<ret> -docstring 'comment block'
 map global normal '<c-p>' :files<ret> -docstring 'browse files'
+map global normal '<c-a-p>' :buffers<ret> -docstring 'browse buffers'
 
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
