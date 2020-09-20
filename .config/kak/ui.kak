@@ -22,13 +22,14 @@ hook global WinCreate .* %{
   hook window NormalIdle .* %{ evaluate-commands %sh{
     if [ -f "${kak_buffile}" ]; then
       echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $(wc -l < $kak_buffile)))%'"
-    else
-      echo "
-        eval -save-regs 'm' %{
-          exec -draft '%<a-s>:reg m %reg{#}<ret>'
-          set window cursor_percent %sh{echo \$((\$kak_cursor_line * 100 / \$kak_reg_m))}
-        }
-      "
+    # FIXME: see *debug*
+    # else
+    #   echo "
+    #     eval -save-regs 'm' %{
+    #       exec -draft '%<a-s>:reg m %reg{#}<ret>'
+    #       set window cursor_percent %sh{echo \$((\$kak_cursor_line * 100 / \$kak_reg_m))}
+    #     }
+    #   "
     fi
   } }
 }
