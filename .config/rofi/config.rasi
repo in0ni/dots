@@ -2,8 +2,8 @@ configuration {
   modi: "drun,run";
   width: 30;
   font: "Source Code Pro 10";
+  theme: "theme/flat-remix-green-dark.rasi";
   show-icons: true;
   terminal: "kitty";
   sort: false;
 }
-@import "/usr/share/rofi/themes/gruvbox-dark-soft.rasi"
