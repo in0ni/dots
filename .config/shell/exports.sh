@@ -6,9 +6,9 @@ export SUDO_EDITOR=nvim
 export PAGER=nvimpager
 
 # firefox on wayland
-# WebRender support: https://wiki.archlinux.org/index.php/Firefox/Tweaks#Enable_WebRender_compositor
 export MOZ_ENABLE_WAYLAND=1
 
+# WebRender support: https://wiki.archlinux.org/index.php/Firefox/Tweaks#Enable_WebRender_compositor
 # due to issues w/ gifs on whatsapp, and video (both w/ greenbackgounds, flickering)
 # opting for OpenGl compositor instead
 # export MOZ_WEBRENDER=1
