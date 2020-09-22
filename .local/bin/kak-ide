@@ -1,0 +1,11 @@
+#!/bin/bash 
+
+server_name=$(basename `pwd`)
+socket_file=$(kak -l | grep $server_name)
+
+if [[ $socket_file == "" ]]; then        
+    kak -d -s $server_name &
+    kitty @ set-window-title 'Kakoune - main'
+    kak -c $server_name -e 'ide'
+    kitty @ set-window-title --temporary ''
+fi
