@@ -15,6 +15,10 @@ hook global RegisterModified '"' %{ nop %sh{
   printf %s "$kak_main_reg_dquote" | wl-copy > /dev/null 2>&1 &
 }}
 
+hook global ModuleLoaded kitty %{
+  set-option global kitty_window_type 'os'
+}
+
 # position in file as percent
 decl str cursor_percent
 
@@ -32,17 +36,6 @@ hook global WinCreate .* %{
     #   "
     fi
   } }
-}
-
-def ide -docstring 'open 3 client windows: main, docs, tools'%{
-  rename-client main
-  set global jumpclient main
-
-  new rename-client tools
-  set global toolsclient tools
-
-  new rename-client docs
-  set global docsclient docs
 }
 
 evaluate-commands %sh{:

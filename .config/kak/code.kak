@@ -18,10 +18,6 @@ define-command disable-autolint -docstring 'disable auto-lint' %{
 #
 # Hooks
 #
-hook global ModuleLoaded kitty %{
-  set-option global kitty_window_type 'os'
-}
-
 # NOTE: if editorconfig is not found, an error is thrown, which is fine
 hook global WinCreate ^[^*]+$ %{ editorconfig-load }
 hook global BufWritePost ^[^*]+$ %{ git show-diff }
