@@ -36,10 +36,10 @@ hook global BufSetOption filetype=(javascript|typescript|css|scss|json|markdown|
 
 hook global WinSetOption filetype=(vue|css) %{
   set-option window lintcmd "npx stylelint --fix --stdin-filename='%val{buffile}'"
-  hook buffer -group lint InsertIdle .* lint
+  hook buffer -group lint BufWritePost .* lint
 }
 
 hook global WinSetOption filetype=(javascript|html|vue) %{
   set window lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
-  hook buffer -group lint InsertIdle .* lint
+  hook buffer -group lint BufWritePost .* lint
 }
