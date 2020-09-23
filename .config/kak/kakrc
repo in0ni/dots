@@ -1,4 +1,12 @@
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
+
+plug "alexherbo2/prelude.kak"
+plug "occivink/kakoune-find"
+
+plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
+  auto-pairs-enable
+} demand
+
 plug "andreyorst/smarttab.kak" defer smarttab %{
   set-option global softtabstop 2
 } config %{
