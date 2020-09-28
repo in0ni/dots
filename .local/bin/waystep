@@ -53,7 +53,7 @@ update_status () {
   Night)
     percentage="100";;
   *)
-    echo -e $usage
+    echo "Unable to parse gammastep period to percentage"
     exit 1;;
   esac
 
