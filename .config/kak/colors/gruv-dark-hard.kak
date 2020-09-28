@@ -64,7 +64,7 @@ evaluate-commands %sh{
         face global Information        ${bg},${fg2}
         face global Error              ${bg},${red}
         face global StatusLine         ${yellow},${bg1}
-        face global StatusLineMode     ${red}+b
+        face global StatusLineMode     ${bg},${orange}+b
         face global StatusLineInfo     ${aqua}
         face global StatusLineValue    ${blue}
         face global StatusCursor       ${bg1},${orange}
