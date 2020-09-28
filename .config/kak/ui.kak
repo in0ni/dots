@@ -1,10 +1,9 @@
-colorscheme gruv-light-hard
-
 add-highlighter global/ number-lines	-hlcursor -separator " "
 add-highlighter global/ show-matching
 add-highlighter global/ wrap			-indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
-add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE|SEE)\b 0:default+rb
+add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+rd
+add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+rb
 
 set-option global ui_options	'ncurses_assistant=none' 'ncurses_status_on_top=yes'
 set-option global tabstop		4
@@ -57,4 +56,30 @@ evaluate-commands %sh{:
     session='%val{session}'
 
     echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${div}${cursor_percent}${div}${cursor}${div}${client}${at}${session} {{context_info}}'"
+}
+
+# set theme variant according to time period
+# NOTE: this generates a delay on launch (minor, so far)
+evaluate-commands %sh{
+  # gets current mode based on location -- this is irrespective of service running
+  modeline=$(gammastep -p 2> /dev/null | awk 'BEGIN{ ORS="|" }1')
+
+  # TODO: should be able to pass variable to awk, not pipe
+  period="$(echo $modeline | awk '
+        BEGIN{ RS="|"; FS=": " }
+    /^Period: Transition/{
+            dig=gensub(/Transition \(([0-9])[0-9]?\.[0-9][0-9]?% day\)/, "\\1", "G", $2);
+      if (dig < 5) print "Night"
+      exit
+    }
+    /^Period/{ print $2}
+  ')"
+    
+  if [[ "$period" == "Night" ]]; then
+    variant="dark"
+  else
+    variant="light"
+  fi
+
+  echo "colorscheme gruv-$variant-hard"
 }
