@@ -2,8 +2,8 @@ add-highlighter global/ number-lines	-hlcursor -separator " "
 add-highlighter global/ show-matching
 add-highlighter global/ wrap			-indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
-add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+rd
-add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+rb
+add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+ard
+add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
 
 set-option global ui_options	'ncurses_assistant=none' 'ncurses_status_on_top=yes'
 set-option global tabstop		4
@@ -59,7 +59,8 @@ evaluate-commands %sh{:
 }
 
 # set theme variant according to time period
-# NOTE: this generates a delay on launch (minor, so far)
+# NOTE: this generates a minor delay on launch (possible hang if can't resolve)
+# FIXME: best if waybar gammastep module writes to temp file, and read from there 
 evaluate-commands %sh{
   # gets current mode based on location -- this is irrespective of service running
   modeline=$(gammastep -p 2> /dev/null | awk 'BEGIN{ ORS="|" }1')
