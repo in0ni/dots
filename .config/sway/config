@@ -17,9 +17,10 @@ set $term kitty
 set $menu rofi -show drun
 set $laptop_screen 'ePD-1'
 
+output $laptop_screen subpixel rgb
+
 # Clamshell mode
 # NOTE: seems like thinkpad does this in hardware. need to test again and remove
-output ePD-1 subpixel rgb
 bindswitch --reload --locked lid:on output $laptop_screen disable
 bindswitch --reload --locked lid:off output $laptop_screen enable
 
@@ -30,25 +31,27 @@ input type:keyboard {
   xkb_variant altgr-intl
 }
 input type:touchpad {
-  dwt enabled
-  tap enabled
   natural_scroll enabled
+  dwt enabled # disable-while-typing
+  tap enabled
 }
 input type:pointer {
   natural_scroll enabled
+  scroll_factor 2
 }
 
 # exec_always --no-startup-id flashfocus
-exec_always waygsettings \
-    gtk-theme:gtk-theme-name \
-    icon-theme:gtk-icon-theme-name \
-    font-name:gtk-font-name
-}
+# exec_always waygsettings \
+#     gtk-theme:gtk-theme-name \
+#     icon-theme:gtk-icon-theme-name \
+#     font-name:gtk-font-name
+# }
 
 # options passed in to override config
 exec swayidle -w before-sleep 'swaylock --fade-in 0 --grace 0' 
 
-# systemd
-exec "systemctl --user import-environment; systemctl --user start sway-session.target"
-
 include /etc/sway/config.d/*
+
+# systemd
+exec systemctl --user start sway-session.target
+
