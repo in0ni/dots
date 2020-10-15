@@ -3,7 +3,7 @@
 #       using lscolors-git (/etc/profile), keeping my version separate
 #
 eval $(dircolors $HOME/.dir_colors)
-PROMPT='%K{black}%F{35}%T%f%k%K{236} %F{12}%~%f %k%F{blue}%(!.%F{red}#%f.$)%f '
+PROMPT='%K{236}%F{35}%T%f %F{12}%~%f%k %F{blue}%(!.%F{red}#%f.$)%f '
 
 ### History
 #
@@ -19,77 +19,61 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 ### Aliases
 #
 alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias vi='nvim'
+alias vi='vim'
 alias ls='ls -hN --color=auto'
 alias ll='ls -l'
 alias less=$PAGER
 alias ip='ip -color=auto'
-alias diff='colordiff'
+alias diff='diff --color=auto'
 alias kdiff='kitty +kitten diff'
 alias grep='grep --color=auto'
 
-# safety features
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
-
-# error tolerant
-alias :q=' exit'
-alias :Q=' exit'
-alias :x=' exit'
-
-### Key bindings
-# NOTE: showkey -a
 #
-typeset -g -A key
-#bindkey -v
-bindkey -e
-bindkey '^[[3~' delete-char           # delete
-bindkey '^?'    backward-delete-char     # backspace
-bindkey '^[[5~' up-line-or-history    # pgup
-bindkey '^[[3~' delete-char           # delete
-bindkey '^[[6~' down-line-or-history  # pgdown
-bindkey '^[[A'  up-line-or-search      # up
-bindkey '^[[B'  down-line-or-search    # down
-bindkey '^[[D'  backward-char          # left
-bindkey '^[[C'  forward-char           # right
-bindkey '^[[H'  beginning-of-line      # home
-bindkey '^[[F'  end-of-line            # end
-
 # zsh
-setopt extendedglob nomatch notify
 unsetopt beep
 
 ### Auto-complete shit
 #
 setopt COMPLETE_ALIASES
+zstyle ':completion:*' completer _complete _ignored
+zstyle :compinstall filename '${HOME}/.zshrc'
+
 autoload -Uz compinit
 compinit
 
-zstyle :compinstall filename '${HOME}/.zshrc'
-zstyle ':completion:*' menu select
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
 
-zstyle ':completion:*:pacman:*' force-list always
-zstyle ':completion:*:*:pacman:*' menu yes select
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:kill:*'   force-list always
-zstyle ':completion:*:*:killall:*' menu yes select
-zstyle ':completion:*:killall:*'   force-list always
+# zstyle ':completion:*' menu select
+# zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+# zstyle ':completion:*:pacman:*' force-list always
+# zstyle ':completion:*:*:pacman:*' menu yes select
+# zstyle ':completion:*:*:kill:*' menu yes select
+# zstyle ':completion:*:kill:*'   force-list always
+# zstyle ':completion:*:*:killall:*' menu yes select
+# zstyle ':completion:*:killall:*'   force-list always
 
-### Colored man pages
+### Key bindings
+# NOTE: showkey -a
 #
-man() {
-  env \
-    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-    LESS_TERMCAP_md=$(printf "\e[1;31m") \
-    LESS_TERMCAP_me=$(printf "\e[0m") \
-    LESS_TERMCAP_se=$(printf "\e[0m") \
-    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\e[0m") \
-    LESS_TERMCAP_us=$(printf "\e[1;32m") \
-    man "$@"
-}
+# bindkey -v
+bindkey -e
+# typeset -g -A key
+
+bindkey '^[[3~' delete-char           # delete
+bindkey '^?'    backward-delete-char     # backspace
+bindkey '^[[5~' up-line-or-history    # pgup
+bindkey '^[[3~' delete-char           # delete
+bindkey '^[[6~' down-line-or-history  # pgdown
+bindkey '^[[A'  up-line-or-beginning-search      # up
+bindkey '^[[B'  down-line-or-beginning-search    # down
+bindkey '^[[D'  backward-char          # left
+bindkey '^[[C'  forward-char           # right
+bindkey '^[[H'  beginning-of-line      # home
+bindkey '^[[F'  end-of-line            # end
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
 
 ### Titles
 #

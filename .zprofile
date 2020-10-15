@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env zsh
 # TODO: why do these have to be sourced here
 #
 
