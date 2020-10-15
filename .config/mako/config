@@ -1,6 +1,6 @@
 layer=overlay
 default-timeout=5000
-font=Source Sans Pro 10
+font=IBM Plex Sans 10
 icon-path=/usr/share/icons/Tela-red
 width=400
 padding=10
