@@ -1,7 +1,7 @@
 #!/bin/sh
 
 pacman=$(checkupdates | wc -l)
-pacaur=$(pacaur -k | wc -l)
+pacaur=$(yay -Qua | wc -l)
 fwupd=$(fwupdmgr get-updates 2> /dev/null | grep -E "^(├─|└─)" | wc -l)
 
 status=""
