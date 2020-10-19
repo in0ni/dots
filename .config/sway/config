@@ -53,5 +53,4 @@ exec swayidle -w before-sleep 'swaylock --fade-in 0 --grace 0'
 include /etc/sway/config.d/*
 
 # systemd
-exec systemctl --user start sway-session.target
-
+exec "systemctl --user import-environment; systemctl --user start sway-session.target"
