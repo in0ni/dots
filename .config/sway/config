@@ -37,7 +37,7 @@ input type:touchpad {
 }
 input type:pointer {
   natural_scroll enabled
-  scroll_factor 2
+  # scroll_factor 2
 }
 
 # exec_always --no-startup-id flashfocus
@@ -48,7 +48,10 @@ input type:pointer {
 # }
 
 # options passed in to override config
-exec swayidle -w before-sleep 'swaylock --fade-in 0 --grace 0' 
+exec swayidle -w before-sleep swaylock
+
+# autotiling
+exec autotiling
 
 include /etc/sway/config.d/*
 
