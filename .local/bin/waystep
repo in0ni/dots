@@ -18,7 +18,7 @@ toggle_service () {
 
 update_status () {
   # gets current mode based on location -- this is irrespective of service running
-  modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g'| awk 'BEGIN{ ORS="|" }1')
+  modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g' | awk 'BEGIN{ ORS="|" }1')
 
   # TODO: should be able to pass variable to awk, not pipe
   period="$(echo $modeline | awk '
