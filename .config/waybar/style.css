@@ -111,11 +111,11 @@ window#waybar.empty #window {
 }
 
 #battery {
-  border-bottom: 1px solid #90b1b1;
+  border-bottom: 1px solid #2BA300;
 }
 
 #battery.charging {
-  border-bottom: 1px solid #26a65b;
+  border-bottom: 1px solid #00A39F;
 }
 
 #battery.warning {
@@ -142,11 +142,11 @@ window#waybar.empty #window {
 }
 
 #cpu {
-  border-bottom: 1px solid #2ecc71;
+  border-bottom: 1px solid #0076A4;
 }
 
 #memory {
-  border-bottom: 1px solid #9b59b6;
+  border-bottom: 1px solid #7200A4;
 }
 
 #network,
@@ -179,11 +179,11 @@ window#waybar.empty #window {
 }
 
 #temperature {
-  border-bottom: 1px solid #f0932b;
+  border-bottom: 1px solid #BC871C;
 }
 
 #temperature.critical {
-  background-color: #eb4d4b;
+  background-color: #A40020;
 }
 
 #mpd {
