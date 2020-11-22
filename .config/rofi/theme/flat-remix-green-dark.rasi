@@ -4,33 +4,28 @@
 
 * {
     /* Theme settings */
-    highlight: bold italic;
+    highlight: bold ;
     scrollbar: false;
 
     /* Flat Remix Dark Green colors */
-    flat-remix-dg-black:       #181a20;
-    flat-remix-dg-darkest:     #1e2128;
-    flat-remix-dg-dark:        #23252e;
-    flat-remix-dg-mid:         #272a34;
-    flat-remix-dg-lightest:    #ffffff;
-    flat-remix-dg-light:       #aaaaaa;
-    flat-remix-dg-muted:       #666666;
-    flat-remix-dg-accent:      #106759;
+    black:		#181a20;
+    darkest:	#1e2128;
+    dark:		#23252e;
+    mid:		#272a34;
+    light:		#ededed;
+    accent:		#106759;
 
     /* Theme colors */
-    background:                  @flat-remix-dg-darkest;
-    background-color:            @background;
-    foreground:                  @flat-remix-dg-light;
-    border-color:                @flat-remix-dg-mid;
-    separatorcolor:              @flat-remix-dg-muted;
-    scrollbar-handle:            @border-color;
+    background:                 @darkest;
+    background-color:           @background;
+    foreground:                 @light;
+    separatorcolor:             @black;
+    scrollbar-handle:           @mid;
 
-    normal-background:           @background;
-    normal-foreground:           @foreground;
-    alternate-normal-background: @flat-remix-dg-black;
-    alternate-normal-foreground: @foreground;
-    selected-normal-background:  @flat-remix-dg-accent;
-    selected-normal-foreground:  @flat-remix-dg-lightest;
+    normal-background:          @dark;
+    normal-foreground:          @foreground;
+    selected-normal-background: @accent;
+    selected-normal-foreground: @foreground;
 }
 
 @import "common.rasi"

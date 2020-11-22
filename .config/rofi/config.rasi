@@ -1,7 +1,7 @@
 configuration {
   modi: "drun,run";
   width: 30;
-  font: "IBM Plex Mono 10.45";
+  font: "IBM Plex Sans 10";
   theme: "theme/flat-remix-green-dark.rasi";
   show-icons: true;
   terminal: "kitty";

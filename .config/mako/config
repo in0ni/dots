@@ -15,6 +15,11 @@ ignore-timeout=1
 
 [app-name=kyz]
 height=15
+icon-path=/usr/share/icons/Tela-red-dark
 default-timeout=2500
 padding=4,8
 max-icon-size=16
+text-color=#ededed
+background-color=#1e2128d9
+border-color=#1e2128d9
+progress-color=#106759d9

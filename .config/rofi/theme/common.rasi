@@ -4,8 +4,8 @@
 
 window {
     background-color: @background;
-    border:           5;
-    padding:          2;
+    border: 2px;
+    border-color: @separatorcolor;
 }
 
 mainbox {
@@ -26,15 +26,14 @@ textbox {
 
 listview {
     border:       2px solid 0 0;
-    padding:      2px 0 0;
     border-color: @separatorcolor;
-    spacing:      2px;
+    spacing:      0;
     scrollbar:    @scrollbar;
 }
 
 element {
     border:  0;
-    padding: 2px;
+    padding: 5px 8px;
 }
 
 element.normal.normal {
@@ -48,8 +47,8 @@ element.selected.normal {
 }
 
 element.alternate.normal {
-    background-color: @alternate-normal-background;
-    text-color:       @alternate-normal-foreground;
+    background-color: @normal-background;
+    text-color:       @normal-foreground;
 }
 
 scrollbar {
@@ -68,7 +67,7 @@ mode-switcher {
 inputbar {
     spacing:    0;
     text-color: @normal-foreground;
-    padding:    2px;
+    padding:    6px 8px;
     children:   [ prompt, textbox-prompt-sep, entry, case-indicator ];
 }
 
