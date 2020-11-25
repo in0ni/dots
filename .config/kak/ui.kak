@@ -62,8 +62,9 @@ evaluate-commands %sh{:
 # NOTE: this generates a minor delay on launch (possible hang if can't resolve)
 # FIXME: best if waybar gammastep module writes to temp file, and read from there 
 evaluate-commands %sh{
+  # TODO: use existing waystep script and set a temp file for this?
   # gets current mode based on location -- this is irrespective of service running
-  modeline=$(gammastep -p 2> /dev/null | awk 'BEGIN{ ORS="|" }1')
+  modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g' | awk 'BEGIN{ ORS="|" }1')
 
   # TODO: should be able to pass variable to awk, not pipe
   period="$(echo $modeline | awk '
