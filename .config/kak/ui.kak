@@ -59,29 +59,7 @@ evaluate-commands %sh{:
 }
 
 # set theme variant according to time period
-# NOTE: this generates a minor delay on launch (possible hang if can't resolve)
-# FIXME: best if waybar gammastep module writes to temp file, and read from there 
 evaluate-commands %sh{
-  # TODO: use existing waystep script and set a temp file for this?
-  # gets current mode based on location -- this is irrespective of service running
-  modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g' | awk 'BEGIN{ ORS="|" }1')
-
-  # TODO: should be able to pass variable to awk, not pipe
-  period="$(echo $modeline | awk '
-        BEGIN{ RS="|"; FS=": " }
-    /^Period: Transition/{
-            dig=gensub(/Transition \(([0-9])[0-9]?\.[0-9][0-9]?% day\)/, "\\1", "G", $2);
-      if (dig < 5) print "Night"
-      exit
-    }
-    /^Period/{ print $2}
-  ')"
-    
-  if [[ "$period" == "Night" ]]; then
-    variant="dark"
-  else
-    variant="light"
-  fi
-
-  echo "colorscheme gruv-$variant-hard"
+  theme=$(waystep kak)
+  echo "cs $theme"
 }
