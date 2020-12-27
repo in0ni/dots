@@ -51,7 +51,7 @@ input type:pointer {
 exec swayidle -w before-sleep swaylock
 
 # autotiling
-exec autotiling
+# exec autotiling
 
 include /etc/sway/config.d/*
 
