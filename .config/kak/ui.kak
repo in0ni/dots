@@ -13,6 +13,9 @@ set-option global scrolloff     4,6
 alias global g grep
 alias global f find
 
+# paste with middle mouse button
+# hook global RawKey <mouse:press:middle:.*> %{ evaluate-commands exec wl-paste<space>-p<ret> }
+
 # update clipboard whenever you yank, delete, change, or  update the default change register (")
 hook global RegisterModified '"' %{ nop %sh{
   printf %s "$kak_main_reg_dquote" | wl-copy > /dev/null 2>&1 &

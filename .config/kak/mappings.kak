@@ -6,6 +6,14 @@ map global normal '<c-w>' :delete-buffer<ret> -docstring 'delete buffer'
 map global normal '<minus>' :buffer-previous<ret> -docstring 'previous buffer'
 map global normal '<=>' :buffer-next<ret> -docstring 'next buffer'
 
+#
+# Vue dynamic comment mapping
+# 
+hook global BufCreate .*\.vue %{
+  map buffer normal '#' ': eval -itersel %{ set-comments-vue; comment-line; }<ret>'
+  map buffer normal '<a-#>' ': eval -itersel %{ set-comments-vue; comment-block; }<ret>'
+}
+
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
 hook global InsertCompletionShow .* %{
