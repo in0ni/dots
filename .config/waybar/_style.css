@@ -6,37 +6,35 @@
   min-height: 0;
 }
 
-window#waybar {
+#waybar {
   background-color: rgba(%{{theme_black_rgb}}, 0.8);
   color: #%{{theme_lightest}};
   transition-property: background-color;
   transition-duration: 0.5s;
 }
 
-window#waybar.hidden {
-  opacity: 0.2;
-}
+#waybar.hidden { opacity: 0.2; }
+label:focus { background-color: #%{{theme_black}}; }
+window#waybar.empty #window { background-color: transparent; }
+#custom-gammastep.inactive { opacity: 0.25; }
 
-label:focus {
-  background-color: #%{{theme_black}};
-}
-
+/*
+ * blocks
+ */
+#workspaces,
+#mode,
+#window,
 #clock,
-#battery,
-#cpu,
-#memory,
-#temperature,
-#backlight,
 #network,
 #pulseaudio,
-#tray,
+#tray {
+  margin: 0 5px;
+}
+
 #mode,
-#idle_inhibitor,
-#workspaces button,
-#custom-gammastep,
-#custom-updates {
-  margin: 0 1px;
-  padding: 0 8px;
+#window,
+#clock {
+  padding: 0 10px;
 }
 
 #clock,
@@ -44,33 +42,35 @@ label:focus {
 #window {
   color: #%{{theme_white}};
 }
-#custom-gammastep,
-#custom-updates {
-  padding: 0 4px;
-  color: #%{{theme_light}};
+
+#workspaces button.focused,
+#window,
+#clock,
+#cpu,
+#memory,
+#temperature,
+#battery {
+  background-color: rgba(%{{theme_black_rgb}}, 0.35);
 }
 
-#custom-gammastep.inactive {
-  opacity: 0.25;
-}
+#clock { font-size: 13px; }
 
-/* workspaces */
+/*
+ * workspaces
+ */
 #workspaces button {
-  margin-right: 1px;
-  padding: 0 2px;
+  padding: 0 5px;
   border-top: 1px solid transparent;
-  color: #%{{theme_light}}
+  color: #%{{theme_lightest}};
+  opacity: 0.65;
 }
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 #workspaces button:hover {
   background: rgba(%{{theme_black_rgb}}, 0.35);
   box-shadow: inherit;
-  color: #%{{theme_lightest}}
 }
 #workspaces button.focused {
-  padding: 0 6px;
   color: #%{{theme_white}};
-  background-color: rgba(%{{theme_black_rgb}}, 0.35);
   border-top: 1px solid #%{{theme_highlight}};
   opacity: 1;
 }
@@ -78,62 +78,57 @@ label:focus {
   background-color: #%{{term_color1}};
 }
 
-/* mode */
-#mode,
-#window {
-  margin-left: 10px;
-}
+/*
+ * modes
+ */
 #mode {
-  background-color: #%{{theme_highlight}};
-  border-top: 1px solid #%{{theme_white}};
+  font-weight: bold;
+  background-color: #%{{theme_lightest}};
+  color: #%{{theme_black}};
 }
 
-/* windows */
-#window {
-  padding: 0 10px;
-  background-color: rgba(%{{theme_black_rgb}}, 0.35);
+/*
+ * misc shit
+ */
+#network { margin-right: 10px; }
+#pulseaudio { margin: 0 10px; }
+
+/* make slightly opaque */
+#custom-gammastep,
+#custom-updates,
+#idle_inhibitor,
+#network,
+#pulseaudio {
+  opacity: 0.85;
 }
 
-window#waybar.empty #window {
-  background-color: transparent;
-}
-
+/*
+ * monitors
+ */
 #cpu,
 #memory,
 #temperature,
-#battery,
-#custom-quit {
+#battery {
+  margin: 0 1px;
+  padding: 0 3px;
   color: #%{{theme_white}};
-  background-color: rgba(%{{theme_black_rgb}}, 0.35);
   opacity: 0.75;
 }
+#cpu { border-top: 1px solid #%{{term_color4}}; }
+#memory { border-top: 1px solid #%{{term_color5}}; }
+#temperature { border-top: 1px solid #%{{term_color16}}; }
+#temperature.critical { background-color: #%{{term_color1}}; }
+#battery.great { border-top: 1px solid #%{{term_color10}}; }
+#battery.good { border-top: 1px solid #%{{term_color6}}; }
+#battery.fair { border-top: 1px solid #%{{term_color20}}; }
+#battery.warning { border-top: 1px solid #%{{term_color1}}; }
+#battery.charging { border-top: 1px solid #%{{term_color2}}; }
 
-#clock {
-  padding: 0 10px;
-  background-color: rgba(%{{theme_black_rgb}}, 0.35);
-  font-size: 13px;
-}
-
-#battery.great {
-  border-top: 1px solid #%{{term_color10}}
-}
-#battery.good {
-  border-top: 1px solid #%{{term_color6}}
-}
-#battery.fair {
-  border-top: 1px solid #%{{term_color20}}
-}
-#battery.warning {
-  border-top: 1px solid #%{{term_color1}};
-}
-#battery.charging {
-  border-top: 1px solid #%{{term_color2}};
-}
-
-@keyframes blink {
-  to {
-    background-color: #%{{theme_black}};
-  }
+/*
+ * warnings
+ */
+@keyframes blinking {
+  to { background-color: #%{{theme_black}}; }
 }
 
 #battery.critical:not(.charging),
@@ -142,71 +137,18 @@ window#waybar.empty #window {
   background-color: #%{{term_color1}};
   border-top: 1px solid #%{{theme_white}};
   color: #%{{theme_white}};
-  animation-name: blink;
+  animation-name: blinking;
   animation-duration: 1s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
 
-#cpu {
-  border-top: 1px solid #%{{term_color4}};
-}
-
-#memory {
-  border-top: 1px solid #%{{term_color5}};
-}
-
-#network,
-#backlight,
-#idle_inhibitor,
-#pulseaudio {
-  margin: 0 4px;
-  padding: 0 4px;
-}
 #network.disconnected,
 #pulseaudio.muted {
-  border-top: 1px solid rgba(255, 0, 0, 0.75);
+  padding: 0 5px;
+  background-color: rgba(%{{theme_black_rgb}}, 0.5);
+  border-top: 1px solid #%{{term_color1}};
+  color: #%{{term_color1}};
 }
-#pulseaudio.muted {
-  border-top: 1px solid transparent;
-}
-
-/*#custom-media {
-  background-color: #66cc99;
-  color: #2a5c45;
-  min-width: 100px;
-border-top
-
-#custom-media.custom-spotify {
-  background-color: #66cc99;
-}
-
-#custom-media.custom-vlc {
-  background-color: #ffa000;
-}*/
-
-#temperature {
-  border-top: 1px solid #%{{term_color16}};
-}
-
-#temperature.critical {
-  background-color: #%{{term_color1}};
-}
-
-/*#mpd {
-  background-color: #66cc99;
-  color: #2a5c45;
-}
-
-#mpd.disconnected {
-  background-color: #f53c3c;
-}
-
-#mpd.stopped {
-  background-color: #90b1b1;
-}
-
-#mpd.paused {
-  background-color: #51a37a;
-}*/
+#pulseaudio.muted { border-top: 1px solid #%{{term_color1}}; }
