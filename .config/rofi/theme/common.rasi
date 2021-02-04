@@ -14,7 +14,7 @@ mainbox {
 }
 
 message {
-    border:       2px 0 0;
+    border:       1px 0 0;
     border-color: @separatorcolor;
     padding:      1px;
 }

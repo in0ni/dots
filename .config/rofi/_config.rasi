@@ -1,8 +1,8 @@
 configuration {
   modi: "drun,run";
   width: 30;
-  font: "IBM Plex Sans 10.5";
-  theme: "theme/flat-remix-green-dark.rasi";
+  font: "%{{font_sans}} %{{font_size_m}}";
+  theme: "theme/current-theme.rasi";
   show-icons: true;
   terminal: "kitty";
   sort: false;

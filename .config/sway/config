@@ -2,6 +2,9 @@
 
 # debug: see if using xwayland
 # for_window [shell=".*"] title_format "%title :: %shell"
+# 
+# NOTE: swayidle, swaybg using systemd
+# NOTE: for GTK themes, check ~/.xsettingsd as well
 
 ### Variables
 #
@@ -9,20 +12,23 @@ set $Super Mod4
 set $Alt Mod1
 
 # custom includes, depend on variables above
-include *.conf
+include windows.conf
+include keys_custom.conf
+include keys_default.conf
 
 ### Default Applications
 #
 set $term kitty
 set $menu rofi -show drun
-set $laptop_screen 'ePD-1'
+set $laptop_screen 'eDP-1'
 
+# perhaps unnecessary, but might as well
 output $laptop_screen subpixel rgb
 
 # Clamshell mode
 # NOTE: seems like thinkpad does this in hardware. need to test again and remove
-bindswitch --reload --locked lid:on output $laptop_screen disable
-bindswitch --reload --locked lid:off output $laptop_screen enable
+# bindswitch --reload --locked lid:on output $laptop_screen disable
+# bindswitch --reload --locked lid:off output $laptop_screen enable
 
 ### Input configuration
 #
@@ -40,18 +46,16 @@ input type:pointer {
   # scroll_factor 2
 }
 
-# exec_always --no-startup-id flashfocus
-# exec_always waygsettings \
-#     gtk-theme:gtk-theme-name \
-#     icon-theme:gtk-icon-theme-name \
-#     font-name:gtk-font-name
-# }
+# NOTE: only real use of having this is for whenever a theme is changed, this
+# 		way a reload should update... but not sure how much this is helping
+exec_always waygsettings \
+  gtk-theme:gtk-theme-name \
+  icon-theme:gtk-icon-theme-name \
+  font-name:gtk-font-name
+}
 
 # options passed in to override config
-exec swayidle -w before-sleep swaylock
-
-# autotiling
-# exec autotiling
+# exec swayidle -w before-sleep swaylock
 
 include /etc/sway/config.d/*
 

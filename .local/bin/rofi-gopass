@@ -1,5 +1,6 @@
 #!/bin/bash
 prompt="password"
-path=$(gopass list --flat | rofi -dmenu -p "$prompt")
+theme_file="$HOME/.config/rofi/theme/gopass.rasi"
+path=$(gopass list --flat | rofi -dmenu -p "$prompt" -theme $theme_file)
 [[ -z $path ]] && exit 1
 gopass show -c $path

@@ -4,11 +4,14 @@
 hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
   set buffer filetype i3
 }
-hook global BufCreate .*mako/config$ %{
+hook global BufCreate .*mako/_?config$ %{
   set buffer filetype ini
 }
 hook global BufCreate .*(waybar/config|\.rasi)$ %{
   set buffer filetype json
+}
+hook global BufCreate .*theme/.*\.rasi$ %{
+  set buffer filetype css
 }
 
 #

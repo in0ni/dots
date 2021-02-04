@@ -1,9 +1,7 @@
 ### Pimpin' aint easy
-# NOTE: using custom "base16" colors in kity term,
-#       using lscolors-git (/etc/profile), keeping my version separate
 #
 eval $(dircolors $HOME/.dir_colors)
-PROMPT='%K{236}%F{35}%T%f %F{12}%~%f%k %F{blue}%(!.%F{red}#%f.$)%f '
+PROMPT='%K{18}%F{green}%T%f %F{12}%~%f%k %F{green}%(!.%F{red}#%f.$)%f '
 
 ### History
 #
