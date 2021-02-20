@@ -90,8 +90,6 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * misc shit
  */
-#network { margin-right: 10px; }
-#pulseaudio { margin: 0 10px; }
 
 /* make slightly opaque */
 #custom-gammastep,
@@ -120,15 +118,27 @@ window#waybar.empty #window { background-color: transparent; }
 #temperature.critical { background-color: #%{{term_color1}}; }
 #battery.great { border-top: 1px solid #%{{term_color10}}; }
 #battery.good { border-top: 1px solid #%{{term_color6}}; }
+#battery,
 #battery.fair { border-top: 1px solid #%{{term_color20}}; }
-#battery.warning { border-top: 1px solid #%{{term_color1}}; }
+/* #battery.low below w/ network/pulse */
 #battery.charging { border-top: 1px solid #%{{term_color2}}; }
 
 /*
  * warnings
  */
-@keyframes blinking {
-  to { background-color: #%{{theme_black}}; }
+/* because these can be warnings with background, padding is required */
+#network,
+#pulseaudio {
+  margin: 0 5px;
+  padding: 0 5px;
+}
+
+#battery.low:not(.charging),
+#network.disconnected,
+#pulseaudio.muted {
+  background-color: rgba(%{{theme_black_rgb}}, 0.7);
+  border-top: 1px solid #%{{term_color1}};
+  color: #%{{term_color9}};
 }
 
 #battery.critical:not(.charging),
@@ -144,11 +154,7 @@ window#waybar.empty #window { background-color: transparent; }
   animation-direction: alternate;
 }
 
-#network.disconnected,
-#pulseaudio.muted {
-  padding: 0 5px;
-  background-color: rgba(%{{theme_black_rgb}}, 0.5);
-  border-top: 1px solid #%{{term_color1}};
-  color: #%{{term_color1}};
+@keyframes blinking {
+  to { background-color: #%{{theme_black}}; }
 }
-#pulseaudio.muted { border-top: 1px solid #%{{term_color1}}; }
+

@@ -79,7 +79,7 @@
       "great": 100,
       "good": 70,
       "fair": 40,
-      "warning": 20,
+      "low": 20,
       "critical": 5
     },
     "format": "{capacity}% {icon}",
@@ -98,7 +98,7 @@
     "format-linked": "{ifname} (No IP) ",
     "format-disconnected": "Disconnected ⚠",
     "format-alt": "{ifname}: {ipaddr}/{cidr}",
-    "on-click-right": "networkmanager_dmenu",
+    "on-click-right": "kitty iwctl",
     "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
   },
   "pulseaudio": {
