@@ -73,7 +73,7 @@ colorscheme_kak () {
 
 case "$1" in
   toggle)
-    toogle_service;;
+    toggle_service;;
   waybar)
     status_waybar;;
   kak)
