@@ -1,7 +1,9 @@
 ### Pimpin' aint easy
 #
 eval $(dircolors $HOME/.dir_colors)
-PROMPT='%K{18}%F{green}%T%f %F{12}%~%f%k %F{green}%(!.%F{red}#%f.$)%f '
+# git prompt
+source /usr/share/zsh/scripts/git-prompt.zsh
+PROMPT='%K{18}%F{green}%T%f %F{12}%~%f%k $(gitprompt)%F{green}%(!.%F{red}#%f.$)%f '
 
 ### History
 #
