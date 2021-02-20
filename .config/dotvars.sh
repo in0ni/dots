@@ -12,7 +12,7 @@ font_sans="IBM Plex Sans"
 font_mono="IBM Plex Mono"
 font_icon="Font Awesome 5 Free"
 font_size=11
-font_size_m=10.5
+font_size_rofi=10.5
 font_size_sm=10
 
 # transparency
