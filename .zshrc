@@ -19,6 +19,9 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 ### Aliases
 #
 alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# TODO: this is currently a quick hack as I only maintan 1 drupal site (php7.4, not 8)
+# 		composer has been manually downloaded and put in ~/.local/bin
+alias composer='php74 ~/.local/bin/composer.phar'
 alias vi='vim'
 alias ls='ls -hN --color=auto'
 alias ll='ls -l'
