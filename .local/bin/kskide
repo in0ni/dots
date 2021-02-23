@@ -1,22 +1,36 @@
 #!/bin/bash 
-package=$(basename $0)
+
 server_name=$(basename `pwd`)
 socket_file=$(kak -l | grep $server_name)
 window_title="Kakoune -"
 join_session=false
-project_conf="$HOME/.config/kskide.projs"
-theme_variant=$(waystep kak)
-theme_file="$HOME/.config/rofi/theme/$theme_variant.rasi"
-rofi_theme_option=""
 
-if [ -f "${theme_file}" ]; then
-  rofi_theme_option="-theme $theme_file"
-fi
+# parse/handle args
+while test $# -gt 0; do
+  case "$1" in
+    -h|--help)
+      echo "$package - Kakoune, Sway, Kitty based IDE. Will create windows: main, docs, tools, shell"
+      echo " "
+      echo "$package [options]"
+      echo " "
+      echo "options:"
+      echo "-h, --help                show brief help"
+      echo "-j, --join-existing-session"
+      exit 0
+      ;;
+    -j)
+      shift
+      join_session=true
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 # create new layout using kitty and sway
 createLayout() {
-  # kitty @ new-window --no-reponse --window-type os --title "$window_title shell"
-  # kitty @ set-window-title "$window_title shell"
+  kitty @ set-window-title "$window_title shell"
 
   # create main client
   kitty @ new-window --no-response --window-type os --title "$window_title main" kak -e "ide-set-client main jumpclient" -c $server_name
@@ -41,38 +55,6 @@ createLayout() {
   # set focus on main client
   swaymsg "[title=\"$window_title main\"] focus"
 }
-
-# parse/handle args
-while test $# -gt 0; do
-  case "$1" in
-    -p|--projects)
-      # TODO: if user escapes rofi, return and end process
-      selection=$(awk -F ':' '{print $1}' $project_conf | rofi -dmenu -p 'Kakoune → Select Project' $rofi_theme_option)
-      selection_path=$(grep $selection $project_conf | awk -F ':' '{print $2}')
-      kitty -o allow_remote_control=yes
-      kitty @ new-window --no-response --title "$window_title shell" -d $selection_path kskide
-      break
-      ;;
-    -h|--help)
-      echo "$package - Kakoune, Sway, Kitty based IDE. Will create windows: main, docs, tools, shell"
-      echo " "
-      echo "$package [options]"
-      echo " "
-      echo "options:"
-      echo "-h, --help                  show brief help"
-      echo "-j, --join-existing-session"
-      echo "-p, --projects              rofi select project and launch new kitty window"
-      exit 0
-      ;;
-    -j)
-      shift
-      join_session=true
-      ;;
-    *)
-      break
-      ;;
-  esac
-done
 
 # handle basic command logic
 if [[ $socket_file == "" ]]; then

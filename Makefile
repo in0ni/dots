@@ -51,7 +51,7 @@ build_rofi: DIR = $(CONF_DIR)/rofi
 build_rofi: FILES = _config.rasi theme/_current-theme.rasi\
                     theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi\
                     theme/_gopass.rasi theme/_bluetooth.rasi
-                    
+
 build_rofi: parse_rofi
 
 build_sway: DIR = $(CONF_DIR)/sway
