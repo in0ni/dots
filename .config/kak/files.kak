@@ -53,7 +53,7 @@ define-command files -docstring 'Open one or many files' %{ evaluate-commands %s
     echo "fail 'Rofi theme not found: $theme_file'"
   fi
 
-  FILES=$(rg --files --sort path | rofi -dmenu -i -p "Kakoune →⁮ Files" -multi-select $rofi_theme_option)
+  FILES=$(rg --files --sort path | rofi -dmenu -i -p "  →⁮ Files" -multi-select $rofi_theme_option)
   for file in $FILES; do
     printf 'eval -client %%{%s} edit %%{%s}\n' "$kak_client" "$file" | kak -p "$kak_session"
   done
@@ -74,7 +74,7 @@ define-command buffers -docstring 'Switch to a buffer' %{ evaluate-commands %sh{
   buf_other=$(echo "$kak_buflist" | awk 'BEGIN{ RS="[[:space:]]" } /^*/{ print }' | sort)
 
   BUFFER=$(echo "$buf_files $buf_other" |
-    awk 'BEGIN{RS="[[:space:]]"} {if(NF>0){print} }' | rofi -dmenu -i -p "Kakoune → *Buffers*" $rofi_theme_option)
+    awk 'BEGIN{RS="[[:space:]]"} {if(NF>0){print} }' | rofi -dmenu -i -p "  → *Buffers*" $rofi_theme_option)
   [ -n "$BUFFER" ] && echo "eval -client '$kak_client' 'buffer $BUFFER'" | kak -p "$kak_session"
 }}
 
