@@ -20,9 +20,12 @@ fi
 while test $# -gt 0; do
   case "$1" in
     -p|--projects)
+      delim=';'
       # TODO: if user escapes rofi, return and end process
-      selection=$(awk -F ':' '{print $1}' $project_conf | rofi -dmenu -p 'Kakoune → Select Project' $rofi_theme_option)
-      selection_path=$(grep $selection $project_conf | awk -F ':' '{print $2}')
+      selection=$(cat $project_conf | cut -d $delim -f 1 | \
+        rofi -dmenu -p 'Kakoune → Select Project' $rofi_theme_option)
+      selection_path=$(grep $selection $project_conf | cut -d $delim -f 2)
+
       kitty @ launch --no-response --cwd $selection_path --type os-window kskide
       exit 0
       ;;
