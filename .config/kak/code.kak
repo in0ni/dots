@@ -3,6 +3,7 @@
 # lsp-auto-hover-insert-mode-enable
 
 set-option global grepcmd 'rg --follow --smart-case --with-filename --column'
+add-highlighter global/ number-lines -hlcursor
 
 define-command disable-autoformat -docstring 'disable auto-format' %{
   unset-option buffer formatcmd
@@ -32,6 +33,10 @@ hook global BufReload ^[^*]+$ %{ git show-diff }
 hook global BufSetOption filetype=(javascript|typescript|css|scss|json|markdown|yaml|html|vue) %{
   set-option buffer formatcmd "npx prettier --stdin-filepath=%val{buffile}"
   hook buffer -group format BufWritePre .* format
+}
+
+hook global WinSetOption filetype=(?!man) %{
+  remove-highlighter global/number-lines_-hlcursor 
 }
 
 hook global WinSetOption filetype=(vue|css) %{

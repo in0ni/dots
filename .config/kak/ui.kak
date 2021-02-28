@@ -1,4 +1,3 @@
-add-highlighter global/ number-lines	-hlcursor -separator " "
 add-highlighter global/ show-matching
 add-highlighter global/ wrap			-indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
