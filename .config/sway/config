@@ -10,28 +10,30 @@
 #
 set $Super Mod4
 set $Alt Mod1
+set $output_laptop 'eDP-1'
+set $output_hdmi 'HDMI-A-1'
+
+### Default Applications
+#
+set $term kitty
+set $menu rofi -show drun
+
+set $mode_def "default"
+set $mode_resize " - resize"
 
 # custom includes, depend on variables above
 include windows.conf
 include keys_custom.conf
 include keys_default.conf
 
-### Default Applications
+### Inputs/Outputs
 #
-set $term kitty
-set $menu rofi -show drun
-set $laptop_screen 'eDP-1'
+# 
+output $output_laptop subpixel rgb
 
-# perhaps unnecessary, but might as well
-output $laptop_screen subpixel rgb
+# NOTE: clamshell mode note required, done in hw
 
-# Clamshell mode
-# NOTE: seems like thinkpad does this in hardware. need to test again and remove
-# bindswitch --reload --locked lid:on output $laptop_screen disable
-# bindswitch --reload --locked lid:off output $laptop_screen enable
-
-### Input configuration
-#
+# Inputs
 input type:keyboard {
   xkb_layout us
   xkb_variant altgr-intl
