@@ -1,0 +1,18 @@
+:tu# Author=me (originally loh.tar)
+:tu# Desc=The logo from rson451 with arch lettering inside
+:tu#
+:tu# c1=Arch
+:tu# Colors1=$Bold$Cyan $Cyan $Bold$White $White $Red $Blue $Green $Yellow $Magenta
+:tu#
+:tuClearScreen:
+
+        :tuC1:,:tuC3:         
+       :tuC1:/#\:tuC3:        
+      :tuC1:,###\:tuC3:       
+     :tuC1:/#####\:tuC3:      
+    :tuC1:/##:tuC2:,-,##\:tuC3:     
+   :tuC2:/##(   )##`:tuC4:   
+  :tuC2:/#.--   --.#\   :tuC7:\U :tuC4:on :tuC9:\n
+ :tuC2:/`:tuC3: arch:tuC1:linux :tuC2:`\   :tuC7:\r:tuC4: (:tuC5:\l:tuC4:)
+
+:tuNC:
