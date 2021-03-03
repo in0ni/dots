@@ -23,7 +23,7 @@ while test $# -gt 0; do
       delim=';'
       # TODO: if user escapes rofi, return and end process
       selection=$(cat $project_conf | cut -d $delim -f 1 | \
-        rofi -dmenu -p 'Kakoune → Select Project' $rofi_theme_option)
+        rofi -dmenu -p '  → Select Project' $rofi_theme_option)
       selection_path=$(grep $selection $project_conf | cut -d $delim -f 2)
 
       kitty @ launch --no-response --cwd $selection_path --type os-window kskide
