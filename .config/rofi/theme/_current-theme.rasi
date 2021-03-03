@@ -14,6 +14,8 @@
     mid:		#%{{theme_mid}};
     light:		#%{{theme_white}};
     accent:		#%{{theme_highlight}};
+    urgent:     #%{{term_color1}};
+    urgent-selected: #%{{term_color9}};
 
     /* Theme colors */
     background:                 @black;

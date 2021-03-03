@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+icon=" "
+title="Session"
+
+if [ $ROFI_RETV = 1 ]; then
+  echo -en "\0prompt\x1f$@\n"
+
+  case $ROFI_INFO in
+    "quit")
+      exit 0
+      ;;
+    "power_off_confirm")
+      systemctl poweroff
+      ;;
+    "reboot_confirm")
+      systemctl reboot
+      ;;
+    "logout_confirm")
+      swaymsg exit
+      ;;
+  esac
+
+  nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .nodes[] | .id' | wc -l)
+  floating_nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .floating_nodes[] | .id' | wc -l)
+
+  if [[ $nodes -gt 0 || $floating_nodes -gt 0 ]]; then
+    echo -en "\0message\x1fThere are $nodes nodes, and $floating_nodes floating nodes open~!\n"
+    echo -en "\0urgent\x1f1\n"
+    echo -en "  Are you sure?!\0nonselectable\x1ftrue\n"
+  fi
+
+  echo -en "Yes\0info\x1f${ROFI_INFO}_confirm\n"
+  echo -en "No\0info\x1fquit\n"
+  # echo -en "$ROFI_INFO"
+else
+  echo -en "\0prompt\x1f$icon $title\n"
+  echo -en "   Power Off\0info\x1fpower_off\n"
+  echo -en "   Reboot\0info\x1freboot\n"
+  echo -en "   Logout\0info\x1flogout\n"
+fi

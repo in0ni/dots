@@ -14,13 +14,13 @@ mainbox {
 }
 
 message {
-    border:       1px 0 0;
-    border-color: @separatorcolor;
-    padding:      1px;
+    border: 0;
+    padding: 10px;
+    background-color: @mid;
 }
 
 textbox {
-    highlight:  @highlight;
+    background-color: @mid;
     text-color: @foreground;
 }
 
@@ -36,7 +36,8 @@ element {
     padding: 5px 8px;
 }
 
-element.normal.normal {
+element.normal.normal,
+element.alternate.normal {
     background-color: @normal-background;
     text-color:       @normal-foreground;
 }
@@ -46,9 +47,14 @@ element.selected.normal {
     text-color:       @selected-normal-foreground;
 }
 
-element.alternate.normal {
-    background-color: @normal-background;
-    text-color:       @normal-foreground;
+element.selected.urgent {
+  background-color: @urgent-selected;
+  text-color:       @black;
+}
+element.normal.urgent,
+element.alternate.urgent {
+    background-color: @urgent;
+    text-color:       @light;
 }
 
 scrollbar {

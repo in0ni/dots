@@ -1,7 +1,19 @@
-#!/bin/bash
-prompt=""
+#!/usr/bin/env bash
+
+icon=" "
+title="HDMI"
 output="HDMI-A-1"
-# output="eDP-1"
-# theme_file="$HOME/.config/rofi/theme/gopass.rasi"
-mode=$(swaymsg -t get_outputs | jq -jr '.[] | select(type=="object" and .name=="'"$output"'") | .modes|unique_by(.width)|.[] | .width, "x", .height, "\n"' | rofi -dmenu -p "$prompt")
-swaymsg output $output mode $mode
+
+if [ $ROFI_RETV = 0 ]; then
+  echo -en "\0prompt\x1f$icon $title\n"
+
+  has_output=$(swaymsg -t get_outputs |\
+    jq '.[] | select(type == "object" and .name == "'"$output"'")')
+
+  if [ ! -z "$has_output" ]; then
+    echo -en $(echo $has_output |\
+      jq -jr '.modes | unique_by(.width) | .[] |.width, "x", .height, "\n"')
+  else
+    echo -en "\0message\x1fThe output ($output) is not connected."
+  fi
+fi
