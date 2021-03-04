@@ -1,0 +1,111 @@
+* {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+window,
+mainbox,
+listview,
+scrollbar,
+element
+{
+  background-color: @base-bg;
+  text-color: @base-fg;
+}
+
+window {
+  border: 2px;
+  border-color: @base-bg;
+}
+
+inputbar,
+prompt,
+entry,
+case-indicator {
+  background-color: @input-bg;
+  text-color: @base-fg;
+}
+
+prompt {
+  background-color: @base-bg;
+}
+
+prompt,
+entry,
+case-indicator {
+  padding: 5px 10px;
+}
+
+message,
+textbox
+{
+  padding: 5px 10px;
+  background-color: @message-bg;
+  text-color: @message-fg;
+}
+
+listview {
+  spacing: 0;
+  scrollbar: @scrollbar;
+}
+
+scrollbar {
+  border:       0;
+  handle-color: @scroll-fg;
+  handle-width: 5px;
+  background-color: @listview-bg;
+  padding:      0;
+}
+
+element {
+  margin: 0;
+  padding: 6px;
+  background-color: @listview-bg;
+}
+
+element.selected.normal {
+  background-color: @accent;
+  text-color: @accent-fg;
+}
+
+element.selected.urgent {
+  background-color: @urgent;
+}
+element.normal.urgent,
+element.alternate.urgent {
+  text-color: @urgent-selected;
+}
+/*
+mode-switcher {
+    border:       2px 0 0;
+    border-color: @separatorcolor;
+}
+
+inputbar {
+    spacing:    0;
+    text-color: @normal-foreground;
+    padding:    6px 8px;
+    children:   [ prompt, textbox-prompt-sep, entry, case-indicator ];
+}
+
+case-indicator,
+entry,
+prompt,
+button {
+    spacing:    0;
+    text-color: @normal-foreground;
+}
+
+button.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+textbox-prompt-sep {
+    expand:     false;
+    str:        " ";
+    text-color: @normal-foreground;
+    margin:     0 0.3em 0 0;
+}
+*/

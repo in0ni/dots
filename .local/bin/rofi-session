@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-icon=" "
+icon=" "
 title="Session"
 
 if [ $ROFI_RETV = 1 ]; then
@@ -24,7 +24,7 @@ if [ $ROFI_RETV = 1 ]; then
   floating_nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .floating_nodes[] | .id' | wc -l)
 
   if [[ $nodes -gt 0 || $floating_nodes -gt 0 ]]; then
-    echo -en "\0message\x1fThere are $nodes nodes, and $floating_nodes floating nodes open~!\n"
+    echo -en "\0message\x1fThere are <b>$nodes</b> nodes, and $floating_nodes floating nodes open~!\n"
     echo -en "\0urgent\x1f1\n"
     echo -en "  Are you sure?!\0nonselectable\x1ftrue\n"
   fi

@@ -1,0 +1,25 @@
+* {
+    /* Theme settings */
+    scrollbar: false;
+
+    /* Flat Remix Dark Green colors */
+    black:		#%{{theme_black}};
+    darkest:	#%{{theme_darkest}};
+    dark:		#%{{theme_dark}};
+    mid:		#%{{theme_mid}};
+    light:		#%{{theme_white}};
+    accent:		#%{{theme_highlight}};
+    urgent:     #%{{term_color1}};
+    urgent-selected: #%{{term_color9}};
+
+    /* generic names */
+    base-bg:	@dark;
+    base-fg:	@light;
+    input-bg:	@mid;
+    message-bg:	@light;
+    message-fg:	@darkest;
+    listview-bg:@black;
+    scroll-fg:	@mid;
+}
+
+@import "base.rasi"

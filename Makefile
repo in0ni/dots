@@ -48,7 +48,7 @@ build_kitty: FILES = _theme.conf
 build_kitty: parse_kitty
 
 build_rofi: DIR = $(CONF_DIR)/rofi
-build_rofi: FILES = _config.rasi theme/_current-theme.rasi\
+build_rofi: FILES = _config.rasi theme/_default.rasi\
                     theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi\
                     theme/_gopass.rasi theme/_bluetooth.rasi
 
