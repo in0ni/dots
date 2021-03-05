@@ -24,9 +24,9 @@ if [ $ROFI_RETV = 1 ]; then
   floating_nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .floating_nodes[] | .id' | wc -l)
 
   if [[ $nodes -gt 0 || $floating_nodes -gt 0 ]]; then
-    echo -en "\0message\x1fThere are <b>$nodes</b> nodes, and $floating_nodes floating nodes open~!\n"
+    echo -en "\0message\x1f  Are you sure? There are <b>open windows</b> ($nodes tiled, $floating_nodes floating)\n"
     echo -en "\0urgent\x1f1\n"
-    echo -en "  Are you sure?!\0nonselectable\x1ftrue\n"
+    echo -en "Plese confirm.\0nonselectable\x1ftrue\n"
   fi
 
   echo -en "Yes\0info\x1f${ROFI_INFO}_confirm\n"
