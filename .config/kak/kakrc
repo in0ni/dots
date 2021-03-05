@@ -21,8 +21,7 @@ def -params 1 -docstring "colorscheme <name>: enable named colorscheme" \
     if [ -z "${filename}" ]; then
       filename=$(find_colorscheme "${kak_runtime}/colors" "${1}")
     fi
-    if [ -n "${filename}" ]; then
-      echo "set-option global colorscheme ${1}"
+    if [ -n "${filename}" ]; then      echo "set-option global colorscheme ${1}"
       printf 'source %%{%s}' "${filename}"
     else
       echo "fail 'No such colorscheme'"

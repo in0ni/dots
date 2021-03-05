@@ -1,5 +1,5 @@
 #
-# Filetypes
+# Set custom filetypes for syntax/formatting/linting
 #
 hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
   set buffer filetype i3
@@ -14,32 +14,6 @@ hook global BufCreate .*theme/.*\.rasi$ %{
   set buffer filetype css
 }
 
-#
-# Vue Commenting
-# NOTE: mappings done separately
-#
-define-command set-comments -params 3 %{
-  set-option buffer comment_line %arg{1}
-  set-option buffer comment_block_begin %arg{2}
-  set-option buffer comment_block_end %arg{3}
-}
-
-define-command set-comments-vue %{
-  try %{
-    # check to see if you are inside a template. if it fails try the next region
-    exec -draft '<a-i>c<template.*?>,</template>'
-    set-comments '' '<!--' '--!>'
-  } catch %{ try %{
-    # check for script tags. sass, scss etc... actually use js style
-    exec -draft '<a-i>c<style.*?>,</style>'
-    set-comments '' '/*' '*/'
-  } catch %{
-    # comment for javascript as the default
-    set-comments '//' '/*' '*/'
-  }}
-}
-
-#
 # Navigating Files & Buffers
 #
 define-command files -docstring 'Open one or many files' %{ evaluate-commands %sh{
@@ -77,7 +51,3 @@ define-command buffers -docstring 'Switch to a buffer' %{ evaluate-commands %sh{
     awk 'BEGIN{RS="[[:space:]]"} {if(NF>0){print} }' | rofi -dmenu -i -p "  → *Buffers*" $rofi_theme_option)
   [ -n "$BUFFER" ] && echo "eval -client '$kak_client' 'buffer $BUFFER'" | kak -p "$kak_session"
 }}
-
-# define-command rofitheme -params 1 -docstring 'Generate rofi theme option string' %{ evaluate-commands %sh{
-  
-# }}

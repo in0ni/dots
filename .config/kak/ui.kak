@@ -1,13 +1,22 @@
+# Universal options
 add-highlighter global/ show-matching
-add-highlighter global/ wrap			-indent
+add-highlighter global/ wrap -indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
 add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+ard
 add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
 
-set-option global ui_options	'ncurses_assistant=none' 'ncurses_status_on_top=yes'
-set-option global tabstop		4
-set-option global indentwidth	2
-set-option global scrolloff     4,6
+# generally we always want numbers, but not for man pages
+# TODO: look into for pagers?
+add-highlighter global/ number-lines -hlcursor
+hook global WinSetOption filetype=man %{
+  remove-highlighter global/number-lines_-hlcursor 
+}
+
+set-option global ui_options 'ncurses_assistant=none' 'ncurses_status_on_top=yes'
+set-option global tabstop 4
+set-option global indentwidth 2
+set-option global scrolloff 4,6
+set-option global grepcmd 'rg --follow --smart-case --with-filename --column'
 
 alias global g grep
 alias global f find
@@ -26,7 +35,6 @@ hook global ModuleLoaded kitty %{
 
 # position in file as percent
 decl str cursor_percent
-
 hook global WinCreate .* %{
   hook window NormalIdle .* %{ evaluate-commands %sh{
     if [ -f "${kak_buffile}" ]; then
