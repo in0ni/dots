@@ -1,15 +1,8 @@
 * {
+  spacing: 0;
   margin: 0;
   border: 0;
   padding: 0;
-}
-
-window,
-mainbox,
-listview,
-scrollbar,
-element
-{
   background-color: @base-bg;
   text-color: @base-fg;
 }
@@ -19,16 +12,42 @@ window {
   border-color: @base-bg;
 }
 
-inputbar,
 prompt,
 entry,
+textbox-num-sep,
+num-filtered-rows,
+num-rows,
 case-indicator {
   background-color: @input-bg;
   text-color: @base-fg;
 }
 
+textbox-num-sep,
+num-filtered-rows,
+num-rows {
+  padding: 4px 0 0 0;
+  expand: false;
+  
+}
+
+textbox-num-sep {
+  str: "/";
+}
+
+/* TODO: num-filtered-rows is not working properly, seems like a bug */
+inputbar {
+  padding: 5px 3px 7px 3px;
+  children: [prompt,entry,/*num-filtered-rows,textbox-num-sep,num-rows,*/case-indicator];
+}
+
+inputbar,
 prompt {
   background-color: @base-bg;
+}
+
+prompt {
+  background-color: @base-fg;
+  text-color: @base-bg;
 }
 
 prompt,
@@ -40,14 +59,14 @@ case-indicator {
 message,
 textbox
 {
-  padding: 5px 10px;
+  padding: 10px;
   background-color: @message-bg;
   text-color: @message-fg;
 }
 
 listview {
-  spacing: 0;
   scrollbar: @scrollbar;
+  spacing: 1px;
 }
 
 scrollbar {
@@ -60,7 +79,7 @@ scrollbar {
 
 element {
   margin: 0;
-  padding: 6px;
+  padding: 8px 8px 8px 24px;
   background-color: @listview-bg;
 }
 

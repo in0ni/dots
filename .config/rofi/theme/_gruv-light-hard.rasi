@@ -1,0 +1,26 @@
+* {
+    /* Theme settings */
+    scrollbar: false;
+
+    /* Gruvbox light colors */
+    black:		#%{{gruv_light_bg_0}};
+    darkest:	#%{{gruv_light_bg_1}};
+    dark:		#%{{gruv_light_bg_2}};
+    mid:		#%{{gruv_light_bg_3}};
+    light:		#%{{gruv_dark_bg_3}};
+    accent:		#%{{gruv_light_orange}};
+    urgent:     #%{{term_color1}};
+    urgent-selected: #%{{term_color9}};
+
+    /* generic names */
+    base-bg:	@darkest;
+    base-fg:	@light;
+    input-bg:	@dark;
+    message-bg:	@light;
+    message-fg:	@darkest;
+    listview-bg:@black;
+    scroll-fg:	@mid;
+    accent-fg: @black;
+}
+
+@import "base.rasi"
