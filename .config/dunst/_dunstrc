@@ -50,13 +50,13 @@ mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 
 [urgency_low]
-background = "#%{{theme_white}}%{{trnz_20}}"
+background = "#%{{theme_white}}%{{trnz_15}}"
 foreground = "#%{{theme_black}}"
 highlight = "#%{{theme_highlight}}"
 timeout = 5
 
 [urgency_normal]
-background = "#%{{theme_white}}%{{trnz_20}}"
+background = "#%{{theme_white}}%{{trnz_15}}"
 foreground = "#%{{theme_black}}"
 highlight = "#%{{theme_highlight}}"
 timeout = 5
@@ -70,7 +70,7 @@ timeout = 0
 
 [kyz]
 appname = "kyz"
-background = "#%{{theme_black}}%{{trnz_20}}"
+background = "#%{{theme_black}}%{{trnz_15}}"
 foreground = "#%{{theme_white}}"
 highlight = "#%{{theme_highlight}}"
 frame_color = "#%{{theme_mid}}"
