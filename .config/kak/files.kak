@@ -4,7 +4,7 @@
 hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
   set buffer filetype i3
 }
-hook global BufCreate .*mako/_?config$ %{
+hook global BufCreate .*(dunst|mako)/.*$ %{
   set buffer filetype ini
 }
 hook global BufCreate .*(waybar/config|\.rasi)$ %{
