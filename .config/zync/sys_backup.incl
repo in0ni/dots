@@ -1,0 +1,71 @@
+#!/bin/sh
+# above is just for syntax highligting
+#
+# this file is used by gnu tar, an inclusive backup list
+
+# update mirrors
+# /etc/systemd/system/reflector.service
+# /etc/systemd/system/reflector.timer
+
+# set misc options
+/etc/pacman.conf
+/etc/vconsole.conf
+
+# currently installed packages
+# NOTE: these are written by zync
+/tmp/pacman_installed_native
+/tmp/pacman_installed_foreign
+
+# misc
+/etc/locale.conf
+/etc/locale.gen
+/etc/fstab
+/etc/hostname
+/etc/hosts
+/etc/sudoers
+
+# font configs and actual fonts
+/usr/share/fonts
+
+# just links to .bashrc & .vimrc for now
+#/root
+
+#
+# SECURITY
+# ::::::::
+#
+# firewall
+# TODO: look into rules again
+# TODO: go through security arch wiki
+/etc/nftables.conf
+
+# dm-crypt
+#
+# see: https://wiki.archlinux.org/index.php/Dm-crypt/Mounting_at_login
+# - unlock/automount on login (done in /etc/fstab listed above)
+/etc/pam.d/system-login
+/etc/pam_cryptsetup.sh
+# umount & lock on logout
+/etc/systemd/system/cryptsetup-in0ni.service
+/etc/systemd/system/home-in0ni.mount.d
+/etc/systemd/system/user@1000.service.d
+
+# locks out user after failed attempts
+# /etc/pam.d/system-login
+
+# enforce strong pwds, protect against dictionary attack
+# TODO: get default, perhaps keep as-is
+# /etc/pam.d/passwd
+
+#
+# SERVER/DEV
+/etc/nginx/nginx.conf
+/etc/nginx/conf/
+/etc/nginx/sites-available/
+/etc/nginx/sites-enabled/
+# links to sites
+/srv/http/
+
+# php/mysql
+# TODO: this is just a preventative measure, i don't even think it's modified
+/etc/php74/php.ini

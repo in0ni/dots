@@ -1,0 +1,10 @@
+#!/bin/sh
+lost+found
+.cache
+.tmp
+.meteor
+
+# tmp shit
+Downloads/t0rz
+Downloads/MOVE
+BUP

@@ -1,0 +1,4 @@
+{
+  "usb_os": "/run/media/$USER/n0s/backups/os",
+  "usb_home": "/run/media/$USER/n0s/backups/home"
+}

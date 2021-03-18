@@ -1,0 +1,217 @@
+#!/bin/bash
+#
+# a quite crude script to backup os/home, has gotten job done for years
+# 
+# this is an old script intended to learn basic scripting, and my first
+# operation tool. it's definitely not optimal it might need some
+# reconsidering now I am starting to manage my dotfiles w/ git,
+# and might want to do the same for os files.
+#
+# regardless, it works, not going to spend much time. it has seen some recent
+# cleaning up and refactoring, still needs work
+#
+# TODO: sync music and restore home need to be re-added
+# TODO: look into using version control for os configuration files
+# TODO: look into btrfs features to aid (snapshots?)
+#
+# this script uses:
+#  - tar to backup os configuration files from an include file
+#  - mysqldump/mongodump to back up databases
+#  - rsync to backup/restore home
+#    - exclude list to backup (includes unnecessary .dot files)
+#    - include list to restore files (restores clean home)
+
+# include/exclude config files
+cfg_path=$XDG_CONFIG_HOME/zync
+cfg_paths_json=$cfg_path/paths.json
+cfg_home_backup_excl=$cfg_path/home_backup.excl
+cfg_home_restore_incl=$cfg_path/home_restore.incl
+cfg_sys_backup_incl=$cfg_path/sys_backup.incl
+
+# NOTE: read eval isn't ideal, not clear why but it's easy so using it now.
+# TODO: find better approach, instead of eval, for var expansion in cfg strings
+path_usb_os=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_os'))
+path_usb_home=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_home'))
+path_log=/tmp/zync-$today.log
+
+# output strings
+z="~zync~"
+err="$z (err)"
+info="$z (info)"
+
+today=$(date --iso)
+
+manage_service () {
+  echo "$info $1 service is about to $2..."
+  sudo systemctl $2 $1.service
+}
+
+db_backup() {
+  # check if service is already running, store exit code
+  systemctl is-active --quiet $1.service
+  is_active=$?
+  # if service is not active, start it for backup
+  [[ $is_active -ne 0 ]] && manage_service $1 start
+
+  # back up db
+  # TODO: catch errors -- below I had "-- gzip 2>>", which should print error
+  echo "$info backing up all $1 databases..."
+  if [[ $1 == "mariadb" ]]; then
+    echo "$info $1 backup with mysqldump..."
+    sudo mysqldump -u root -p="" --all-databases | \
+      gzip > "$path_usb_os/$1-$today.sql.gz" 2>> $path_log
+  elif [[ $1 == "mongodb" ]]; then
+    echo "$info $1 backup with mongodump..."
+    # TODO: ensure only error is logging
+    mongodump --archive="$path_usb_os/$1-$today.gz" --gzip 2>> $path_log
+  fi
+
+  # if service was not active, stop it to keep it as it was
+  [[ $is_active -ne 0 ]] && manage_service $1 stop
+}
+
+os_backup() {
+  # TODO: remove use of a temporary file, use '-' instead for --files-from
+  path_tmp_os_includes=/tmp/zyn_os_includes
+  echo "$info backing up config files..."
+  # TODO: remove these from include list, just append to os_includes below
+  pacman -Qqen > /tmp/pacman_installed_native
+  pacman -Qqem > /tmp/pacman_installed_foreign
+
+  # NOTE: unlike rsync, lines starting w/ '#' or ';' are not ignored
+  # /d in regex deletes
+  sed -E "/^(#.*)?$/d" $cfg_sys_backup_incl > $path_tmp_os_includes
+
+  # TODO: reconsider use of sudo, perhaps files that are only readable by root
+  # should not be backed up... nothing major really as backups are encrypted
+  sudo tar cvzf $path_usb_os"/arch-$today.tgz" --files-from $path_tmp_os_includes 2>> $path_log
+
+  rm $path_tmp_os_includes
+}
+
+home_backup() {
+  # NOTE:
+  # as time passes, unnecesary files start to build up in home directory,
+  # this is intentional to recover files if already deleted locally.
+  # to remove these files, the --clean-dest option can be passed to remove
+  # all files in remote that are not found locally
+  if [[ $1 == "clean" ]]; then
+    echo "$info backing up home directory using --delete & --force..."
+    rsync -av "$HOME/" $path_usb_home --stats --exclude-from=$cfg_home_backup_excl \
+      --delete --force 2>> $path_log
+    echo "$info backing up home directory using --delete & --force done."
+  else
+    echo "$info backing up home directory..."
+    rsync -av "$HOME/" $path_usb_home --stats --exclude-from=$cfg_home_backup_excl 2>> $path_log
+    echo "$info backing up home directory done."
+  fi
+}
+
+case "$1" in
+  backup)
+    # TODO: look into auto-mounting (not unlock/mount via thunar)
+    # backup os
+    if [[ ! -d $path_usb_os ]]; then
+      echo "$err $path_usb_os does not exist"
+      exit 1
+    else
+      db_backup mariadb
+      db_backup mongodb
+      os_backup
+    fi
+
+    # backup home directory
+    if [[ ! -d $path_usb_home ]]; then
+      echo "$err $path_usb_home does not exist"
+      exit 1
+    else
+      [[ $2 == "--clean-dest" ]] && home_backup clean || home_backup
+    fi
+    ;;
+  *)
+    echo "Usage: $(basename $0) {backup|restore}"
+    exit 1
+    ;;
+esac
+
+# view/clear error logs
+# ignore the leading slash message from tar in log
+sed -i -r "/^tar: Removing leading.*/d" $path_log
+
+log_lines=$(wc -l < $path_log)
+if [[ $log_lines -gt 0 ]]; then
+  printf "\nThere are %d lines in the error log...\n" $log_lines
+  select opt in View Clear; do
+    case $opt in
+      View)
+        less $path_log
+        ;;
+      Clear)
+        echo "$info Clearing log file..."
+        break
+        ;;
+    esac
+  done
+fi
+
+rm $path_log
+echo "$info Done."
+
+# case "$1" in
+#   music)
+#     # reserved characters in fat32
+#     # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
+#     # ? [%3F]
+#     # < [%3C]
+#     # > [%3E]
+#     # * [...]
+#     # | [%7C]
+#     # : [%3A]
+#     # note: in rhythmbox.xml the following are printed normally and not escaped
+#     # :, *
+#     flacs=$(find $local_music -name *.flac)
+#     flacs_count=$(find $local_music -name *.flac | wc -l)
+#     invalid=$(find $local_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)')
+#     # @todo -- should re-use variable output here
+#     invalid_count=$(find $local_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)' | wc -l)
+
+#     # check if flacs are found in source
+#     if [ $flacs_count -gt 0 ]
+#     then
+#       echo "$flacs"
+#       echo "-------------------------------------"
+#       echo "$err Found $flacs_count FLAC files."
+#       exit
+#     fi
+
+#     if [ $invalid_count -gt 0 ]
+#     then
+#       printf "\nFound %d invalid file names...\n" $invalid_count
+#       select opt in Ignore "Print & Exit"; do
+#         case $opt in
+#           Ignore)
+#             echo "$info Ignoring invalid file names..."
+#             break
+#             ;;
+#           "Print & Exit")
+#             echo "$invalid"
+#             exit
+#             ;;
+#         esac
+#       done
+#     fi
+
+#     echo "$info synchronizing music..."
+#     # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
+#     # here -O should remove timestamp errors
+#     rsync -rlDuvsO --modify-window=1 --stats --files-from=$inc_music "$local_music/" "$remote_music" 2>> $log
+#     echo "$info synchronizing music done."
+#     # maybe --8 is required?
+#     # rsync -aruv -8 --modify-window=1 --stats --files-from=$inc_music $local_music $remote_music
+#     ;;
+#   restore)
+#     echo "$info restoring from backup..."
+#     rsync -arv "$remote_home/" $HOME --stats --files-from=$inc_restore_home 2>> $log
+#     echo "$info restoring from backup done."
+#     ;;
+# esac

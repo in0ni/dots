@@ -1,0 +1,36 @@
+#!/bin/sh
+Documents
+Downloads
+Music
+Pictures/bgs
+Work
+# TODO: reassess, this should all be managed by git dotfiles
+# .config/blockify
+# .config/darktable
+# .config/deluge
+# .config/easytag
+# .config/filezilla
+# .config/GIMP
+# .config/gopass
+# .config/inkscape
+# .config/kitty
+# .config/mimeapps.list
+# .config/mpv
+# .config/spotify
+# .config/startup
+# .config/sway
+# .config/swaylock
+# .config/waybar
+# .config/zim
+# .bashrc
+# .drush
+.gitconfig
+# .local/share/hamster-applet
+.local/share/rhythmbox
+# .npm
+.ssh
+# .sys/bin
+# .sys/custom
+# .sys/sublime_projs
+# .sys/sublime_key
+# .vimrc
