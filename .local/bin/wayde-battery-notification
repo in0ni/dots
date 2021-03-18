@@ -1,0 +1,8 @@
+#!/bin/env bash
+
+battery_level=$(cat /sys/class/power_supply/BAT0/capacity)
+battery_state=$(cat /sys/class/power_supply/BAT0/status)
+
+if [[ $battery_level -le 6 && $battery_state == "Discharging" ]]; then
+  notify-send.sh --replace-file=/tmp/bat -i battery-empty -u critical "Battery Warning" "Battery is critically low. Plug that shit in."
+fi
