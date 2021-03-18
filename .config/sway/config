@@ -1,7 +1,7 @@
 # see: /etc/sway/config - man sway
 
-# debug: see if using xwayland
-# for_window [shell=".*"] title_format "%title :: %shell"
+# debug: see if using xwayland only works on titlebar, not waybar/title
+# for_window [shell=".*"] title_format "%shell :: %title"
 # 
 # NOTE: swayidle, swaybg using systemd
 # NOTE: for GTK themes, check ~/.xsettingsd as well
@@ -62,4 +62,6 @@ exec_always waygsettings \
 include /etc/sway/config.d/*
 
 # systemd
-exec "systemctl --user import-environment; systemctl --user start sway-session.target"
+# NOTE: sway-session.target needs to be stopped on logout, or service like
+# dunst does not properly end and on next login needs to be killed
+exec_always "systemctl --user import-environment; systemctl --user start sway-session.target"
