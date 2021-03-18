@@ -40,7 +40,7 @@ build_dunst: FILES = _dunstrc
 build_dunst: parse_dunst
 
 build_gtk-3.0: DIR = $(CONF_DIR)/gtk-3.0
-build_gtk-3.0: FILES = _settings.ini
+build_gtk-3.0: FILES = _settings.ini _gtk.css
 build_gtk-3.0: parse_gtk-3.0
 
 build_kitty: DIR = $(CONF_DIR)/kitty
@@ -64,4 +64,8 @@ build_swaylock: parse_swaylock
 build_waybar: DIR = $(CONF_DIR)/waybar
 build_waybar: FILES = _style.css
 build_waybar: parse_waybar
+
+build_zim: DIR = $(CONF_DIR)/zim
+build_zim: FILES = _style.conf
+build_zim: parse_zim
 
