@@ -29,6 +29,7 @@ def -params 1 -docstring "colorscheme <name>: enable named colorscheme" \
 }}
 
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
+plug "andreyorst/plug.kak" noload
 
 plug "alexherbo2/prelude.kak"
 plug "alexherbo2/pager.kak"
@@ -41,12 +42,6 @@ plug "alexherbo2/search-highlighter.kak" defer search-highlighter %{
 plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
   auto-pairs-enable
 } demand
-
-# plug "andreyorst/smarttab.kak" defer smarttab %{
-#   set-option global softtabstop 2
-# } config %{
-#   hook global WinSetOption filetype=.* expandtab
-# }
 
 source "%val{config}/code.kak"
 source "%val{config}/mappings.kak"

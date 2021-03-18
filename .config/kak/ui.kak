@@ -37,35 +37,25 @@ hook global ModuleLoaded kitty %{
 decl str cursor_percent
 hook global WinCreate .* %{
   hook window NormalIdle .* %{ evaluate-commands %sh{
-    if [ -f "${kak_buffile}" ]; then
-      echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $(wc -l < $kak_buffile)))%'"
-    # FIXME: see *debug*
-    # else
-    #   echo "
-    #     eval -save-regs 'm' %{
-    #       exec -draft '%<a-s>:reg m %reg{#}<ret>'
-    #       set window cursor_percent %sh{echo \$((\$kak_cursor_line * 100 / \$kak_reg_m))}
-    #     }
-    #   "
-    fi
+    echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $kak_buf_line_count))%'"
   } }
 }
 
 evaluate-commands %sh{:
     pad='{comment}·{default}'
     div='{comment} {default}'
-    at='{comment}@{default}'
+    at='{comment}@'
 
     bufname='%val{bufname}'
     readonly='{red+b}%sh{ [ -f "$kak_buffile" ] && [ ! -w "$kak_buffile" ] && echo " " }{default}'
-    ft='%sh{ echo "${kak_opt_filetype:-noft}" }'
-    eol='%val{opt_eolformat}'
+    ft='{function}%sh{ echo "${kak_opt_filetype:-noft}" }'
+    eol='{comment}%val{opt_eolformat}'
     cursor='%val{cursor_line}:%val{cursor_char_column}'
-    cursor_percent='{comment}%opt{cursor_percent}{default}'
+    cursor_percent='{value}%opt{cursor_percent}·'
     client='%val{client}'
     session='%val{session}'
 
-    echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${div}${cursor_percent}${div}${cursor}${div}${client}${at}${session} {{context_info}}'"
+    echo set global modelinefmt "'${bufname} ${readonly}{{mode_info}}${div}${ft}${pad}${eol}${div}${cursor_percent}${cursor}${div}${client}${at}${session} {{context_info}}'"
 }
 
 # set theme variant according to time period
