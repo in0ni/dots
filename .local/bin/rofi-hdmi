@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-icon=" "
-title="HDMI"
-output="HDMI-A-1"
+icon= 
+title=HDMI
+output=HDMI-A-1
 
-if [ $ROFI_RETV = 0 ]; then
+if [[ $ROFI_RETV == 0 ]]; then
   echo -en "\0prompt\x1f$icon $title\n"
 
   has_output=$(swaymsg -t get_outputs |\
@@ -12,7 +12,7 @@ if [ $ROFI_RETV = 0 ]; then
 
   if [ ! -z "$has_output" ]; then
     echo -en $(echo $has_output |\
-      jq -jr '.modes | unique_by(.width) | .[] |.width, "x", .height, "\n"')
+      jq -r '.modes | unique_by(.width) | .[] |.width, "x", .height, "\\n"')
   else
     echo -en "\0message\x1fThe output ($output) is not connected."
   fi

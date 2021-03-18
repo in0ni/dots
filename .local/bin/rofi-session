@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-icon=" "
-title="Session"
+icon= 
+title=Session
 
-if [ $ROFI_RETV = 1 ]; then
+if [[ $ROFI_RETV == 1 ]]; then
   echo -en "\0prompt\x1f$@\n"
 
   case $ROFI_INFO in
@@ -17,6 +17,7 @@ if [ $ROFI_RETV = 1 ]; then
       ;;
     "logout_confirm")
       swaymsg exit
+      systemctl --user stop sway-session.target
       ;;
   esac
 
