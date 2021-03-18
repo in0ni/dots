@@ -61,17 +61,17 @@ zle -N down-line-or-beginning-search
 bindkey -e
 # typeset -g -A key
 
-bindkey '^[[3~' delete-char           # delete
-bindkey '^?'    backward-delete-char     # backspace
-bindkey '^[[5~' up-line-or-history    # pgup
-bindkey '^[[3~' delete-char           # delete
-bindkey '^[[6~' down-line-or-history  # pgdown
-bindkey '^[[A'  up-line-or-beginning-search      # up
-bindkey '^[[B'  down-line-or-beginning-search    # down
-bindkey '^[[D'  backward-char          # left
-bindkey '^[[C'  forward-char           # right
-bindkey '^[[H'  beginning-of-line      # home
-bindkey '^[[F'  end-of-line            # end
+bindkey '^[[3~'   delete-char                      # delete
+bindkey '^?'      backward-delete-char             # backspace
+bindkey '^[[5~'   up-line-or-history               # pgup
+bindkey '^[[3~'   delete-char                      # delete
+bindkey '^[[6~'   down-line-or-history             # pgdown
+bindkey '^[[A'    up-line-or-beginning-search      # up
+bindkey '^[[B'    down-line-or-beginning-search    # down
+bindkey '^[[D'    backward-char                    # left
+bindkey '^[[C'    forward-char                     # right
+bindkey '^[[H'    beginning-of-line                # home
+bindkey '^[[F'    end-of-line                      # end
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
