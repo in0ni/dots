@@ -17,6 +17,7 @@ font_size_sm=10
 
 # transparency
 trnz_10=e5
+trnz_20=cc
 
 # typeface configuration
 hintstyle=hintfull

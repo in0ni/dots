@@ -35,9 +35,9 @@ parse_%:
 	@$(foreach FILE,$(FILES),$(call parse_file,$(DIR),$(FILE)))
 	@echo "$@: done"
 
-build_mako: DIR = $(CONF_DIR)/mako
-build_mako: FILES = _config
-build_mako: parse_mako
+build_dunst: DIR = $(CONF_DIR)/dunst
+build_dunst: FILES = _dunstrc
+build_dunst: parse_dunst
 
 build_gtk-3.0: DIR = $(CONF_DIR)/gtk-3.0
 build_gtk-3.0: FILES = _settings.ini
