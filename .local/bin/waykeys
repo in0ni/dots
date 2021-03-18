@@ -7,6 +7,7 @@
 file=$(basename "$0")
 usage="usage:\n\t $file COMMAND\nCOMMAND:\n vi\tVolume Increase\n vd\tVolume Decrease\n vm\tVolume Mute\n mt\tMicrophone Toggle\n bi\tBrightness Increase\n bd\tBrightness Decrease"
 
+dunst_id=99902
 command=$1
 increment=5
 
@@ -72,5 +73,5 @@ fi
 
 # notify that bitch
 if [[ "$command" != "mt" ]]; then
-  notify-send.sh --replace-file=/tmp/kyz -a kyz -i $icon_name -h int:value:$current_value "${txt_header}: ${current_value}%"
+  dunstify "${txt_header}: ${current_value}%" -r $dunst_id -a kyz -i $icon_name -h int:value:$current_value
 fi
