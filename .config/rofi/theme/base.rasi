@@ -37,7 +37,7 @@ textbox-num-sep {
 /* TODO: num-filtered-rows is not working properly, seems like a bug */
 inputbar {
   padding: 5px 3px 7px 3px;
-  children: [prompt,entry,/*num-filtered-rows,textbox-num-sep,num-rows,*/case-indicator];
+  children: [prompt,entry,num-filtered-rows,textbox-num-sep,num-rows,case-indicator];
 }
 
 inputbar,
