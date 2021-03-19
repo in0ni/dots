@@ -1,5 +1,9 @@
+[Unit]
+Description=Run battery monitor notifications
+
 [Timer]
-OnUnitInactiveSec=60
+OnBootSec=10
+OnUnitActiveSec=10
 
 [Install]
 WantedBy=timers.target
