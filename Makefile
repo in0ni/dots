@@ -43,6 +43,10 @@ build_gtk-3.0: DIR = $(CONF_DIR)/gtk-3.0
 build_gtk-3.0: FILES = _settings.ini _gtk.css
 build_gtk-3.0: parse_gtk-3.0
 
+build_xsettingsd: DIR = $(HOME)
+build_xsettingsd: FILES = _.xsettingsd
+build_xsettingsd: parse_xsettingsd
+
 build_kitty: DIR = $(CONF_DIR)/kitty
 build_kitty: FILES = _theme.conf
 build_kitty: parse_kitty
