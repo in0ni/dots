@@ -7,9 +7,9 @@ add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
 
 # generally we always want numbers, but not for man pages
 # TODO: look into for pagers?
-add-highlighter global/ number-lines -hlcursor
+add-highlighter global/ number-lines -hlcursor -separator '⎸'
 hook global WinSetOption filetype=man %{
-  remove-highlighter global/number-lines_-hlcursor 
+  remove-highlighter global/number-lines_-hlcursor_-separator_⎸ 
 }
 
 set-option global ui_options 'ncurses_assistant=none' 'ncurses_status_on_top=yes'
@@ -37,7 +37,7 @@ hook global ModuleLoaded kitty %{
 decl str cursor_percent
 hook global WinCreate .* %{
   hook window NormalIdle .* %{ evaluate-commands %sh{
-    echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $kak_buf_line_count))%'"
+    echo "set-option window cursor_percent '$(($kak_cursor_line * 100 / $kak_buf_line_count))'"
   } }
 }
 
