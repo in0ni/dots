@@ -39,6 +39,10 @@ build_dunst: DIR = $(CONF_DIR)/dunst
 build_dunst: FILES = _dunstrc
 build_dunst: parse_dunst
 
+build_firefox: DIR = $(CONF_DIR)/firefox
+build_firefox: FILES = _manifest.json
+build_firefox: parse_firefox
+
 build_gtk-3.0: DIR = $(CONF_DIR)/gtk-3.0
 build_gtk-3.0: FILES = _settings.ini _gtk.css
 build_gtk-3.0: parse_gtk-3.0
@@ -50,12 +54,6 @@ build_xsettingsd: parse_xsettingsd
 build_kitty: DIR = $(CONF_DIR)/kitty
 build_kitty: FILES = _theme.conf
 build_kitty: parse_kitty
-
-build_rofi: DIR = $(CONF_DIR)/rofi
-build_rofi: FILES = _config.rasi theme/_default.rasi\
-                    theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi\
-
-build_rofi: parse_rofi
 
 build_sway: DIR = $(CONF_DIR)/sway
 build_sway: FILES = _windows.conf
