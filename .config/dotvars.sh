@@ -1,7 +1,7 @@
 #
 # THEME
 #
-theme=Flat-Remix-GTK-Green-Dark-Solid
+theme=Arc-Dark
 theme_icon=Tela-manjaro-dark
 theme_icon_variant=Tela-manjaro
 
@@ -29,23 +29,36 @@ rgba=rgb
 
 #
 # -> theme-based colors
-
 theme_highlight=06a284
 
-theme_black=1b1d22
-theme_black_rgb="27, 29, 34"
-theme_darkest=23252e
-theme_dark=272a34
-theme_mid=515967
-theme_light=b2b1b9
-theme_lightest=eeeeec
+theme_black=22232b
+theme_darkest=2f343f
+theme_dark=353945
+theme_mid=404552
+theme_light=cfd6e6
+theme_lightest=e7e8eb
 theme_white=ffffff
+theme_highlight=06a284
+
+#
+# -> little converter, as some (waybar/firefox) require rgb
+hex_to_rgb() {
+  printf "%d, %d, %d" 0x${1:0:2} 0x${1:2:2} 0x${1:4:2}
+}
+theme_highlight_rgb=$(hex_to_rgb $theme_highlight)
+theme_black_rgb=$(hex_to_rgb $theme_black)
+theme_darkest_rgb=$(hex_to_rgb $theme_darkest)
+theme_dark_rgb=$(hex_to_rgb $theme_dark)
+theme_mid_rgb=$(hex_to_rgb $theme_mid)
+theme_light_rgb=$(hex_to_rgb $theme_light)
+theme_lightest_rgb=$(hex_to_rgb $theme_lightest)
+theme_white_rgb=$(hex_to_rgb $theme_white)
 
 #
 # -> terminal
 
 # black (same as theme_black)
-term_color0=1b1d22
+term_color0=22232b
 term_color8=5d6574
 # red
 term_color1=f3077b
