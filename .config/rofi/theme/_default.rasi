@@ -13,12 +13,12 @@
     urgent-selected: #%{{term_color9}};
 
     /* generic names */
-    base-bg:	@dark;
+    base-bg:	@black;
     base-fg:	@light;
     input-bg:	@mid;
     message-bg:	@light;
     message-fg:	@darkest;
-    listview-bg:@black;
+    listview-bg:@darkest;
     scroll-fg:	@mid;
 }
 
