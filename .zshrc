@@ -3,7 +3,7 @@
 eval $(dircolors $HOME/.dir_colors)
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
-PROMPT='%K{18}%F{green}%T%f %F{12}%~%f%k $(gitprompt)%F{green}%(!.%F{red}#%f.$)%f '
+PROMPT='%K{18}%F{cyan}%T%f %F{blue}%~%f%k $(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -27,6 +27,7 @@ alias ip='ip -color=auto'
 alias diff='diff --color=auto'
 alias kdiff='kitty +kitten diff'
 alias grep='grep --color=auto'
+alias ishrink='convert -resize 1200 -quality 90'
 
 #
 # zsh

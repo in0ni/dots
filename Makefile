@@ -55,6 +55,10 @@ build_kitty: DIR = $(CONF_DIR)/kitty
 build_kitty: FILES = _theme.conf
 build_kitty: parse_kitty
 
+build_kak: DIR = $(CONF_DIR)/kak
+build_kak: FILES = colors/_gruv-term.kak
+build_kak: parse_kak
+
 build_rofi: DIR = $(CONF_DIR)/rofi
 build_rofi: FILES = _config.rasi \
 	theme/_default.rasi theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi

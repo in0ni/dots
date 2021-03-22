@@ -7,14 +7,14 @@
 }
 
 #waybar {
-  background-color: rgba(%{{theme_black_rgb}}, 0.8);
-  color: #%{{theme_lightest}};
+  background-color: rgba(%{{theme_dark_0_rgb}}, 0.8);
+  color: #%{{theme_light_1}};
   transition-property: background-color;
   transition-duration: 0.5s;
 }
 
 #waybar.hidden { opacity: 0.2; }
-label:focus { background-color: #%{{theme_black}}; }
+label:focus { background-color: #%{{theme_dark_0}}; }
 window#waybar.empty #window { background-color: transparent; }
 #custom-gammastep.inactive { opacity: 0.25; }
 
@@ -40,7 +40,7 @@ window#waybar.empty #window { background-color: transparent; }
 #clock,
 #mode,
 #window {
-  color: #%{{theme_white}};
+  color: #%{{theme_light_0}};
 }
 
 #workspaces button.focused,
@@ -50,7 +50,7 @@ window#waybar.empty #window { background-color: transparent; }
 #memory,
 #temperature,
 #battery {
-  background-color: rgba(%{{theme_black_rgb}}, 0.35);
+  background-color: rgba(%{{theme_dark_0_rgb}}, 0.35);
 }
 
 #clock { font-size: 13px; }
@@ -61,21 +61,21 @@ window#waybar.empty #window { background-color: transparent; }
 #workspaces button {
   padding: 0 5px;
   border-top: 1px solid transparent;
-  color: #%{{theme_lightest}};
+  color: #%{{theme_light_1}};
   opacity: 0.65;
 }
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 #workspaces button:hover {
-  background: rgba(%{{theme_black_rgb}}, 0.35);
+  background: rgba(%{{theme_dark_0_rgb}}, 0.35);
   box-shadow: inherit;
 }
 #workspaces button.focused {
-  color: #%{{theme_white}};
+  color: #%{{theme_light_0}};
   border-top: 1px solid #%{{theme_highlight}};
   opacity: 1;
 }
 #workspaces button.urgent {
-  background-color: #%{{term_color1}};
+  background-color: #%{{theme_dark_red}};
 }
 
 /*
@@ -83,8 +83,8 @@ window#waybar.empty #window { background-color: transparent; }
  */
 #mode {
   font-weight: bold;
-  background-color: #%{{theme_lightest}};
-  color: #%{{theme_black}};
+  background-color: #%{{theme_light_1}};
+  color: #%{{theme_dark_0}};
 }
 
 /*
@@ -109,19 +109,19 @@ window#waybar.empty #window { background-color: transparent; }
 #battery {
   margin: 0 1px;
   padding: 0 3px;
-  color: #%{{theme_white}};
+  color: #%{{theme_light_0}};
   opacity: 0.75;
 }
-#cpu { border-top: 1px solid #%{{term_color4}}; }
-#memory { border-top: 1px solid #%{{term_color5}}; }
-#temperature { border-top: 1px solid #%{{term_color16}}; }
-#temperature.critical { background-color: #%{{term_color1}}; }
-#battery.great { border-top: 1px solid #%{{term_color10}}; }
-#battery.good { border-top: 1px solid #%{{term_color6}}; }
+#cpu { border-top: 1px solid #%{{theme_dark_blue}}; }
+#memory { border-top: 1px solid #%{{theme_dark_purple}}; }
+#temperature { border-top: 1px solid #%{{theme_select}}; }
+#temperature.critical { background-color: #%{{theme_dark_red}}; }
+#battery.great { border-top: 1px solid #%{{theme_light_green}}; }
+#battery.good { border-top: 1px solid #%{{theme_dark_aqua}}; }
 #battery,
-#battery.fair { border-top: 1px solid #%{{term_color20}}; }
+#battery.fair { border-top: 1px solid #%{{theme_dark_4}}; }
 /* #battery.low below w/ network/pulse */
-#battery.charging { border-top: 1px solid #%{{term_color2}}; }
+#battery.charging { border-top: 1px solid #%{{theme_dark_green}}; }
 
 /*
  * warnings
@@ -136,17 +136,17 @@ window#waybar.empty #window { background-color: transparent; }
 #battery.low:not(.charging),
 #network.disconnected,
 #pulseaudio.muted {
-  background-color: rgba(%{{theme_black_rgb}}, 0.7);
-  border-top: 1px solid #%{{term_color1}};
-  color: #%{{term_color9}};
+  background-color: rgba(%{{theme_dark_0_rgb}}, 0.7);
+  border-top: 1px solid #%{{theme_dark_red}};
+  color: #%{{theme_light_red}};
 }
 
 #battery.critical:not(.charging),
 #cpu.critical,
 #temperature.critical {
-  background-color: #%{{term_color1}};
-  border-top: 1px solid #%{{theme_white}};
-  color: #%{{theme_white}};
+  background-color: #%{{theme_dark_red}};
+  border-top: 1px solid #%{{theme_light_0}};
+  color: #%{{theme_light_0}};
   animation-name: blinking;
   animation-duration: 1s;
   animation-timing-function: linear;
@@ -155,6 +155,6 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 @keyframes blinking {
-  to { background-color: #%{{theme_black}}; }
+  to { background-color: #%{{theme_dark_0}}; }
 }
 

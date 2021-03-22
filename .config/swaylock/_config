@@ -12,33 +12,33 @@ indicator-thickness=15
 indicator-caps-lock
 indicator-radius=100
 
-bs-hl-color=%{{term_color1}}e5
-caps-lock-bs-hl-color=%{{term_color1}}e5
+bs-hl-color=%{{theme_dark_red}}%{{trnz_10}}
+caps-lock-bs-hl-color=%{{theme_dark_red}}%{{trnz_10}}
 
-key-hl-color=%{{theme_highlight}}e5
-caps-lock-key-hl-color=%{{theme_highlight}}e5
+key-hl-color=%{{theme_highlight}}%{{trnz_10}}
+caps-lock-key-hl-color=%{{theme_highlight}}%{{trnz_10}}
 
-inside-color=%{{theme_darkest}}cf
-inside-clear-color=%{{theme_darkest}}cf
-inside-caps-lock-color=%{{theme_darkest}}cf
-inside-ver-color=%{{theme_darkest}}cf
-inside-wrong-color=%{{theme_darkest}}cf
+inside-color=%{{theme_dark_1}}%{{trnz_20}}
+inside-clear-color=%{{theme_dark_1}}%{{trnz_20}}
+inside-caps-lock-color=%{{theme_dark_1}}%{{trnz_20}}
+inside-ver-color=%{{theme_dark_1}}%{{trnz_20}}
+inside-wrong-color=%{{theme_dark_1}}%{{trnz_20}}
 
-text-color=%{{theme_white}}cf
-text-clear-color=%{{theme_white}}cf
-text-caps-lock-color=%{{theme_white}}cf
-text-ver-color=%{{theme_white}}cf
-text-wrong-color=%{{theme_white}}cf
+text-color=%{{theme_light_0}}%{{trnz_20}}
+text-clear-color=%{{theme_light_0}}%{{trnz_20}}
+text-caps-lock-color=%{{theme_light_0}}%{{trnz_20}}
+text-ver-color=%{{theme_light_0}}%{{trnz_20}}
+text-wrong-color=%{{theme_light_0}}%{{trnz_20}}
 
-line-color=%{{theme_white}}00
-line-clear-color=%{{theme_white}}00
-line-caps-lock-color=%{{theme_white}}00
-line-ver-color=%{{theme_white}}00
-line-wrong-color=%{{theme_white}}00
+line-color=%{{theme_light_0}}%{{trnz_100}}
+line-clear-color=%{{theme_light_0}}%{{trnz_100}}
+line-caps-lock-color=%{{theme_light_0}}%{{trnz_100}}
+line-ver-color=%{{theme_light_0}}%{{trnz_100}}
+line-wrong-color=%{{theme_light_0}}%{{trnz_100}}
 
-separator-color=%{{theme_darkest}}33
-ring-color=%{{theme_darkest}}33
-ring-clear-color=%{{theme_darkest}}33
-ring-caps-lock-color=%{{theme_darkest}}33
-ring-ver-color=%{{theme_darkest}}33
-ring-wrong-color=%{{theme_darkest}}33
+separator-color=%{{theme_dark_1}}%{{trnz_80}}
+ring-color=%{{theme_dark_1}}%{{trnz_80}}
+ring-clear-color=%{{theme_dark_1}}%{{trnz_80}}
+ring-caps-lock-color=%{{theme_dark_1}}%{{trnz_80}}
+ring-ver-color=%{{theme_dark_1}}%{{trnz_80}}
+ring-wrong-color=%{{theme_dark_1}}%{{trnz_80}}

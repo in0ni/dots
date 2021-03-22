@@ -2,5 +2,5 @@ Net/ThemeName "%{{theme}}"
 Net/IconThemeName "%{{theme_icon}}"
 Xft/Antialias 1
 Xft/Hinting 1
-Xft/HintStyle "hintfull"
-Xft/RGBA "rgb"
+Xft/HintStyle "%{{hintstyle}}"
+Xft/RGBA "%{{rgba}}"

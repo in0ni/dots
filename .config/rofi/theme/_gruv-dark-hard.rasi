@@ -9,8 +9,8 @@
     mid:		#%{{gruv_dark_bg_3}};
     light:		#%{{gruv_light_bg_3}};
     accent:		#%{{gruv_dark_orange}};
-    urgent:     #%{{term_color1}};
-    urgent-selected: #%{{term_color9}};
+    urgent:     #%{{theme_dark_red}};
+    urgent-selected: #%{{theme_light_red}};
 
     /* generic names */
     base-bg:	@darkest;
