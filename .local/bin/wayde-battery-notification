@@ -4,6 +4,6 @@ dunst_id=99901
 battery_level=$(cat /sys/class/power_supply/BAT0/capacity)
 battery_state=$(cat /sys/class/power_supply/BAT0/status)
 
-if [[ $battery_level -le 20 && $battery_state == "Discharging" ]]; then
+if [[ $battery_level -le 6 && $battery_state == "Discharging" ]]; then
   dunstify "Battery Warning" "Battery is critically low. Plug that shit in." -r $dunst_id -i battery-empty -u critical
 fi
