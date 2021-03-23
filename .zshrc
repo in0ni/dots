@@ -1,6 +1,6 @@
 ### Pimpin' aint easy
 #
-eval $(dircolors $HOME/.dir_colors)
+eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
 export EXA_COLORS="ur=33:uw=31:ux=32:ue=32:di=34:da=38;5;21:sn=36:sb=1;36:uu=37:gu=37:un=38;5;20:gn=38;5;20"
