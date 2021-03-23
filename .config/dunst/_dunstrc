@@ -8,7 +8,7 @@ separator_height = 1
 padding = 10
 horizontal_padding = 10
 frame_width = 1
-frame_color = "#%{{theme_light_2}}"
+frame_color = "#%{{theme_light_4}}"
 separator_color = frame
 # Don't remove messages, if the user is idle (no mouse or keyboard input)
 # for longer than idle_threshold seconds.
@@ -18,7 +18,7 @@ separator_color = frame
 idle_threshold = 120
 
 ### Text ###
-font = %{{font_sans}} %{{font_size_sm}}
+font = %{{font_sans}} %{{font_size}}
 markup = full
 format = "<b>%s</b>\n%b"
 show_age_threshold = 60
@@ -53,24 +53,24 @@ mouse_right_click = close_all
 background = "#%{{theme_light_0}}%{{trnz_15}}"
 foreground = "#%{{theme_dark_0}}"
 highlight = "#%{{theme_highlight}}"
-timeout = 5
+timeout = 4
 
 [urgency_normal]
 background = "#%{{theme_light_0}}%{{trnz_15}}"
 foreground = "#%{{theme_dark_0}}"
 highlight = "#%{{theme_highlight}}"
-timeout = 5
+timeout = 6
 
 [urgency_critical]
-background = "#%{{theme_light_red}}"
-foreground = "#%{{theme_dark_0}}"
+background = "#%{{theme_dark_1}}"
+foreground = "#%{{theme_dark_red}}"
 highlight = "#%{{theme_light_0}}"
 frame_color = "#%{{theme_dark_red}}"
 timeout = 0
 
 [kyz]
 appname = "kyz"
-background = "#%{{theme_dark_2}}%{{trnz_15}}"
+background = "#%{{theme_dark_1}}%{{trnz_15}}"
 foreground = "#%{{theme_light_0}}"
 highlight = "#%{{theme_highlight}}"
 frame_color = "#%{{theme_dark_4}}"

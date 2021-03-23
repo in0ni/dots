@@ -116,10 +116,10 @@ window#waybar.empty #window { background-color: transparent; }
 #memory { border-top: 1px solid #%{{theme_dark_purple}}; }
 #temperature { border-top: 1px solid #%{{theme_select}}; }
 #temperature.critical { background-color: #%{{theme_dark_red}}; }
-#battery.great { border-top: 1px solid #%{{theme_light_green}}; }
+#battery.great { border-top: 1px solid #%{{theme_dark_green}}; }
 #battery.good { border-top: 1px solid #%{{theme_dark_aqua}}; }
 #battery,
-#battery.fair { border-top: 1px solid #%{{theme_dark_4}}; }
+#battery.fair { border-top: 1px solid #%{{theme_light_3}}; }
 /* #battery.low below w/ network/pulse */
 #battery.charging { border-top: 1px solid #%{{theme_dark_green}}; }
 
