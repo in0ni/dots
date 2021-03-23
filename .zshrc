@@ -3,7 +3,9 @@
 eval $(dircolors $HOME/.dir_colors)
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
-PROMPT='%K{18}%F{cyan}%T%f %F{blue}%~%f%k $(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+export EXA_COLORS="ur=33:uw=31:ux=32:ue=32:di=34:da=38;5;21:sn=36:sb=1;36:uu=37:gu=37:un=38;5;20:gn=38;5;20"
+# http://www.unicode-symbol.com/u/E0B0.html 
+PROMPT='%K{234}%F{cyan}%T%f %F{blue}%~%f%F{black}%f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -19,15 +21,17 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 ### Aliases
 #
 alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias ls='exa -gF --git --group-directories-first'
+alias ll='ls -lF'
+alias lt='ls --tree'
 alias vi='vim'
-alias ls='ls -hN --color=auto'
-alias ll='ls -l'
 alias less=$PAGER
-alias ip='ip -color=auto'
 alias diff='diff --color=auto'
-alias kdiff='kitty +kitten diff'
+alias ip='ip -color=auto'
 alias grep='grep --color=auto'
 alias ishrink='convert -resize 1200 -quality 90'
+alias o="xdg-open"
+alias sudo="sudo -E"
 
 #
 # zsh
@@ -106,3 +110,14 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # fzf
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
+
+term_colors() {
+  x=`tput op`
+  y=`printf %5s`
+  for i in {0..21}; do
+    o=00$i
+    echo -e `tput setaf $i`${o:${#o}-3:3}\
+    "The $(tput bold)quick brown $(tput sgr0)$(tput setaf $i)fox jumped over the lazy fox 0123456789 () [ ] { } < >"\
+    `tput setaf $i;tput setab $i`${y// /=}$x
+  done
+}
