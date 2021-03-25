@@ -41,32 +41,35 @@ theme_dark_0=2b2d30
 theme_dark_1=2f343f
 theme_dark_2=353945
 theme_dark_3=404552
-theme_dark_4=515a6b
-theme_dark_red=fe3476
-theme_dark_green=75d21e
-theme_dark_yellow=ffde29
-theme_dark_blue=6bafff
-theme_dark_purple=e26cbe
-theme_dark_aqua=58ddc4
+theme_dark_4=586274
+theme_dark_red=ff0077
+theme_dark_green=02d200
+theme_dark_yellow=ffe800
+theme_dark_blue=14a4ff
+theme_dark_purple=f459d0
+theme_dark_aqua=00ffcf
 
 theme_light_0=f0f3ff
 theme_light_1=cfd7e7
 theme_light_2=bbc2d8
 theme_light_3=a5adc5
 theme_light_4=8992a9
-theme_light_red=fc8cb2
-theme_light_green=c6dd88
-theme_light_yellow=fff0a8
-theme_light_blue=bfe0f3
-theme_light_purple=edc4e1
-theme_light_aqua=d6f0e6
+theme_light_red=ef2121
+theme_light_green=badf00
+theme_light_yellow=ffa100
+theme_light_blue=37d4e7
+theme_light_purple=b46be6
+theme_light_aqua=00e88c
 
 # highlight for menus
 theme_highlight=06a284
 
 # cursor selections (color 16,17 for term)
-theme_select=ffa31a
-theme_select_alt=855100
+theme_select=ffb224
+theme_select_alt=e06c00
+theme_warn=e32626
+theme_brown=c0612a
+theme_pink=ff8585
 
 #
 ## Editor-only theme: gruvbox hard

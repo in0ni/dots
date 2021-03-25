@@ -3,9 +3,9 @@
 eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
-export EXA_COLORS="ur=33:uw=31:ux=32:ue=32:di=34:da=38;5;21:sn=36:sb=1;36:uu=37:gu=37:un=38;5;20:gn=38;5;20"
+export EXA_COLORS="ur=38;5;11:uw=38;5;10:ux=38;5;10:ue=32:di=34:da=38;5;12:sn=36:sb=1;36:uu=37:gu=37:un=38;5;8:gn=38;5;8"
 # http://www.unicode-symbol.com/u/E0B0.html 
-PROMPT='%K{234}%F{cyan}%T%f %F{blue}%~%f%F{black}%f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{233}%F{cyan}%T%f %F{blue}%~%f%F{black}%f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -111,12 +111,12 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
-term_colors() {
+base16_view_colors() {
   x=`tput op`
   y=`printf %5s`
-  for i in {0..21}; do
+  for i in {0..15}; do
     o=00$i
-    echo -e `tput setaf $i`${o:${#o}-3:3}\
+    echo -e "# "`tput setaf $i`${o:${#o}-3:3}\
     "The $(tput bold)quick brown $(tput sgr0)$(tput setaf $i)fox jumped over the lazy fox 0123456789 () [ ] { } < >"\
     `tput setaf $i;tput setab $i`${y// /=}$x
   done

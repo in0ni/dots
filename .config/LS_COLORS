@@ -1,30 +1,44 @@
-#                                    LS_COLORS
-#   based on: https://github.com/trapd00r/LS_COLORS
+# LS_COLORS {base16}
+# Intended to *only* use base 16 colors (8x8 matching)
+#
+# NOTE: original list based, and kept upto date with:
+# - https://github.com/trapd00r/LS_COLORS
+#
+# conventions:
+#   - scheme:	colors are intended to match original scheme of:
+#     - [0-7]  black, red, green, yellow, blue, purple, cyan, gray
+#     - [8-15] same colors as above, but "bright" or alternate version
+#   - order:	fg;bg;style
+#   - prefer:	30-37 (fg 0-7), 40-47 (bg 0-7)
+#   - prefer:	38;5 (fg 8+), 48;5 (bg 8+)
+#     - exa/lsd don't fully support 90-97 (fg 8-15), 100-107 (bg 8-15)
 
 # core {{{1
-BLK                   38;5;68
-CAPABILITY            38;5;17
-CHR                   38;5;113;1
-DIR                   34;0
-DOOR                  38;5;127
+BLK                   34;4;3
+CAPABILITY            32;48;5;8
+CHR                   32;4;3
+DIR                   34
+DOOR                  30;44
 EXEC                  32;1
-FIFO                  38;5;126
+FIFO                  30;46
+SOCK                  30;48;5;14;3
 FILE                  0
 LINK                  target
-MULTIHARDLINK         38;5;222;1
 # "NORMAL don't reset the bold attribute -
 # https://github.com/trapd00r/LS_COLORS/issues/11
 #NORMAL                38;5;254
 NORMAL                0
-ORPHAN                30;41;1
-OTHER_WRITABLE        33;1
+ORPHAN                31;48;5;232;1;4
+
+# these *do not* work on exa
+MULTIHARDLINK         38;5;222;1
+OTHER_WRITABLE        38;5;220;1
 SETGID                48;5;3;38;5;0
-SETUID                33;1;3;100;1
-SOCK                  38;5;197
+SETUID                38;5;220;1;3;100;1
 STICKY                38;5;86;48;5;234
 STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 
-*LS_COLORS            47;31;1;3;4
+*LS_COLORS            31;48;5;15;3
 # }}}
 # documents {{{1
 *README               33;1
@@ -41,44 +55,44 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 *VERSION              33;1
 *NOTICE               33;1
 *CHANGES              33;1
-.log                  38;5;190
+.log                  33;48;5;8
 # plain-text {{{2
-.txt                  0 
+.txt                  0;3
 # markup {{{2
-.adoc                 38;5;184
-.asciidoc             38;5;184
-.etx                  38;5;184
-.info                 38;5;184
-.markdown             38;5;184
-.md                   38;5;184
-.mkd                  38;5;184
-.nfo                  38;5;184
-.pod                  38;5;184
-.rst                  38;5;184
-.tex                  38;5;184
-.textile              38;5;184
+.adoc                 33
+.asciidoc             33
+.etx                  33
+.info                 33
+.markdown             33
+.md                   33
+.mkd                  33
+.nfo                  33
+.pod                  33
+.rst                  33
+.tex                  33
+.textile              33
 # key-value, non-relational data {{{2
-.bib                  38;5;178
-.json                 38;5;178
-.jsonl                38;5;178
-.jsonnet              38;5;178
-.libsonnet            38;5;142
-.ndjson               38;5;178
-.msg                  38;5;178
-.pgn                  38;5;178
-.rss                  38;5;178
-.xml                  38;5;178
-.fxml                 38;5;178
-.toml                 38;5;178
-.yaml                 38;5;178
-.yml                  38;5;178
-.RData                38;5;178
-.rdata                38;5;178
-.xsd                  38;5;178
-.dtd                  38;5;178
-.sgml                 38;5;178
-.rng                  38;5;178
-.rnc                  38;5;178
+.bib                  33;3
+.json                 33;3
+.jsonl                33;3
+.jsonnet              33;3
+.libsonnet            33;3
+.ndjson               33;3
+.msg                  33;3
+.pgn                  33;3
+.rss                  33;3
+.xml                  33;3
+.fxml                 33;3
+.toml                 33;3
+.yaml                 33;3
+.yml                  33;3
+.RData                33;3
+.rdata                33;3
+.xsd                  33;3
+.dtd                  33;3
+.sgml                 33;3
+.rng                  33;3
+.rnc                  33;3
 # }}}
 # binary {{{2
 .cbr                  38;5;141
@@ -162,21 +176,21 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 # }}}
 # code {{{1
 # version control {{{2
-.git                  38;5;197
+.git                  33;1
 .gitignore            38;5;8
 .gitattributes        38;5;8
 .gitmodules           38;5;8
 
 # shell {{{2
-.awk                  38;5;172
-.bash                 38;5;172
-.bat                  38;5;172
-.BAT                  38;5;172
-.sed                  38;5;172
-.sh                   38;5;172
-.zsh                  38;5;172
-.vim                  38;5;172
-.kak                  38;5;172
+.awk                  32;3
+.bash                 32;3
+.bat                  32;3
+.BAT                  32;3
+.sed                  32;3
+.sh                   32;3
+.zsh                  32;3
+.vim                  32;3
+.kak                  32;3
 
 # interpreted {{{2
 .ahk                  38;5;41
@@ -308,16 +322,16 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .tfvars               38;5;168
 # orchestration 2}}}
 # html {{{2
-.css                  38;5;161;1
-.less                 38;5;161;1
-.sass                 38;5;161;1
-.scss                 38;5;161;1
-.htm                  38;5;161;1
-.html                 38;5;161;1
-.jhtm                 38;5;161;1
-.mht                  38;5;161;1
-.eml                  38;5;161;1
-.mustache             38;5;161;1
+.css                  38;5;125;1
+.less                 38;5;125;1
+.sass                 38;5;125;1
+.scss                 38;5;125;1
+.htm                  38;5;125;1
+.html                 38;5;125;1
+.jhtm                 38;5;125;1
+.mht                  38;5;125;1
+.eml                  38;5;125;1
+.mustache             38;5;125;1
 # }}}
 # java {{{2
 .coffee               38;5;074;1
@@ -340,29 +354,29 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .vbs                  38;5;81
 # 2}}}
 # Build stuff {{{2
-*Dockerfile           38;5;155
+*Dockerfile           38;5;10
 .dockerignore         38;5;8
-*Makefile             38;5;155
-*MANIFEST             38;5;243
+*Makefile             38;5;10;1
+*MANIFEST             37
 *pm_to_blib           38;5;8
 # Functional Configuration
 .nix                  38;5;155
 .dhall                38;5;178
 # ruby rake
-.rake                 38;5;155
+.rake                 38;5;10
 # automake
-.am                   38;5;242
-.in                   38;5;242
-.hin                  38;5;242
-.scan                 38;5;242
-.m4                   38;5;242
-.old                  38;5;242
-.out                  38;5;242
-.SKIP                 38;5;244
+.am                   38;5;8
+.in                   38;5;8
+.hin                  38;5;8
+.scan                 38;5;8
+.m4                   38;5;8
+.old                  38;5;8
+.out                  38;5;8
+.SKIP                 38;5;8
 # }}}
 # patch files {{{2
-.diff                 48;5;197;38;5;232
-.patch                48;5;197;38;5;232;1
+.diff                 30;106
+.patch                30;106;1
 #}}}
 # graphics {{{1
 .bmp                  35
@@ -387,129 +401,129 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .webp                 35
 # }}}
 # vector {{{1
-.ai                   38;5;9
-.eps                  38;5;9
-.epsf                 38;5;9
-.drw                  38;5;9
-.ps                   38;5;9
-.svg                  38;5;9
+.ai                   38;5;13
+.eps                  38;5;13
+.epsf                 38;5;13
+.drw                  38;5;13
+.ps                   38;5;13
+.svg                  38;5;13
 # }}}
 # video {{{1
-.avi                  38;5;114
-.divx                 38;5;114
-.IFO                  38;5;114
-.m2v                  38;5;114
-.m4v                  38;5;114
-.mkv                  38;5;114
-.MOV                  38;5;114
-.mov                  38;5;114
-.mp4                  38;5;114
-.mpeg                 38;5;114
-.mpg                  38;5;114
-.ogm                  38;5;114
-.rmvb                 38;5;114
-.sample               38;5;114
-.wmv                  38;5;114
+.avi                  38;5;14
+.divx                 38;5;14
+.IFO                  38;5;14
+.m2v                  38;5;14
+.m4v                  38;5;14
+.mkv                  38;5;14
+.MOV                  38;5;14
+.mov                  38;5;14
+.mp4                  38;5;14
+.mpeg                 38;5;14
+.mpg                  38;5;14
+.ogm                  38;5;14
+.rmvb                 38;5;14
+.sample               38;5;14
+.wmv                  38;5;14
   # mobile/streaming {{{2
-.3g2                  38;5;115
-.3gp                  38;5;115
-.gp3                  38;5;115
-.webm                 38;5;115
-.gp4                  38;5;115
-.asf                  38;5;115
-.flv                  38;5;115
-.ts                   38;5;115
-.ogv                  38;5;115
-.f4v                  38;5;115
+.3g2                  38;5;14;3
+.3gp                  38;5;14;3
+.gp3                  38;5;14;3
+.webm                 38;5;14;3
+.gp4                  38;5;14;3
+.asf                  38;5;14;3
+.flv                  38;5;14;3
+.ts                   38;5;14;3
+.ogv                  38;5;14;3
+.f4v                  38;5;14;3
   # }}}
   # lossless {{{2
-.VOB                  38;5;115;1
-.vob                  38;5;115;1
+.VOB                  38;5;14;1
+.vob                  38;5;14;1
 # }}}
 # subtitles {{{1
-.ass                  38;5;117
-.srt                  38;5;117
-.ssa                  38;5;117
-.sub                  38;5;117
-.sup                  38;5;117 # bitmap image track
-.vtt                  38;5;117
+.ass                  37;3
+.srt                  37;3
+.ssa                  37;3
+.sub                  37;3
+.sup                  37;3 # bitmap image track
+.vtt                  37;3
 #}}}
 # audio {{{1
-.3ga                  38;5;137;1
-.S3M                  38;5;137;1
-.aac                  38;5;137;1
-.amr                  38;5;137;1
-.au                   38;5;137;1
-.caf                  38;5;137;1
-.dat                  38;5;137;1
-.dts                  38;5;137;1
-.fcm                  38;5;137;1
-.m4a                  38;5;137;1
-.mod                  38;5;137;1
-.mp3                  38;5;137;1
-.mp4a                 38;5;137;1
-.oga                  38;5;137;1
-.ogg                  38;5;137;1
-.opus                 38;5;137;1
-.s3m                  38;5;137;1
-.sid                  38;5;137;1
-.wma                  38;5;137;1
+.3ga                  38;5;10
+.S3M                  38;5;10
+.aac                  38;5;10
+.amr                  38;5;10
+.au                   38;5;10
+.caf                  38;5;10
+.dat                  38;5;10
+.dts                  38;5;10
+.fcm                  38;5;10
+.m4a                  38;5;10
+.mod                  38;5;10
+.mp3                  38;5;10
+.mp4a                 38;5;10
+.oga                  38;5;10
+.ogg                  38;5;10
+.opus                 38;5;10
+.s3m                  38;5;10
+.sid                  38;5;10
+.wma                  38;5;10
 # lossless
-.ape                  38;5;136;1
-.aiff                 38;5;136;1
-.cda                  38;5;136;1
-.flac                 38;5;136;1
-.alac                 38;5;136;1
-.mid                  38;5;136;1
-.midi                 38;5;136;1
-.pcm                  38;5;136;1
-.wav                  38;5;136;1
-.wv                   38;5;136;1
-.wvc                  38;5;136;1
+.ape                  38;5;10;1
+.aiff                 38;5;10;1
+.cda                  38;5;10;1
+.flac                 38;5;10;1
+.alac                 38;5;10;1
+.mid                  38;5;10;1
+.midi                 38;5;10;1
+.pcm                  38;5;10;1
+.wav                  38;5;10;1
+.wv                   38;5;10;1
+.wvc                  38;5;10;1
 
 # }}}
 # fonts {{{1
-.afm                  38;5;66
-.fon                  38;5;66
-.fnt                  38;5;66
-.pfb                  38;5;66
-.pfm                  38;5;66
-.ttf                  38;5;66
-.otf                  38;5;66
+.afm                  37
+.fon                  37
+.fnt                  37
+.pfb                  37
+.pfm                  37
+.ttf                  37
+.otf                  37
 # Web Open Font Format
-.woff                 38;5;66
-.woff2                38;5;66
+.woff                 37
+.woff2                37
 #   postscript fonts
-.PFA                  38;5;66
-.pfa                  38;5;66
+.PFA                  37
+.pfa                  37
 # }}}
 # archives {{{1
-.7z                   38;5;40
-.a                    38;5;40
-.arj                  38;5;40
-.bz2                  38;5;40
-.cpio                 38;5;40
-.gz                   38;5;40
-.lrz                  38;5;40
-.lz                   38;5;40
-.lzma                 38;5;40
-.lzo                  38;5;40
-.rar                  38;5;40
-.s7z                  38;5;40
-.sz                   38;5;40
-.tar                  38;5;40
-.tgz                  38;5;40
-.warc                 38;5;40
-.WARC                 38;5;40
-.xz                   38;5;40
-.z                    38;5;40
-.zip                  38;5;40
-.zipx                 38;5;40
-.zoo                  38;5;40
-.zpaq                 38;5;40
-.zst                  38;5;40
-.zstd                 38;5;40
-.zz                   38;5;40
+.7z                   38;5;9
+.a                    38;5;9
+.arj                  38;5;9
+.bz2                  38;5;9
+.cpio                 38;5;9
+.gz                   38;5;9
+.lrz                  38;5;9
+.lz                   38;5;9
+.lzma                 38;5;9
+.lzo                  38;5;9
+.rar                  38;5;9
+.s7z                  38;5;9
+.sz                   38;5;9
+.tar                  38;5;9
+.tgz                  38;5;9
+.warc                 38;5;9
+.WARC                 38;5;9
+.xz                   38;5;9
+.z                    38;5;9
+.zip                  38;5;9
+.zipx                 38;5;9
+.zoo                  38;5;9
+.zpaq                 38;5;9
+.zst                  38;5;9
+.zstd                 38;5;9
+.zz                   38;5;9
   # packaged apps {{{2
 .apk                  38;5;215
 .ipa                  38;5;215
@@ -528,11 +542,11 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .xpi                  38;5;215 # Mozilla Firefox extension
   # }}}
   # segments from 0 to three digits after first extension letter {{{2
-.r[0-9]{0,2}          38;5;8
-.zx[0-9]{0,2}         38;5;8
-.z[0-9]{0,2}          38;5;8
+.r[0-9]{0,2}          38;5;239
+.zx[0-9]{0,2}         38;5;239
+.z[0-9]{0,2}          38;5;239
 # partial files
-.part                 38;5;8
+.part                 38;5;239
   # }}}
 # partition images {{{2
 .iso                  38;5;124
@@ -566,7 +580,6 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .un~                  38;5;241
 .orig                 38;5;241
 # backups
-.bup                  38;5;241
 .BUP                  38;5;241
 .bak                  38;5;241
 .o                    38;5;241 #   *nix Object file (shared libraries, core dumps etc)
@@ -599,9 +612,9 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .cap                  38;5;29
 .dmp                  38;5;29
 # macOS
-.DS_Store             38;5;8
-.localized            38;5;8
-.CFUserTextEncoding   38;5;8
+.DS_Store             38;5;239
+.localized            38;5;239
+.CFUserTextEncoding   38;5;239
 # }}}
 # hosts {{{1
 # /etc/hosts.{deny,allow}
@@ -639,8 +652,8 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .lnk                  38;5;39
 # }}}
 # macOS files {{{1
-*CodeResources        38;5;8 # code signing apps
-*PkgInfo              38;5;8 # app bundle id
+*CodeResources        38;5;239 # code signing apps
+*PkgInfo              38;5;239 # app bundle id
 .nib                  38;5;57  # UI
 .car                  38;5;57  # asset catalog
 .dylib                38;5;241 # shared lib
@@ -657,20 +670,20 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 # }}}
 # }}}
 # encrypted data {{{1
-.asc                  38;5;192;3
-.bfe                  38;5;192;3
-.enc                  38;5;192;3
-.gpg                  38;5;192;3
-.signature            38;5;192;3
-.sig                  38;5;192;3
-.p12                  38;5;192;3
-.pem                  38;5;192;3
-.pgp                  38;5;192;3
-.p7s                  38;5;192;3
-*id_dsa                38;5;192;3
-*id_rsa                38;5;192;3
-*id_ecdsa              38;5;192;3
-*id_ed25519            38;5;192;3
+.asc                  36;3
+.bfe                  36;3
+.enc                  36;3
+.gpg                  36;3
+.signature            36;3
+.sig                  36;3
+.p12                  36;3
+.pem                  36;3
+.pgp                  36;3
+.p7s                  36;3
+*id_dsa                36;3
+*id_rsa                36;3
+*id_ecdsa              36;3
+*id_ed25519            36;3
 # 1}}}
 # emulators {{{1
 .32x                  38;5;213
@@ -820,5 +833,6 @@ TERM xterm-color
 TERM xterm-debian
 TERM xterm-kitty
 # }}}
+
 
 # vim: ft=dircolors:fdm=marker:et:sw=2:
