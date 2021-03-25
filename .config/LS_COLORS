@@ -30,7 +30,7 @@ LINK                  target
 NORMAL                0
 ORPHAN                31;48;5;232;1;4
 
-# these *do not* work on exa
+# these *do not* work on exa? lsd?
 MULTIHARDLINK         38;5;222;1
 OTHER_WRITABLE        38;5;220;1
 SETGID                48;5;3;38;5;0
@@ -104,42 +104,36 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .mobi                 38;5;141
 .epub                 38;5;141
 # words {{{3
+.odb                  38;5;111
+.odt                  38;5;111
+# mac & win
+.pages                38;5;111
+.rtf                  38;5;111
 .docm                 38;5;111;4
 .doc                  38;5;111
 .docx                 38;5;111
-.odb                  38;5;111
-.odt                  38;5;111
-.rtf                  38;5;111
 # presentation {{{3
 .odp                  38;5;166
+# mac & win
+.key                  38;5;166
 .pps                  38;5;166
 .ppt                  38;5;166
 .pptx                 38;5;166
-#   Powerpoint show
 .ppts                 38;5;166
-#   Powerpoint with enabled macros
 .pptxm                38;5;166;4
-#   Powerpoint show with enabled macros
 .pptsm                38;5;166;4
 # spreadsheet {{{3
 .csv                  38;5;78
 .tsv                  38;5;78
-#   Open document spreadsheet
 .ods                  38;5;112
+# mac & win
+.numbers              38;5;112
 .xla                  38;5;76
-#   Excel spreadsheet
 .xls                  38;5;112
 .xlsx                 38;5;112
-#   Excel spreadsheet with macros
 .xlsxm                38;5;112;4
-#   Excel module
 .xltm                 38;5;73;4
 .xltx                 38;5;73
-#   macOS office suite {{{3
-.pages                38;5;111
-.numbers              38;5;112
-.key                  38;5;166
-# }}}
 # }}}
 # configs {{{2
 *config               1

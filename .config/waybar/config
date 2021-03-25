@@ -77,7 +77,7 @@
   "battery": {
     "states": {
       "great": 100,
-      "good": 70,
+      "good": 75,
       "fair": 40,
       "low": 20,
       "critical": 5

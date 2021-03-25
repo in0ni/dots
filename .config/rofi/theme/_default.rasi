@@ -9,8 +9,8 @@
     mid:		#%{{theme_dark_3}};
     light:		#%{{theme_light_0}};
     accent:		#%{{theme_highlight}};
-    urgent:     #%{{theme_dark_red}};
-    urgent-selected: #%{{theme_light_red}};
+    urgent:     #%{{b16_01_red}};
+    urgent-selected: #%{{b16_01_red}};
 
     /* generic names */
     base-bg:	@black;

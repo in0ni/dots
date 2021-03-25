@@ -12,8 +12,8 @@ indicator-thickness=15
 indicator-caps-lock
 indicator-radius=100
 
-bs-hl-color=%{{theme_dark_red}}%{{trnz_10}}
-caps-lock-bs-hl-color=%{{theme_dark_red}}%{{trnz_10}}
+bs-hl-color=%{{b16_01_red}}%{{trnz_10}}
+caps-lock-bs-hl-color=%{{b16_01_red}}%{{trnz_10}}
 
 key-hl-color=%{{theme_highlight}}%{{trnz_10}}
 caps-lock-key-hl-color=%{{theme_highlight}}%{{trnz_10}}

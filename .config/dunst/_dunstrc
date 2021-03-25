@@ -63,9 +63,9 @@ timeout = 6
 
 [urgency_critical]
 background = "#%{{theme_dark_1}}"
-foreground = "#%{{theme_dark_red}}"
+foreground = "#%{{b16_01_red}}"
 highlight = "#%{{theme_light_0}}"
-frame_color = "#%{{theme_dark_red}}"
+frame_color = "#%{{b16_01_red}}"
 timeout = 0
 
 [kyz]
