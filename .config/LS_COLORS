@@ -55,7 +55,7 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 *VERSION              33;1
 *NOTICE               33;1
 *CHANGES              33;1
-.log                  33;48;5;8
+.log                  37;1
 # plain-text {{{2
 .txt                  0;3
 # markup {{{2
@@ -95,45 +95,45 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .rnc                  33;3
 # }}}
 # binary {{{2
-.cbr                  38;5;141
-.cbz                  38;5;141
-.chm                  38;5;141
-.djvu                 38;5;141
-.pdf                  38;5;141
-.PDF                  38;5;141
-.mobi                 38;5;141
-.epub                 38;5;141
+.cbr                  36;1
+.cbz                  36;1
+.chm                  36;1
+.djvu                 36;1
+.pdf                  36;1
+.PDF                  36;1
+.mobi                 36;1
+.epub                 36;1
 # words {{{3
-.odb                  38;5;111
-.odt                  38;5;111
+.odb                  38;5;12;1
+.odt                  38;5;12;1
 # mac & win
-.pages                38;5;111
-.rtf                  38;5;111
-.docm                 38;5;111;4
-.doc                  38;5;111
-.docx                 38;5;111
+.rtf                  38;5;12
+.pages                38;5;12;1
+.doc                  38;5;12;1
+.docm                 38;5;12;1
+.docx                 38;5;12;1
 # presentation {{{3
-.odp                  38;5;166
+.odp                  38;5;11;1
 # mac & win
-.key                  38;5;166
-.pps                  38;5;166
-.ppt                  38;5;166
-.pptx                 38;5;166
-.ppts                 38;5;166
-.pptxm                38;5;166;4
-.pptsm                38;5;166;4
+.key                  38;5;11;1
+.pps                  38;5;11;1
+.ppt                  38;5;11;1
+.pptx                 38;5;11;1
+.ppts                 38;5;11;1
+.pptxm                38;5;11;1
+.pptsm                38;5;11;1
 # spreadsheet {{{3
-.csv                  38;5;78
-.tsv                  38;5;78
-.ods                  38;5;112
+.csv                  38;5;10
+.tsv                  38;5;10;1
+.ods                  38;5;10;1
 # mac & win
-.numbers              38;5;112
-.xla                  38;5;76
-.xls                  38;5;112
-.xlsx                 38;5;112
-.xlsxm                38;5;112;4
-.xltm                 38;5;73;4
-.xltx                 38;5;73
+.numbers              38;5;10;1
+.xla                  38;5;10;1
+.xls                  38;5;10;1
+.xlsx                 38;5;10;1
+.xlsxm                38;5;10;1
+.xltm                 38;5;10;1
+.xltx                 38;5;10;1
 # }}}
 # configs {{{2
 *config               1
@@ -374,33 +374,41 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 #}}}
 # graphics {{{1
 .bmp                  35
-.dicom                35
-.tiff                 35
-.tif                  35
-.TIFF                 35
-.cdr                  35
-.flif                 35
 .gif                  35
 .icns                 35
 .ico                  35
 .jpeg                 35
 .JPG                  35
 .jpg                  35
-.nth                  35
-.png                  35
-.psd                  35
-.pxd                  35
-.pxm                  35
-.xpm                  35
 .webp                 35
+# lossless
+.png                  35;4
+.flif                 35;4
+.tiff                 35;4
+.tif                  35;4
+.TIFF                 35;4
+# editors
+.xcf                  35;1
+.gbr                  35;1
+.scm                  35;1
+.psd                  35;1
+.cdr                  35;1
+# misc
+.nth                  35;1
+.dicom                35;1
+.pxd                  35;1
+.pxm                  35;1
+.xpm                  35;1
 # }}}
 # vector {{{1
-.ai                   38;5;13
 .eps                  38;5;13
 .epsf                 38;5;13
-.drw                  38;5;13
 .ps                   38;5;13
-.svg                  38;5;13
+# can be inkscape native
+.svg                  38;5;13;1;3
+# editors
+.ai                   38;5;13;1
+.drw                  38;5;13;1
 # }}}
 # video {{{1
 .avi                  38;5;14
@@ -431,8 +439,8 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .f4v                  38;5;14;3
   # }}}
   # lossless {{{2
-.VOB                  38;5;14;1
-.vob                  38;5;14;1
+.VOB                  38;5;14;4
+.vob                  38;5;14;4
 # }}}
 # subtitles {{{1
 .ass                  37;3
@@ -463,33 +471,33 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .sid                  38;5;10
 .wma                  38;5;10
 # lossless
-.ape                  38;5;10;1
-.aiff                 38;5;10;1
-.cda                  38;5;10;1
-.flac                 38;5;10;1
-.alac                 38;5;10;1
-.mid                  38;5;10;1
-.midi                 38;5;10;1
-.pcm                  38;5;10;1
-.wav                  38;5;10;1
-.wv                   38;5;10;1
-.wvc                  38;5;10;1
+.ape                  38;5;10;4
+.aiff                 38;5;10;4
+.cda                  38;5;10;4
+.flac                 38;5;10;4
+.alac                 38;5;10;4
+.mid                  38;5;10;4
+.midi                 38;5;10;4
+.pcm                  38;5;10;4
+.wav                  38;5;10;4
+.wv                   38;5;10;4
+.wvc                  38;5;10;4
 
 # }}}
 # fonts {{{1
-.afm                  37
-.fon                  37
-.fnt                  37
-.pfb                  37
-.pfm                  37
-.ttf                  37
-.otf                  37
+.afm                  37;3
+.fon                  37;3
+.fnt                  37;3
+.pfb                  37;3
+.pfm                  37;3
+.ttf                  37;3
+.otf                  37;3
 # Web Open Font Format
-.woff                 37
-.woff2                37
+.woff                 37;3
+.woff2                37;3
 #   postscript fonts
-.PFA                  37
-.pfa                  37
+.PFA                  37;3
+.pfa                  37;3
 # }}}
 # archives {{{1
 .7z                   38;5;9
@@ -730,10 +738,6 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .pcb                  38;5;7
 #   groff (rendering app for texinfo)
 .mm                   38;5;7
-#   GIMP files
-.gbr                  38;5;7
-.scm                  38;5;7
-.xcf                  38;5;7
 # printer spool file
 .spl                  38;5;7
 # RStudio project file
