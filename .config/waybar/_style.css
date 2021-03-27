@@ -134,7 +134,7 @@ window#waybar.empty #window { background-color: transparent; }
 #battery.low:not(.charging),
 #network.disconnected,
 #pulseaudio.muted {
-  background-color: #%{{theme_light_1}};
+  background-color: #%{{theme_dark_0}};
   border-top: 1px solid #%{{b16_01_red}};
   color: #%{{b16_01_red}};
 }
