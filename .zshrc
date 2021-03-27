@@ -1,11 +1,21 @@
 ### Pimpin' aint easy
 #
+# dircolors & exa
 eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
+rbit="38;5;11"
+wbit="38;5;10"
+xbit="32"
+warnbit="38;5;15;41;1"
+sbit="36;1"
+rwx_str="ur=${rbit}:gr=${rbit}:tr=${rbit}:uw=${wbit}:gw=${wbit}:tw=${warnbit}:ue=37:ux=${xbit}:gx=${xbit}:tx=${xbit}"
+owner="uu=37:gu=37:un=38;5;8:gn=38;5;8"
+EXA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=36:sb=1;36"
+export EXA_COLORS
+
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
-export EXA_COLORS="ur=38;5;11:uw=38;5;10:ux=38;5;10:ue=32:di=34:da=38;5;12:sn=36:sb=1;36:uu=37:gu=37:un=38;5;8:gn=38;5;8"
 # http://www.unicode-symbol.com/u/E0B0.html 
-PROMPT='%K{234}%F{cyan}%T%f %F{blue}%~%f%F{black}%f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{237}%F{cyan}%T%f %F{blue}%~%f%F{black}%f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f'
 
 ### History
 #
