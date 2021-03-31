@@ -23,8 +23,7 @@ set $mode_resize " - resize"
 
 # custom includes, depend on variables above
 include windows.conf
-include keys_custom.conf
-include keys_default.conf
+include keybindings.conf
 
 ### Inputs/Outputs
 #
@@ -55,6 +54,9 @@ exec_always waygsettings \
   icon-theme:gtk-icon-theme-name \
   font-name:gtk-font-name
 }
+
+# can't get this working with systemd service
+exec sway-alttab
 
 # options passed in to override config
 # exec swayidle -w before-sleep swaylock
