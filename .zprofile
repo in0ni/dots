@@ -9,9 +9,9 @@ export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 
 ## PREFERENCES
-export VISUAL=kak
-export EDITOR=kak
-export SUDO_EDITOR=kak
+export EDITOR='kak'
+export VISUAL=$EDITOR
+export SUDO_EDITOR=$EDITOR
 export PAGER=vimpager
 export MANPAGER=kak-man-pager
 

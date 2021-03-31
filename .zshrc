@@ -32,7 +32,7 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 #
 alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias ls='exa -gF --git --group-directories-first'
-alias ll='ls -lF'
+alias ll='ls -l'
 alias lt='ls --tree'
 alias vi='vim'
 alias less=$PAGER
@@ -131,3 +131,5 @@ base16_view_colors() {
     `tput setaf $i;tput setab $i`${y// /=}$x
   done
 }
+
+source /home/in0ni/.config/broot/launcher/bash/br

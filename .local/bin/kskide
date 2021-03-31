@@ -2,9 +2,9 @@
 #
 # this is a very CRUDE start
 package=$(basename $0)
-server_name=$(basename `pwd`)
-socket_file=$(kak -l | grep $server_name)
-window_title="$server_name </>"
+session_name=$(basename `pwd`)
+socket_file=$(kak -l | grep $session_name)
+base_title="$session_name </>"
 join_session=false
 
 # project & theme support
@@ -51,47 +51,73 @@ done
 
 # create new layout using kitty and sway
 createLayout() {
-  # kitty @ set-window-title "$window_title xxx"
-  kitty @ launch --cwd `pwd` --no-response --type os-window --title "$window_title shell"
+  title_shell="$base_title shell"
+  title_main="$base_title main"
+  title_docs="$base_title docs"
+  title_tools="$base_title tools"
 
-  # # create main client
-  kitty @ launch --no-response --type os-window --title "$window_title main" kak -e "ide-set-client main jumpclient" -c $server_name
+  kitty @ launch --cwd `pwd` --no-response --type os-window\
+    --env KAKOUNE_SESSION=$session_name\
+    --env KAKOUNE_CLIENT=main\
+    --env NNN_OPENER="kcr edit"\
+    --title "$title_shell"\
+
+  # create main client
+  kitty @ launch --no-response --type os-window\
+    --env $KAKOUNE_SESSION=$session_name\
+    --title "$title_main"\
+    kak -e "ide-set-client main jumpclient" -c $session_name
 
   swaymsg move left
-  swaymsg "[title=\"$window_title shell\"] focus"
+  swaymsg "[title=\"$title_shell\"] focus"
   swaymsg splitv
 
   # create docs client
-  kitty @ launch --no-response --type os-window --title "$window_title docs" kak -e "ide-set-client docs docsclient" -c $server_name
+  kitty @ launch --no-response --type os-window\
+    --env $KAKOUNE_SESSION=$session_name\
+    --title "$title_docs"\
+    kak -e "ide-set-client docs docsclient" -c $session_name
 
   swaymsg move up
-  swaymsg "[title=\"$window_title shell\"] focus"
+  swaymsg "[title=\"$title_shell\"] focus"
   swaymsg splith
 
   # create tools client
-  kitty @ launch --no-response --type os-window --title "$window_title tools" kak -e "ide-set-client tools toolsclient" -c $server_name
+  kitty @ launch --no-response --type os-window\
+    --env $KAKOUNE_SESSION=$session_name\
+    --title "$title_tools"\
+    kak -e "ide-set-client tools toolsclient" -c $session_name
 
   swaymsg move left
   swaymsg layout tabbed
 
   # set focus on main client
-  swaymsg "[title=\"$window_title main\"] focus"
-  # kitty @ close-window --match title:"$window_title xxx"
+  swaymsg "[title=\"$title_main\"] focus"
+  
+  
+  # swayid_shell=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_shell\")|.id")
+  # swayid_main=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_main\")|.id")
+  # swayid_docs=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_docs\")|.id")
+  # swayid_tools=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_tools\")|.id")
+
+  kcr -s $session_name send unalias global q quit
+  kcr -s $session_name send unalias global q! quit!
 }
 
 # handle basic command logic
 if [[ $socket_file == "" ]]; then
   # start daemon & set term title
-  setsid kak -d -s $server_name &
+  setsid kak -d -s $session_name &
+  # kcr shell -s $session_name
   createLayout
 elif [[ $socket_file != "" && $join_session == true ]]; then
   createLayout
 else
   echo "To join this session use the -j parameter: 'kskide -j'"
-  echo "Session \"$server_name\" already exists."
+  echo "Session \"$session_name\" already exists."
   exit 1
 fi
 
 # TODO: add to createLayout, set timeout?
-# kitty @ close-window --match title:"$window_title xxx"
+# kitty @ close-window --match title:"$base_title xxx"
 
