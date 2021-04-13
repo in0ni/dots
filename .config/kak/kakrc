@@ -32,19 +32,21 @@ source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
 plug "alexherbo2/prelude.kak"
-plug "alexherbo2/pager.kak"
+# plug "alexherbo2/pager.kak"
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
 plug "alexherbo2/search-highlighter.kak" defer search-highlighter %{
   search-highlighter-enable
 } demand
 
-plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
-  auto-pairs-enable
-} demand
+plug "occivink/kakoune-snippets"
+ 
+# plug "alexherbo2/auto-pairs.kak" defer auto-pairs %{
+#   auto-pairs-enable
+# } demand
 
-source "%val{config}/code.kak"
-source "%val{config}/mappings.kak"
-source "%val{config}/files.kak"
 source "%val{config}/ui.kak"
+source "%val{config}/files.kak"
+source "%val{config}/mappings.kak"
+source "%val{config}/code.kak"
 source "%val{config}/kitty-ide.kak"
