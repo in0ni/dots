@@ -1,3 +1,10 @@
+# Source a local project kak config if it exists
+# Make sure it is set as a kak filetype
+hook global BufCreate (.*/)?(\.kakrc) %{
+    set-option buffer filetype kak
+}
+try %{ source .kakrc }
+
 #
 # Set custom filetypes for syntax/formatting/linting
 #
@@ -14,7 +21,7 @@ hook global BufCreate .*theme/.*\.rasi$ %{
   set buffer filetype css
 }
 
-# Navigating Files & Buffers
+# Searching Files & Buffers w/ rofi
 #
 define-command files -docstring 'Open one or many files' %{ evaluate-commands %sh{
   # TODO: make this into a function (returns emty string or full option string)
