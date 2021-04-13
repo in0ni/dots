@@ -13,7 +13,7 @@ export EDITOR='kak'
 export VISUAL=$EDITOR
 export SUDO_EDITOR=$EDITOR
 export PAGER=vimpager
-export MANPAGER=kak-man-pager
+# export MANPAGER=kak-man-pager
 
 ## WAYLAND
 export MOZ_ENABLE_WAYLAND=1
