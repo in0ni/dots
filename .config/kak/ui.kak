@@ -1,9 +1,12 @@
 # Universal options
+set-face global Search +bu
 add-highlighter global/ show-matching
 add-highlighter global/ wrap -indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
 add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+ard
 add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
+# TODO: apply only to js?
+add-highlighter global/ regex @\b\w+\b 0:default+ab
 
 # generally we always want numbers, but not for man pages
 # TODO: look into for pagers?

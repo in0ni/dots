@@ -10,8 +10,8 @@ def -hidden insert-c-n %{
     exec -with-hooks '<c-n>'
   }
 }
-map global insert <c-n> "<a-;>: insert-c-n<ret>"
-map global insert <c-s> '<a-;>: snippets '
+map global insert <a-n> "<a-;>: insert-c-n<ret>"
+map global insert <a-s> '<a-;>: snippets '
 
 # source /usr/share/kak-lsp/rc/lsp.kak
 # lsp-enable
