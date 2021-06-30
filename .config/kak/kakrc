@@ -28,13 +28,51 @@ def -params 1 -docstring "colorscheme <name>: enable named colorscheme" \
     fi
 }}
 
+# plug.kak
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
+plug "andreyorst/fzf.kak" config %{
+  map -docstring 'fzf mode' global user f ': fzf-mode<ret>'
+} demand fzf %{
+  set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
+  set-option global fzf_highlight_command 'bat'
+} demand fzf-file %{
+  set-option global fzf_file_command 'rg --files --hidden'
+}
+plug "andreyorst/tagbar.kak" defer "tagbar" %{
+  set-option global tagbar_sort false
+  set-option global tagbar_size 40
+  set-option global tagbar_display_anon false
+} config %{
+  # if you have wrap highlighter enamled in you configuration
+  # files it's better to turn it off for tagbar, using this hook:
+  hook global WinSetOption filetype=tagbar %{
+    remove-highlighter window/wrap
+    # you can also disable rendering whitespaces here, line numbers, and
+    # matching characters
+  }
+}
+
 plug "alexherbo2/prelude.kak"
+plug "alexherbo2/word-select.kak" demand word-select %{
+  word-select-add-mappings
+}
 plug "alexherbo2/search-highlighter.kak" demand search-highlighter %{
   search-highlighter-enable
 }
+
+plug "h-youhei/kakoune-close-tag" config %{
+  map global insert <a-c> '<esc>: close-tag<ret>i'
+}
+plug "h-youhei/kakoune-surround" config %{
+  declare-user-mode surround
+  map global surround s ':surround<ret>' -docstring 'surround'
+  map global surround c ':change-surround<ret>' -docstring 'change'
+  map global surround d ':delete-surround<ret>' -docstring 'delete'
+  map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
+  map -docstring 'surround mode' global user s ':enter-user-mode surround<ret>'
+} demand kakoune-surround
 
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
