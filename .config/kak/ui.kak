@@ -3,10 +3,12 @@ set-face global Search +bu
 add-highlighter global/ show-matching
 add-highlighter global/ wrap -indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
-add-highlighter global/ regex \b(TODO||NOTE|SEE)\b 0:default+ard
-add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
 # TODO: apply only to js?
-add-highlighter global/ regex @\b\w+\b 0:default+ab
+add-highlighter global/ regex \*\s+(@\b[\w\-]+)\b 0:default 1:default+ab
+add-highlighter global/ regex @\b(todo)\b 0:default 1:default+abrd
+
+add-highlighter global/ regex \b(TODO|NOTE|SEE)\b 0:default+ard
+add-highlighter global/ regex \b(FIXME|XXX)\b 0:default+arb
 
 # generally we always want numbers, but not for man pages
 # TODO: look into for pagers?
@@ -15,11 +17,12 @@ hook global WinSetOption filetype=man %{
   remove-highlighter global/number-lines_-hlcursor_-separator_⎸ 
 }
 
+# set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
 set-option global ui_options 'ncurses_assistant=none' 'ncurses_status_on_top=yes'
 set-option global tabstop 4
 set-option global indentwidth 2
 set-option global scrolloff 4,6
-set-option global grepcmd 'rg --follow --smart-case --with-filename --column'
+set-option global grepcmd 'rg --follow --with-filename --column'
 
 alias global g grep
 alias global f find
