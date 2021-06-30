@@ -11,7 +11,7 @@ try %{ source .kakrc }
 hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
   set buffer filetype i3
 }
-hook global BufCreate .*(dunst|mako)/.*$ %{
+hook global BufCreate .*(dunstrc|pacman\.conf)$ %{
   set buffer filetype ini
 }
 hook global BufCreate .*(waybar/config|\.rasi)$ %{
@@ -34,7 +34,7 @@ define-command files -docstring 'Open one or many files' %{ evaluate-commands %s
     echo "fail 'Rofi theme not found: $theme_file'"
   fi
 
-  FILES=$(rg --files --sort path | rofi -dmenu -i -p "  →⁮ Files" -multi-select $rofi_theme_option)
+  FILES=$(rg --files --hidden --sort path | rofi -dmenu -i -p "  →⁮ Files" -multi-select $rofi_theme_option)
   for file in $FILES; do
     printf 'eval -client %%{%s} edit %%{%s}\n' "$kak_client" "$file" | kak -p "$kak_session"
   done
