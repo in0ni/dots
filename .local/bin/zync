@@ -13,6 +13,8 @@
 # TODO: sync music and restore home need to be re-added
 # TODO: look into using version control for os configuration files
 # TODO: look into btrfs features to aid (snapshots?)
+# TODO: logging should be done globally, not line by line on each command
+# 		(... 2>> $path_log
 #
 # this script uses:
 #  - tar to backup os configuration files from an include file
@@ -20,6 +22,7 @@
 #  - rsync to backup/restore home
 #    - exclude list to backup (includes unnecessary .dot files)
 #    - include list to restore files (restores clean home)
+today=$(date --iso)
 
 # include/exclude config files
 cfg_path=$XDG_CONFIG_HOME/zync
@@ -30,16 +33,18 @@ cfg_sys_backup_incl=$cfg_path/sys_backup.incl
 
 # NOTE: read eval isn't ideal, not clear why but it's easy so using it now.
 # TODO: find better approach, instead of eval, for var expansion in cfg strings
+path_log=/tmp/zync-$today.log
 path_usb_os=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_os'))
 path_usb_home=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_home'))
-path_log=/tmp/zync-$today.log
+path_crypt_home_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_home_part'))
+path_crypt_usb_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_usb_part'))
+
+gpg_recipient=$(eval echo $(cat $cfg_paths_json | jq -r '.gpg_recipient'))
 
 # output strings
 z="~zync~"
 err="$z (err)"
 info="$z (info)"
-
-today=$(date --iso)
 
 manage_service () {
   echo "$info $1 service is about to $2..."
@@ -70,6 +75,8 @@ db_backup() {
   [[ $is_active -ne 0 ]] && manage_service $1 stop
 }
 
+# TODO: consider upging gpg to encrypt luks header img files (see archwiki)
+# 		not urgent as luks headers are stored in encrypted devices
 os_backup() {
   # TODO: remove use of a temporary file, use '-' instead for --files-from
   path_tmp_os_includes=/tmp/zyn_os_includes
@@ -87,6 +94,50 @@ os_backup() {
   sudo tar cvzf $path_usb_os"/arch-$today.tgz" --files-from $path_tmp_os_includes 2>> $path_log
 
   rm $path_tmp_os_includes
+}
+
+crypt_backup() {
+  # local: private key
+  printf "\nDo you want to backup private key?\n"
+  select opt in Yes No; do
+    case $opt in
+      Yes)
+        gpg --export-secret-keys -a -o "$path_usb_home/$gpg_recipient.asc" 2>> $path_log
+        break
+        ;;
+      No)
+        break
+        ;;
+    esac
+  done
+ 
+
+  # local: luks header
+  printf "\nDo you want to backup local luks header?\n"
+  select opt in Yes No; do
+    case $opt in
+      Yes)
+        sudo cryptsetup luksHeaderBackup $path_crypt_home_part --header-backup-file "$path_usb_home/home_luks.img" 2>> $path_log
+        break
+        ;;
+      No)
+        break
+        ;;
+    esac
+  done
+
+  printf "\nDo you want to backup usb luks header?\n"
+  select opt in Yes No; do
+    case $opt in
+      Yes)
+        sudo cryptsetup luksHeaderBackup $path_crypt_usb_part --header-backup-file "$HOME/.sys/usb_luks.img" 2>> $path_log
+        break
+        ;;
+      No)
+        break
+        ;;
+    esac
+  done
 }
 
 home_backup() {
@@ -108,6 +159,9 @@ home_backup() {
 }
 
 case "$1" in
+  cryptbackup)
+    crypt_backup
+    ;;
   backup)
     # TODO: look into auto-mounting (not unlock/mount via thunar)
     # backup os
@@ -129,7 +183,7 @@ case "$1" in
     fi
     ;;
   *)
-    echo "Usage: $(basename $0) {backup|restore}"
+    echo "Usage: $(basename $0) {cryptbackup|backup|restore}"
     exit 1
     ;;
 esac

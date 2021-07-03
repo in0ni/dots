@@ -3,6 +3,7 @@ lost+found
 .cache
 .tmp
 .meteor
+.sys/VirtualBox VMs
 
 # tmp shit
 Downloads/t0rz
