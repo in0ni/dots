@@ -35,7 +35,7 @@ if [[ $ROFI_RETV == 1 ]]; then
   # echo -en "$ROFI_INFO"
 else
   echo -en "\0prompt\x1f$icon $title\n"
-  echo -en "   Power Off\0meta\x1fshut down\0info\x1fpower_off\n"
-  echo -en "   Reboot\0meta\x1frestart\0info\x1freboot\n"
+  echo -en "   Power Off\0meta\x1fshutdown\x1finfo\x1fpower_off\n"
+  echo -en "   Reboot\0meta\x1frestart\x1finfo\x1freboot\n"
   echo -en "   Logout\0info\x1flogout\n"
 fi
