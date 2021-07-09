@@ -75,8 +75,6 @@ db_backup() {
   [[ $is_active -ne 0 ]] && manage_service $1 stop
 }
 
-# TODO: consider upging gpg to encrypt luks header img files (see archwiki)
-# 		not urgent as luks headers are stored in encrypted devices
 os_backup() {
   # TODO: remove use of a temporary file, use '-' instead for --files-from
   path_tmp_os_includes=/tmp/zyn_os_includes
@@ -96,6 +94,9 @@ os_backup() {
   rm $path_tmp_os_includes
 }
 
+# TODO: create pgp encrypted luks headers and send all crypt backups remotely
+# TODO: consider upging gpg to encrypt luks header img files (see archwiki)
+# 		not urgent as luks headers are stored in encrypted devices
 crypt_backup() {
   # local: private key
   printf "\nDo you want to backup private key?\n"
