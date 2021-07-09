@@ -6,4 +6,6 @@ battery_state=$(cat /sys/class/power_supply/BAT0/status)
 
 if [[ $battery_level -le 5 && $battery_state == "Discharging" ]]; then
   dunstify "Battery Critically Low" "Battery reports ${battery_level}% charge left." -r $dunst_id -i battery-empty -u critical
+elif [[ $battery_level -gt 5 || $battery_state == "Charging" ]]; then
+  dunstify -C $dunst_id
 fi
