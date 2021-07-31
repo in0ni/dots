@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+icon= 
+title=WiFi
+iwctl_station=wlan0
+
+is_scanning() {
+  scanning=$(iwctl station $iwctl_station show | \
+    sed -E 's/\x1b\[1;30m\*{1,3}//g' | \
+    awk -v FIELDWIDTHS='2 10 20 21' '$3~/Scanning/ { print $4 }')
+
+  if [ $scanning = "yes" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_known_network() {
+  iwctl known-networks ""$1"" show &> /dev/null
+  return $?
+}
+
+list_known_networks() {
+  known_networks=$(iwctl known-networks list | \
+    awk -v FIELDWIDTHS='2 32 11 9 19' \
+    'NR > 4 { print }')
+
+  echo -en "$known_networks"
+}
+
+do_station_scan() {
+  iwctl station $iwctl_station scan
+}
+
+network_options() {
+  echo -en "  Get networks...\0info\x1fget-networks\n"
+  # echo -en "  Scan for networks...\0info\x1fscan\n"
+  echo -en "  Known networks...\0info\x1fknown-networks\n"
+  echo -en " \0nonselectable\x1ftrue\n"
+}
+
+list_available_networks() {
+  networks=$(iwctl station $iwctl_station get-networks | \
+    sed -E 's/\x1b\[1;30m\*{1,3}//g' | \
+    sed 's/\x1b\[[0-9;]*m//g' | \
+    head -n -1 | \
+    awk -v FIELDWIDTHS='4 31 18 6' \
+    'NR > 4 {
+      active=gensub(/ +/, "", "g", $1)
+      ssid=gensub(/ +$/,"", "g", $2)
+      security=gensub(/ +/,"", "g", $3)
+      signal=length(gensub(/ /, "", "g", $4))
+
+      # signal
+      for (i = 0; i < signal; ++i)
+        printf ""
+      for (i = 0; i < 4-signal; ++i)
+        printf ""
+
+      # security
+      if (security == "open")
+        printf "    "
+      else
+        printf "    "
+
+      # active
+      if (length(active))
+        printf "    "
+
+      printf " %s", ssid
+      printf "\\0info\x1f%s\n", ssid
+    }
+  ')
+  echo -en "$networks"
+}
+
+set_message() {
+  echo -en "\0message\x1f$1\n"
+}
+
+# DEFAULT TITLE
+echo -en "\0prompt\x1f$icon  $title\n"
+set_message ""
+
+# FIRST RUN
+if [[ $ROFI_RETV == 0 ]]; then
+  if ! is_scanning; then
+    do_station_scan
+    set_message "Scanning for networks, should refresh..."
+  fi
+
+  network_options
+  list_available_networks
+fi
+
+# ENTRY MADE
+if [[ $ROFI_RETV == 1 ]]; then
+
+  if [[ $ROFI_INFO == "get-networks" ]]; then
+    network_options
+    list_available_networks
+
+  elif [[ $ROFI_INFO == "known-networks" ]]; then
+    network_options
+    list_known_networks
+    echo -en "HI"
+
+  elif [[ $ROFI_INFO == "password-connect" ]]; then
+    echo -en "connecting to new network\n"
+
+  else # SSID is sent
+    # is_known="$(iwctl known-networks list | \
+    # awk -v FIELDWIDTHS='2 32 11 9 19' 'NR > 4 {print $2}' | \
+    # grep ""$ROFI_INFO"" | wc -l)"
+    if is_known_network $ROFI_INFO; then
+      set_message "Unable to connect to $ROFI_INFO..."
+      iwctl station $iwctl_station connect "$ROFI_INFO"
+    else
+      echo "$ROFI_INFO" > $HOME/.cache/rofi-iwctl.connect
+      echo -en "\0message\x1fEnter password for $ROFI_INFO\n"
+      echo -en "\0prompt\x1f$icon  Password\n"
+      echo -en "Enter text...\0nonselectable\x1ftrue\n"
+    fi
+
+  fi
+fi
+
+# CUSTOM ENTRY MADE
+if [[ $ROFI_RETV == 2 ]]; then
+  ssid="$(cat $HOME/.cache/rofi-iwctl.connect)"
+  set_message "Unable to connect to $ssid..."
+  iwctl -P """$@""" station $iwctl_station connect """$ssid"""
+fi
+
