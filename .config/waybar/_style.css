@@ -48,7 +48,8 @@ window#waybar.empty #window { background-color: transparent; }
 #cpu,
 #memory,
 #temperature,
-#battery {
+#battery,
+#tray {
   background-color: rgba(%{{theme_dark_0_rgb}}, 0.35);
 }
 
@@ -84,6 +85,11 @@ window#waybar.empty #window { background-color: transparent; }
   font-weight: bold;
   background-color: #%{{theme_light_0}};
   color: #%{{theme_dark_0}};
+}
+
+#tray {
+  margin:0;
+  padding:0 10px;
 }
 
 /*
