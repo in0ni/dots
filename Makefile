@@ -33,6 +33,7 @@ parse_%:
 	@. $(VARS)
 	@set +a
 	@$(foreach FILE,$(FILES),$(call parse_file,$(DIR),$(FILE)))
+	@$(if $(SERVICE),systemctl --user restart $(SERVICE))
 	@echo "$@: done"
 
 build_dunst: DIR = $(CONF_DIR)/dunst
@@ -74,6 +75,7 @@ build_swaylock: parse_swaylock
 
 build_waybar: DIR = $(CONF_DIR)/waybar
 build_waybar: FILES = _style.css
+build_waybar: SERVICE = waybar.service
 build_waybar: parse_waybar
 
 build_zim: DIR = $(CONF_DIR)/zim
