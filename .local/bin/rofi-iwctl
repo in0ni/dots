@@ -4,12 +4,13 @@ icon=
 title=Wireless
 iwctl_station=wlan0
 
+# TEST FUNCTIONS
 is_scanning() {
-  scanning=$(iwctl station $iwctl_station show | \
+  output=$(iwctl station $iwctl_station show | \
     sed -E 's/\x1b\[1;30m\*{1,3}//g' | \
     awk -v FIELDWIDTHS='2 10 20 21' '$3~/Scanning/ { print $4 }')
 
-  if [ $scanning = "yes" ]; then
+  if [ $output = "yes" ]; then
     return 0
   else
     return 1
@@ -21,12 +22,14 @@ is_known_network() {
   return $?
 }
 
+# ACTIONS
 do_station_scan() {
   iwctl station $iwctl_station scan
 }
 
+# LISTS
 list_available_networks() {
-  networks=$(iwctl station $iwctl_station get-networks | \
+  output=$(iwctl station $iwctl_station get-networks | \
     sed -E 's/\x1b\[1;30m\*{1,3}//g' | \
     sed 's/\x1b\[[0-9;]*m//g' | \
     head -n -1 | \
@@ -56,14 +59,18 @@ list_available_networks() {
         printf ""
 
       printf "  %s", ssid
-      printf "\\0info\x1f%s\n", ssid
+
+      if (length(active))
+        printf "\\0info\x1fdisconnect\n"
+      else
+        printf "\\0info\x1fconnect:%s\n", ssid
   }')
 
-  echo -en "$networks"
+  echo -en "$output"
 }
 
 list_known_networks() {
-  known_networks=$(iwctl known-networks list | \
+  output=$(iwctl known-networks list | \
     head -n -1 | \
     awk -v FIELDWIDTHS='2 32 11 9 19' \
     'NR > 4 {
@@ -82,39 +89,53 @@ list_known_networks() {
       printf "\\0info\x1fknown-network:%s\n", ssid
   }')
 
-  echo -en "$known_networks"
+  echo -en "$output"
 }
 
-network_options() {
-  echo -en "  Refresh networks list...\0info\x1fget-networks\n"
+# OPTIONS
+opts_list_networks() {
+  echo -en "  Refresh networks list...\0info\x1flist-networks\n"
   # echo -en "  Scan for networks...\0info\x1fscan\n"
-  echo -en "  Known networks...\0info\x1fknown-networks\n"
+  echo -en "  Known networks...\0info\x1flist-known-networks\n"
   print_divider
 }
 
-known_networks_options() {
-  echo -en "  Back to networks list...\0info\x1fget-networks\n"
+opts_list_known_networks() {
+  echo -en "  Back to networks list...\0info\x1flist-networks\n"
 }
 
-known_network_options() {
+opts_known_network() {
   ssid=$1
-  echo -en "  Back to known networks list...\0info\x1fknown-networks\n"
+  echo -en "  Back to known networks list...\0info\x1flist-known-networks\n"
   print_divider
   # echo -en "  Show Password\0info\x1fget-password:$ssid\n"
   # echo -en "  Auto Connect\0info\x1fnetwork-toggle-autoconnect\n"
   echo -en "  Forget\0info\x1fforget-network:$ssid\n"
 }
 
-set_message() {
-  echo -en "\0message\x1f$1\n"
+# set_message() {
+#   echo -en "\0message\x1f$1\n"
+# }
+
+set_title() {
+  echo -en "\0prompt\x1f$icon  $1\n"
+}
+
+set_subtitle() {
+  set_title "→  $1  $2"
 }
 
 print_divider() {
   echo -en " \0nonselectable\x1ftrue\n"
 }
 
+rofi_list_networks() {
+  opts_list_networks
+  list_available_networks
+}
+
 # DEFAULT TITLE
-echo -en "\0prompt\x1f$icon  $title\n"
+set_title $title
 set_message ""
 
 # FIRST RUN
@@ -124,50 +145,55 @@ if [[ $ROFI_RETV == 0 ]]; then
     set_message "Scanning for networks, should refresh..."
   fi
 
-  network_options
-  list_available_networks
+  rofi_list_networks
 fi
 
 # ENTRY MADE
 if [[ $ROFI_RETV == 1 ]]; then
 
   case $ROFI_INFO in
-    "get-networks")
-      network_options
-      list_available_networks
+    list-networks)
+      rofi_list_networks
       ;;
-    "known-networks")
-      echo -en "\0prompt\x1f$icon → Known Networks\n"
-      known_networks_options
+    "list-known-networks")
+      set_subtitle "Known Networks" ""
+      opts_list_known_networks
       print_divider
       list_known_networks
       ;;
     known-network:*)
       ssid=${ROFI_INFO#*known-network:}
-      echo -en "\0prompt\x1f$icon →   $ssid\n"
-      # network_options
-      known_network_options $ssid
+      set_subtitle "$ssid" ""
+      # opts_list_networks
+      opts_known_network $ssid
       ;;
     forget-network:*)
       ssid=${ROFI_INFO#*forget-network:}
       iwctl known-networks $ssid forget
       ;;
-    get-password:*)
-      ssid=${ROFI_INFO#*get-password:}
-      # pkexec cat "/var/lib/iwd/$ssid.psk"
+    disconnect)
+      iwctl station $iwctl_station disconnect
       ;;
-    *)
+    # get-password:*)
+    #   ssid=${ROFI_INFO#*get-password:}
+    #   # pkexec cat "/var/lib/iwd/$ssid.psk"
+    #   ;;
+    connect:*)
+      ssid=${ROFI_INFO#*connect:}
       # is_known="$(iwctl known-networks list | \
       # awk -v fieldwidths='2 32 11 9 19' 'nr > 4 {print $2}' | \
       # grep ""$ROFI_INFO"" | wc -l)"
-      if is_known_network $ROFI_INFO; then
-        set_message "unable to connect to $ROFI_INFO..."
-        iwctl station $iwctl_station connect "$ROFI_INFO"
+      if is_known_network $ssid; then
+        set_message "unable to connect to $ssid..."
+        cmd=$(iwctl station $iwctl_station connect "$ssid")
+        if [ $? -eq 0 ]; then
+          dunstify "Connected to $ssid"
+        fi
       else
-        echo "$ROFI_INFO" > $HOME/.cache/rofi-iwctl.connect
-        echo -en "\0message\x1fenter password for $ROFI_INFO\n"
-        echo -en "\0prompt\x1f$icon  password\n"
-        echo -en "enter text...\0nonselectable\x1ftrue\n"
+        echo "$ssid" > $HOME/.cache/rofi-iwctl.connect
+        set_subtitle "$ssid" ""
+        echo -en "\0message\x1fEnter password for $ssid...\n"
+        print_divider
       fi
       ;;
   esac
@@ -178,6 +204,8 @@ fi
 if [[ $ROFI_RETV == 2 ]]; then
   ssid="$(cat $HOME/.cache/rofi-iwctl.connect)"
   set_message "Unable to connect to $ssid..."
+  echo -en "  Back to known networks list...\0info\x1flist-known-networks\n"
+  print_divider
   iwctl -P """$@""" station $iwctl_station connect """$ssid"""
 fi
 
