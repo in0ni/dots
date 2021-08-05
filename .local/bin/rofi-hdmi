@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 icon= 
-title=HDMI Output
+title="HDMI Output"
 
+# TODO: rename to rofi-sway-output
 # TODO: don't hardcode
 # TODO: support for multipe outputs
 output=HDMI-A-1
 
-get_hdmi() {
+get_output() {
   echo $(swaymsg -t get_outputs | \
     jq '.[] | select(type == "object" and .name == "'"$output"'")')
 }
 
 display_current_mode() {
-  hdmi_output=$(get_hdmi)
+  hdmi_output=$(get_output)
   current_width=$(echo $hdmi_output | jq '.current_mode.width')
   current_height=$(echo $hdmi_output | jq '.current_mode.height')
   current_resolution=$(echo $hdmi_output | jq '.current_mode.refresh / 1000')
@@ -26,10 +27,10 @@ print_divider() {
 }
 
 list_resolutions_only() {
-  echo -en "  List detected modes...\0info\x1fmodes\n"
+  echo -en "  List all detected modes...\0info\x1fmodes\n"
   print_divider
 
-  echo -en $(echo $(get_hdmi) | \
+  echo -en $(echo $(get_output) | \
   jq -rj '.modes | unique_by(.width) | .[] |
   .width, "x", .height, "\\0info\\x1f", .width, ":", .height, "\\n"')
 }
@@ -39,7 +40,7 @@ list_modes() {
   echo -en "  Back to resoultions only...\0info\x1fresolutions\n"
   print_divider
 
-  echo -en $(echo $(get_hdmi) | \
+  echo -en $(echo $(get_output) | \
   jq -rj '.modes | .[] |
   .width, "x", .height, " @ ", .refresh / 1000, "Hz
   \\0info\\x1f", .width, ":", .height, ":", .refresh / 1000, "\\n"')
@@ -49,7 +50,7 @@ echo -en "\0prompt\x1f$icon $title\n"
 display_current_mode
 
 if [[ $ROFI_RETV == 0 ]]; then
-  hdmi_output=$(get_hdmi)
+  hdmi_output=$(get_output)
 
   if [[ ! -z "$hdmi_output" ]]; then
     list_resolutions_only
@@ -71,10 +72,16 @@ elif [[ $ROFI_RETV == 1 ]]; then
       # space delimited string interpreted as array
       mode=(${ROFI_INFO//:/ })
       if [[ ${mode[2]} ]]; then
-        echo "has refresh"
-        swaymsg output $output mode ${mode[0]}x${mode[1]}@${mode[2]}
+        cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]}@${mode[2]}Hz)
       else
-        swaymsg output $output mode ${mode[0]}x${mode[1]}
+        cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]})
+      fi
+
+      # catch error and display via dunst
+      has_error=$(echo $cmd | jq '.[] | .success == false')
+      if [[ "$has_error" == 'true' ]]; then
+        error_msg=$(echo $cmd | jq '.[] | .error')
+        dunstify "Sway output error ${mode[2]}" "$error_msg" -u critical
       fi
       ;;
   esac
