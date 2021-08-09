@@ -59,6 +59,15 @@ hook global WinSetOption filetype=(javascript|html) %{
   }
 }
 
+hook global WinSetOption filetype=sh %{
+  set-option window lintcmd "shellcheck -fgcc -Cnever"
+  evaluate-commands %sh{
+    if [ "$kak_opt_autolint" == "true" ]; then
+      echo "enable-autolint"
+    fi
+  }
+}
+
 # TODO: these commands to enable/disable auto-(lint|format) should only be available
 # if the file format supports it -- look into this below
 define-command enable-autoformat -docstring 'enable auto-format' %{
