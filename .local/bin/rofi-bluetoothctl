@@ -2,6 +2,9 @@
 #
 # Based on rofi-bluetooth by Nick Clyde (clydedroid)
 # Dependencies (arch): rofi, bluez-utils (bluetoothctl)
+#
+# FIXME: when unpairing a device, should return to main menu
+# TODO: add refresh, only when discovering
 
 icon=
 title=Bluetooth
@@ -30,6 +33,9 @@ ico[toggle_on]=
 ico[toggle_off]=
 ico[check_on]=
 ico[check_off]=
+ico[back]=
+
+$back=back
 
 # STATE TESTS
 is_ctrl_state_on() {
@@ -199,9 +205,6 @@ notify() {
 # }
 
 show_menu() {
-  list_devices
-  print_divider
-
   is_ctrl_state_on ${ctrl[power]}
   toggle ${ctrl[power]} $?
 
@@ -215,6 +218,9 @@ show_menu() {
     is_ctrl_state_on ${ctrl[discover]}
     toggle ${ctrl[discover]}  $?
   fi
+
+  print_divider
+  list_devices
 }
 
 set_title $title
@@ -234,12 +240,18 @@ device_menu() {
 
   is_dev_state_on "$mac" "${dev[trust]}"
   toggle "${dev[trust]}" $? "$mac"
+
+  print_divider
+  echo -en "${ico[back]}  Back\0info\x1f$back\n"
 }
 
 if [[ $ROFI_RETV == 0 ]]; then
   show_menu
 elif [[ $ROFI_RETV == 1 ]]; then
   case "$ROFI_INFO" in
+    "$back")
+      show_menu
+      ;;
     "${ctrl[power]}")
       toggle_power
       show_menu
