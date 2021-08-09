@@ -1,6 +1,6 @@
 * {
     /* Theme settings */
-    scrollbar: false;
+    scrollbar: true;
 
     /* Flat Remix Dark Green colors */
     black:		#%{{theme_dark_0}};
