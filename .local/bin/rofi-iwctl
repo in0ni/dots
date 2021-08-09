@@ -13,25 +13,25 @@ fields_known_networks="2 32 11 9 19"
 fields_known_network_show="2 10 18 50"
 
 # fontawesome
-declare -A icon
-icon[active]=
-icon[insecure]=
-icon[secure]=
-icon[radio_on]=
-icon[radio_off]=
-icon[refresh]=
-icon[saved]=
-icon[back]=
-icon[show]=
-icon[auto]=
-icon[delete]=
-icon[password]=
-icon[warn]=
+declare -A ico
+ico[active]=
+ico[insecure]=
+ico[secure]=
+ico[radio_on]=
+ico[radio_off]=
+ico[refresh]=
+ico[saved]=
+ico[back]=
+ico[show]=
+ico[auto]=
+ico[delete]=
+ico[password]=
+ico[warn]=
 
 # UTILS
 import_icons() {
   for arg in "$@"; do
-    echo "-v icon_$arg=${icon[$arg]} "
+    echo "-v icon_$arg=${ico[$arg]} "
   done
 }
 
@@ -126,23 +126,23 @@ list_known_networks() {
 
 # OPTIONS
 opts_list_networks() {
-  echo -en "${icon[refresh]}  Refresh networks list...\0info\x1flist-networks\n"
+  echo -en "${ico[refresh]}  Refresh networks list...\0info\x1flist-networks\n"
   # echo -en "  Scan for networks...\0info\x1fscan\n"
-  echo -en "${icon[saved]}  Known networks...\0info\x1flist-known-networks\n"
+  echo -en "${ico[saved]}  Known networks...\0info\x1flist-known-networks\n"
   print_divider
 }
 
 opts_list_known_networks() {
-  echo -en "${icon[back]}  Back to networks list...\0info\x1flist-networks\n"
+  echo -en "${ico[back]}  Back to networks list...\0info\x1flist-networks\n"
 }
 
 opts_known_network() {
   ssid=$1
-  echo -en "${icon[back]}  Back to known networks list...\0info\x1flist-known-networks\n"
+  echo -en "${ico[back]}  Back to known networks list...\0info\x1flist-known-networks\n"
   print_divider
   opt_toggle_auto_connect "$ssid"
-  # echo -en "${icon[show]}  Show Password\0info\x1fget-password:$ssid\n"
-  echo -en "${icon[delete]} Forget\0info\x1fforget-network:$ssid\n"
+  # echo -en "${ico[show]}  Show Password\0info\x1fget-password:$ssid\n"
+  echo -en "${ico[delete]} Forget\0info\x1fforget-network:$ssid\n"
 }
 
 opt_toggle_auto_connect() {
@@ -151,7 +151,7 @@ opt_toggle_auto_connect() {
     awk -v FIELDWIDTHS="$fields_known_network_show" '$3~/AutoConnect/ { print $4 }')
 
   [[ $output == "yes" ]] && toggle=no || toggle=yes
-  echo -en "${icon[auto]}  Auto Connect: $output\0info\x1fauto-connect:$1:$toggle\n"
+  echo -en "${ico[auto]}  Auto Connect: $output\0info\x1fauto-connect:$1:$toggle\n"
 }
 
 # MISC
@@ -198,14 +198,14 @@ if [[ $ROFI_RETV == 1 ]]; then
       rofi_list_networks
       ;;
     list-known-networks)
-      set_subtitle "Known Networks" ${icon[saved]}
+      set_subtitle "Known Networks" ${ico[saved]}
       opts_list_known_networks
       print_divider
       list_known_networks
       ;;
     known-network:*)
       ssid=${ROFI_INFO#*known-network:}
-      set_subtitle "$ssid" ${icon[saved]}
+      set_subtitle "$ssid" ${ico[saved]}
       opts_known_network $ssid
       ;;
     forget-network:*)
@@ -234,7 +234,7 @@ if [[ $ROFI_RETV == 1 ]]; then
         fi
       else
         echo "$ssid" > $HOME/.cache/rofi-iwctl.connect
-        set_subtitle "$ssid" ${icon[password]}
+        set_subtitle "$ssid" ${ico[password]}
         echo -en "\0message\x1fEnter password for $ssid...\n"
         print_divider
       fi
@@ -246,16 +246,16 @@ fi
 # CUSTOM ENTRY MADE (password)
 if [[ $ROFI_RETV == 2 ]]; then
   ssid="$(cat $HOME/.cache/rofi-iwctl.connect)"
-  set_subtitle "$ssid" ${icon[password]}
+  set_subtitle "$ssid" ${ico[password]}
   cmd=$(iwctl -P """$@""" station $iwctl_station connect """$ssid""")
 
   if [[ $? -eq 0 ]]; then
     dunstify "Wireless Connections" "Connected to $ssid"
   else
     error=$(echo $cmd | sed 's/\x1b\[[0-9;]*m//g')
-    set_message "${icon[warn]}  $error."
-    echo -en "${icon[back]}  Back to networks list...\0info\x1flist-networks\n"
-    echo -en "${icon[refresh]}  Try Again...\0info\x1fconnect:$ssid\n"
+    set_message "${ico[warn]}  $error."
+    echo -en "${ico[back]}  Back to networks list...\0info\x1flist-networks\n"
+    echo -en "${ico[refresh]}  Try Again...\0info\x1fconnect:$ssid\n"
   fi
 fi
 
