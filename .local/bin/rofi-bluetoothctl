@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+#
+# Based on rofi-bluetooth by Nick Clyde (clydedroid)
+# Dependencies (arch): rofi, bluez-utils (bluetoothctl)
+
+icon=
+title=Bluetooth
+
+# Controller states
+declare -A ctrl
+ctrl[power]=Powered
+ctrl[scan]=Discovering
+ctrl[pair]=Pairable
+ctrl[discover]=Discoverable
+
+# Device states
+declare -A dev
+dev[connect]=Connected
+dev[pair]=Paired
+dev[trust]=Trusted
+
+# Fontawesome
+declare -A ico
+ico[bt]=
+ico[scan]=
+ico[pair]=
+ico[trust]=
+ico[power]=
+ico[toggle_on]=
+ico[toggle_off]=
+ico[check_on]=
+ico[check_off]=
+
+# STATE TESTS
+is_ctrl_state_on() {
+  if bluetoothctl show | grep -q "$1: yes"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_dev_state_on() {
+  device_info=$(bluetoothctl info $1)
+  if echo "$device_info" | grep -q "$2: yes"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# STATE TOGGLES
+# toggles powered state
+toggle_power() {
+  if is_ctrl_state_on ${ctrl[power]}; then
+    cmd=$(bluetoothctl power off)
+    ret=$?
+  else
+    if rfkill list bluetooth | grep -q 'blocked: yes'; then
+      # TODO: check this, seems like requires sudo, so perhaps useless.
+      notify "Device disabled (rfkill), enabling device..."
+      rfkill unblock bluetooth && sleep 3
+    fi
+
+    # TODO: unable to get output on two lines, as it should be
+    cmd=$(bluetoothctl power on)
+    ret=$?
+  fi
+
+  # TODO: check string here...
+  notify "$(echo $cmd | grep "Changing power")" $ret
+}
+
+# Toggles scanning state
+toggle_scan() {
+  if is_ctrl_state_on ${ctrl[scan]}; then
+    cmd=$(kill $(pgrep -f "bluetoothctl scan on"))
+    sleep 1
+    notify "Stop scanning..." $?
+  else
+    cmd=$(bluetoothctl scan on &> /dev/null &)
+    notify "Scanning..." $?
+    sleep 1
+  fi
+}
+
+# Toggles pairable state
+toggle_pairable() {
+  if is_ctrl_state_on ${ctrl[pair]}; then
+    cmd=$(bluetoothctl pairable off)
+    ret=$?
+  else
+    cmd=$(bluetoothctl pairable on)
+    ret=$?
+  fi
+
+  notify "$cmd" $ret
+}
+
+# Toggles discoverable state
+toggle_discoverable() {
+  if is_ctrl_state_on ${ctrl[discover]}; then
+    cmd=$(bluetoothctl discoverable off)
+    ret=$?
+  else
+    cmd=$(bluetoothctl discoverable on)
+    ret=$?
+  fi
+
+  notify "$cmd" $ret
+}
+
+# Toggles device connection
+toggle_connection() {
+  if is_dev_state_on $1 ${dev[connect]}; then
+    cmd=$(bluetoothctl disconnect $1)
+    ret=$?
+  else
+    cmd=$(bluetoothctl connect $1)
+    ret=$?
+  fi
+
+  notify "$cmd" $ret
+}
+
+# Toggles device paired state
+toggle_paired() {
+  if is_dev_state_on $1 ${dev[pair]}; then
+    cmd=$(bluetoothctl remove $1)
+    ret=$?
+  else
+    cmd=$(bluetoothctl pair $1)
+    ret=$?
+  fi
+
+  notify "$cmd" $ret
+}
+
+# Toggles device connection
+toggle_trust() {
+  if is_dev_state_on $1 ${dev[trust]}; then
+    cmd=$(bluetoothctl untrust $1)
+    ret=$?
+  else
+    cmd=$(bluetoothctl trust $1)
+    ret=$?
+  fi
+
+  notify "$cmd" $ret
+}
+
+list_devices() {
+  output=$(bluetoothctl devices |awk '/^Device/{
+    # get substr of $0 starting at index $3
+    name=substr($0, index($0, $3))
+    mac=$2
+    printf "%s\\0info\x1f%s\n", name, mac
+  }')
+  echo -e "$output"
+}
+
+# MISC
+set_message() {
+  echo -en "\0message\x1f$1\n"
+}
+
+set_title() {
+  echo -en "\0prompt\x1f$icon  $1\n"
+}
+
+set_subtitle() {
+  set_title "→  $1  $2"
+}
+
+print_divider() {
+  echo -en " \0nonselectable\x1ftrue\n"
+}
+
+toggle() {
+  [[ $2 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
+  [[ ! -z $3 ]] && info="$1":"$3" || info="$1"
+  echo -en "$icon  $1\0info\x1f$info\n"
+}
+
+notify() {
+  desc=$(echo $1 | sed 's/\x1b\[[0-9;]*m//g' | sed 's/[\x01\x02]//g')
+  status=$2
+
+  [[ $status == 0 ]] && urgency=normal || urgency=critical
+  notify-send "$title" "$desc" -i blueman -u $urgency
+}
+
+# print_checkbox() {
+#   icon=${ico[check_off]}
+#   if $2; then
+#     icon=${ico[check_on]}
+#   fi
+#   echo "$icon  $1"
+# }
+
+show_menu() {
+  list_devices
+  print_divider
+
+  is_ctrl_state_on ${ctrl[power]}
+  toggle ${ctrl[power]} $?
+
+  if is_ctrl_state_on ${ctrl[power]}; then
+    is_ctrl_state_on ${ctrl[scan]}
+    toggle ${ctrl[scan]} $?
+    
+    is_ctrl_state_on ${ctrl[pair]}
+    toggle ${ctrl[pair]} $?
+
+    is_ctrl_state_on ${ctrl[discover]}
+    toggle ${ctrl[discover]}  $?
+  fi
+}
+
+set_title $title
+set_message ""
+
+device_menu() {
+  mac=$1
+  name=$(bluetoothctl devices | grep $mac | cut -d ' ' -f 3-)
+
+  set_subtitle "$name"
+
+  is_dev_state_on "$mac" "${dev[connect]}"
+  toggle "${dev[connect]}" $? "$mac"
+
+  is_dev_state_on "$mac" "${dev[pair]}"
+  toggle "${dev[pair]}" $? "$mac"
+
+  is_dev_state_on "$mac" "${dev[trust]}"
+  toggle "${dev[trust]}" $? "$mac"
+}
+
+if [[ $ROFI_RETV == 0 ]]; then
+  show_menu
+elif [[ $ROFI_RETV == 1 ]]; then
+  case "$ROFI_INFO" in
+    "${ctrl[power]}")
+      toggle_power
+      show_menu
+      ;;
+    "${ctrl[scan]}")
+      toggle_scan
+      show_menu
+      ;;
+    "${ctrl[pair]}")
+      toggle_pairable
+      show_menu
+      ;;
+    "${ctrl[discover]}")
+      toggle_discoverable
+      show_menu
+      ;;
+    ${dev[connect]}:*)
+      mac=${ROFI_INFO#*${dev[connect]}:}
+      toggle_connection $mac
+      device_menu $mac
+      ;;
+    ${dev[pair]}:*)
+      mac=${ROFI_INFO#*${dev[pair]}:}
+      toggle_paired $mac
+      device_menu $mac
+      ;;
+    ${dev[trust]}:*)
+      mac=${ROFI_INFO#*${dev[trust]}:}
+      toggle_trust $mac
+      device_menu $mac
+      ;;
+    *)
+      device_menu "$ROFI_INFO"
+      ;;
+  esac
+fi
