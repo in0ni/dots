@@ -1,0 +1,319 @@
+#!/usr/bin/env bash
+#
+# TODO: support 0 units being returned
+
+icon=
+title=systemd
+
+# fontawesome
+declare -A ico
+ico[back]=
+ico[warn]=
+ico[check]=
+ico[ok]=
+ico[not_found]=
+ico[bad_setting]=
+ico[error]=  #also failed
+ico[masked]=
+ico[reloading]=
+ico[inactive]=
+ico[activating]=
+ico[deactivating]=
+ico[unconfigured]=
+ico[toggle_on]=
+ico[toggle_off]=
+
+declare -A ctrl
+ctrl[enabled]=Enabled
+ctrl[active]=Active
+
+# UTILS
+import_icons() {
+  for key in "${!ico[@]}"; do
+    echo "-v icon_$key=${ico[$key]} "
+  done
+}
+
+is_service() {
+  systemctl is-$1 $2 -q
+  return $?
+}
+
+handoff() {
+  env CMD="$1" RSN=$(basename $0) INF="$2" rofi-handoff &> /dev/null &
+  exit
+}
+
+toggle_enabled() {
+  unit=${1#*${ctrl[enabled]}:}
+  if is_service enabled $unit; then
+    handoff "systemctl disable $unit" "unit:$unit"
+  else
+    handoff "systemctl enable $unit" "unit:$unit"
+  fi
+}
+
+toggle_active() {
+  unit=${1#*${ctrl[active]}:}
+  if is_service active $unit; then
+    handoff "systemctl stop $unit" "unit:$unit"
+  else
+    handoff "systemctl start $unit" "unit:$unit"
+  fi
+}
+
+toggle() {
+  [[ $3 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
+  echo -en "$icon  $2\0info\x1f$2:$1\n"
+}
+
+notify() {
+  desc=$(echo $1 | sed 's/\x1b\[[0-9;]*m//g' | sed 's/[\x01\x02]//g')
+  status=$2
+
+  [[ $status == 0 ]] && urgency=normal || urgency=critical
+  notify-send "$title" "$desc" -i blueman -u $urgency
+}
+
+list_unit_files() {
+  output=$(systemctl --no-pager -l list-unit-files | \
+    head -n -2 | \
+    awk -F' +' $(import_icons) \
+    'NR > 1 {
+      name=$1
+      state=$2
+      preset=$3
+      clr="#02d200"
+
+      cols[0]=state
+      cols[1]=preset
+
+      for (i in cols) {
+        switch (cols[i]) {
+          case /^(enabled(\-runtime)?|alias)$/:
+            printf "<span color=\"%s\">%s</span> ", clr, icon_ok
+            break
+          case /^(disabled|bad)$/:
+            printf "<span color=\"#ff0077\">%s</span>  ", icon_not_found
+            break
+          default:
+            printf "<span color=\"#647386\">%s</span> ", icon_ok
+            break
+        }
+      }
+
+      printf "    <b>%s</b> — <small>%s  %s</small>\n", $1, $2, $3
+     }'
+  )
+  echo -en "$output"
+}
+
+list_units() {
+  trim_last_rows=6
+  [[ "$1" =~ "--failed" ]] && trim_last_rows=5
+
+  output=$(systemctl --no-pager -l $(echo "$1") |
+    head -n -${trim_last_rows} | \
+    awk -F' +' $(import_icons) \
+    '
+    NR > 1 {
+      name=$2
+      load=$3
+      active=$4
+      substate=$5
+
+      # status warn
+      if ($1 == "")
+        printf "      "
+      else
+        printf "%s  ", icon_warn
+
+      # LOAD
+      switch (load) {
+        case "loaded":
+          printf "%s", icon_check
+          break
+        case "not-found":
+          printf "%s", icon_not_found
+          break
+        case "bad-setting":
+          printf "%s", icon_bad_setting
+          break
+        case "error":
+          printf "%s", icon_error
+          break
+        case "masked":
+          printf "%s", icon_masked
+          break
+        default:
+          printf "%s", icon_unconfigured
+          break
+      }
+
+      printf " "
+
+      # ACTIVE
+      switch (active) {
+        case "active":
+          printf "%s", icon_check
+          break
+        case "reloading":
+          printf "%s", icon_reloading
+          break
+        case "inactive":
+          printf "%s", icon_inactive
+          break
+        case "failed":
+          printf "%s", icon_error
+          break
+        case "activating":
+          printf "%s", icon_activating
+          break
+        case "deactivating":
+          printf "%s", icon_deactivating
+          break
+        default:
+          printf "%s", icon_unconfigured
+          break
+      }
+
+      printf "   "
+
+      printf "%s [%s] — <small>", name, substate
+
+      # DESCRIPTION
+      for (i=6; i<=NF; i++) {
+       printf "%s", $i
+       if (i < NF) printf " "
+      }
+
+      printf "</small>\\0info\x1funit:%s\n", name
+    }')
+  echo -en "$output\n"
+}
+
+rofi_default() {
+  echo -e "Installed Units\0info\x1flist-all"
+  echo -e "Units in Memory\0info\x1flist-units"
+  echo -e "Failed Units\0info\x1flist-failed"
+  echo -e "Services\0info\x1flist-services"
+  echo -e "Devices\0info\x1flist-devices"
+  echo -e "Paths\0info\x1flist-paths"
+  echo -e "Scopes\0info\x1flist-scopes"
+  echo -e "Slices\0info\x1flist-slices"
+  echo -e "Mounts\0info\x1flist-mounts"
+  echo -e "Sockets\0info\x1flist-sockets"
+  echo -e "Timers\0info\x1flist-timers"
+  echo -e "Targets\0info\x1flist-targets"
+}
+
+rofi_list_all_units() {
+  # list_units "list-unit-files --user"
+  list_unit_files
+}
+
+rofi_list_units() {
+  # list_units "--user"
+  list_units
+}
+
+rofi_list_failed() {
+ # list_units "--user --failed"
+ list_units "--failed"
+}
+
+rofi_service() {
+  service="$1"
+  set_subtitle "$service"
+
+  is_service enabled "$service"
+  toggle $service ${ctrl[enabled]} $?
+
+  is_service active "$service"
+  toggle $service ${ctrl[active]} $?
+
+  output=$(systemctl show "$service" | awk -F '=' \
+  '{ print }')
+  echo -en "$output"
+}
+
+set_message() {
+  echo -en "\0message\x1f$1\n"
+}
+
+set_title() {
+  echo -en "\0prompt\x1f$icon  $1\n"
+}
+
+set_subtitle() {
+  set_title "→  $1  $2"
+}
+
+print_divider() {
+  echo -en " \0nonselectable\x1ftrue\n"
+}
+
+# rofi_list_units() {
+#   opts_list_networks
+#   list_available_networks
+# }
+
+# if [[ -v CMD ]]; then
+#   ex=$(${CMD} 2>&1)
+#   ret=$?
+#   notify "$ex" $ret
+#   unset CMD
+#   rofi -modi "sd:rofi-systemd" -show sd &
+#   exit
+# fi
+
+# DEFAULT TITLE
+set_title $title
+echo -en "\0markup-rows\x1ftrue\n"
+
+# FIRST RUN
+if [[ $ROFI_RETV == 0 ]]; then
+  if [[ ! -f ~/.cache/rofi-handoff ]]; then
+    rofi_default
+  else
+    # ROFI_RETV=1
+    # ROFI_INFO=$(< ~/.cache/rofi-handoff)
+    cat ~/.cache/rofi-handoff
+    rm ~/.cache/rofi-handoff
+  fi
+fi
+
+# ENTRY MADE
+if [[ $ROFI_RETV == 1 ]]; then
+  case $ROFI_INFO in
+    "list-units")
+      rofi_list_units
+      ;;
+    "list-all")
+      rofi_list_all_units
+      ;;
+    "list-failed")
+      rofi_list_failed
+      ;;
+    "list-services")
+      echo -en "${ico[back]}  Back\n"
+      print_divider
+      # list_units "--user -t service"
+      list_units "-t service"
+      ;;
+    ${ctrl[enabled]}:*)
+      toggle_enabled $ROFI_INFO
+      ;;
+    ${ctrl[active]}:*)
+      toggle_active $ROFI_INFO
+      ;;
+    unit:*)
+      name=${ROFI_INFO#*unit:}
+      rofi_service "$name"
+      ;;
+    *)
+      rofi_default
+      ;;
+  esac
+
+fi
