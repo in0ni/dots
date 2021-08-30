@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+cachefs=~/.cache/rofi-handoff
+output=$(${CMD} 2>&1)
+ret=$?
+echo "inf=$INF" > $cachefs
+echo "msg=$output" >> $cachefs
+echo "ret=$ret" >> $cachefs
+
+rofi -modi "x:$RSN" -show x
