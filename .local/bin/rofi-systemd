@@ -5,10 +5,12 @@
 icon=
 title=systemd
 
+source ~/.config/dotvars.sh
+
 # fontawesome
 declare -A ico
 ico[back]=
-ico[warn]=
+ico[warn]=
 ico[check]=
 ico[ok]=
 ico[not_found]=
@@ -22,6 +24,11 @@ ico[deactivating]=
 ico[unconfigured]=
 ico[toggle_on]=
 ico[toggle_off]=
+ico[units]=
+ico[unit]=
+ico[memory]=
+ico[user]=
+ico[sys]=
 
 declare -A ctrl
 ctrl[enabled]=Enabled
@@ -32,6 +39,13 @@ import_icons() {
   for key in "${!ico[@]}"; do
     echo "-v icon_$key=${ico[$key]} "
   done
+}
+
+import_colors() {
+  echo "-v green=#${b16_02_green} "
+  echo "-v red=#${b16_01_red} "
+  echo "-v yellow=#${b16_03_yellow} "
+  echo "-v gray=#${theme_dark_4} "
 }
 
 is_service() {
@@ -76,14 +90,13 @@ notify() {
 }
 
 list_unit_files() {
-  output=$(systemctl --no-pager -l list-unit-files | \
+  output=$(systemctl --no-pager -l list-unit-files $(echo "$1") | \
     head -n -2 | \
-    awk -F' +' $(import_icons) \
+    awk -F' +' $(import_icons) $(import_colors) \
     'NR > 1 {
       name=$1
       state=$2
       preset=$3
-      clr="#02d200"
 
       cols[0]=state
       cols[1]=preset
@@ -91,18 +104,19 @@ list_unit_files() {
       for (i in cols) {
         switch (cols[i]) {
           case /^(enabled(\-runtime)?|alias)$/:
-            printf "<span color=\"%s\">%s</span> ", clr, icon_ok
+            printf "<span color=\"%s\">%s</span> ", green, icon_ok
             break
           case /^(disabled|bad)$/:
-            printf "<span color=\"#ff0077\">%s</span>  ", icon_not_found
+            printf "<span color=\"%s\">%s</span>  ", red, icon_not_found
             break
           default:
-            printf "<span color=\"#647386\">%s</span> ", icon_ok
+            printf "<span color=\"%s\">%s</span> ", gray, icon_ok
             break
         }
       }
-
-      printf "    <b>%s</b> — <small>%s  %s</small>\n", $1, $2, $3
+      printf "    <span color=\"%s\">%s</span> ",gray, icon_sys
+      printf "<b>%s</b> — <small>%s  %s</small>", $1, $2, $3
+      printf "\\0info\x1funit:%s\n", $1
      }'
   )
   echo -en "$output"
@@ -114,7 +128,7 @@ list_units() {
 
   output=$(systemctl --no-pager -l $(echo "$1") |
     head -n -${trim_last_rows} | \
-    awk -F' +' $(import_icons) \
+    awk -F' +' $(import_icons) $(import_colors) \
     '
     NR > 1 {
       name=$2
@@ -126,27 +140,27 @@ list_units() {
       if ($1 == "")
         printf "      "
       else
-        printf "%s  ", icon_warn
+      printf "<span color=\"%s\">%s</span>  ", yellow, icon_warn
 
       # LOAD
       switch (load) {
         case "loaded":
-          printf "%s", icon_check
+          printf "<span color=\"%s\">%s</span>", green, icon_ok
           break
         case "not-found":
-          printf "%s", icon_not_found
+          printf "<span color=\"%s\">%s</span>", red, icon_not_found
           break
         case "bad-setting":
-          printf "%s", icon_bad_setting
+          printf "<span color=\"%s\">%s</span>", red, icon_bad_setting
           break
         case "error":
-          printf "%s", icon_error
+          printf "<span color=\"%s\">%s</span>", red, icon_error
           break
         case "masked":
-          printf "%s", icon_masked
+          printf "<span color=\"%s\">%s</span>", gray, icon_masked
           break
         default:
-          printf "%s", icon_unconfigured
+          printf "<span color=\"%s\">%s</span>", gray, icon_unconfigured
           break
       }
 
@@ -155,31 +169,31 @@ list_units() {
       # ACTIVE
       switch (active) {
         case "active":
-          printf "%s", icon_check
+          printf "<span color=\"%s\">%s</span>", green, icon_ok
           break
         case "reloading":
-          printf "%s", icon_reloading
+          printf "<span color=\"%s\">%s</span>", gray, icon_reloading
           break
         case "inactive":
-          printf "%s", icon_inactive
+          printf "<span color=\"%s\">%s</span>", gray, icon_inactive
           break
         case "failed":
-          printf "%s", icon_error
+          printf "<span color=\"%s\">%s</span>", red, icon_error
           break
         case "activating":
-          printf "%s", icon_activating
+          printf "<span color=\"%s\">%s</span>", gray, icon_activating
           break
         case "deactivating":
-          printf "%s", icon_deactivating
+          printf "<span color=\"%s\">%s</span>", gray, icon_deactivating
           break
         default:
-          printf "%s", icon_unconfigured
+          printf "<span color=\"%s\">%s</span>", gray, icon_unconfigured
           break
       }
 
-      printf "   "
+      printf "    <span color=\"%s\">%s</span> ",gray, icon_sys
 
-      printf "%s [%s] — <small>", name, substate
+      printf "<b>%s</b> [%s] — <small>", name, substate
 
       # DESCRIPTION
       for (i=6; i<=NF; i++) {
@@ -193,18 +207,19 @@ list_units() {
 }
 
 rofi_default() {
-  echo -e "Installed Units\0info\x1flist-all"
-  echo -e "Units in Memory\0info\x1flist-units"
-  echo -e "Failed Units\0info\x1flist-failed"
-  echo -e "Services\0info\x1flist-services"
-  echo -e "Devices\0info\x1flist-devices"
-  echo -e "Paths\0info\x1flist-paths"
-  echo -e "Scopes\0info\x1flist-scopes"
-  echo -e "Slices\0info\x1flist-slices"
-  echo -e "Mounts\0info\x1flist-mounts"
-  echo -e "Sockets\0info\x1flist-sockets"
-  echo -e "Timers\0info\x1flist-timers"
-  echo -e "Targets\0info\x1flist-targets"
+  echo -e "${ico[units]}  Installed Units\0info\x1flist-unit-files"
+  echo -e "${ico[memory]}  In Memory\0info\x1flist-units"
+  echo -e " ${ico[error]}   Failed\0info\x1flist-failed"
+  # print_divider
+  # echo -e "       Services\0info\x1flist-services"
+  # echo -e "       Devices\0info\x1flist-devices"
+  # echo -e "       Paths\0info\x1flist-paths"
+  # echo -e "       Scopes\0info\x1flist-scopes"
+  # echo -e "       Slices\0info\x1flist-slices"
+  # echo -e "       Mounts\0info\x1flist-mounts"
+  # echo -e "       Sockets\0info\x1flist-sockets"
+  # echo -e "       Timers\0info\x1flist-timers"
+  # echo -e "       Targets\0info\x1flist-targets"
 }
 
 rofi_list_all_units() {
@@ -232,8 +247,11 @@ rofi_service() {
   is_service active "$service"
   toggle $service ${ctrl[active]} $?
 
+  echo -en "${ico[back]}  Back\n"
+  print_divider
+
   output=$(systemctl show "$service" | awk -F '=' \
-  '{ print }')
+  '{ printf "%s: %s\n", $1, $2 }')
   echo -en "$output"
 }
 
@@ -287,20 +305,29 @@ fi
 if [[ $ROFI_RETV == 1 ]]; then
   case $ROFI_INFO in
     "list-units")
+      set_subtitle "In Memory"
+      echo -en "${ico[back]}  Back\n"
+      print_divider
       rofi_list_units
       ;;
-    "list-all")
+    "list-unit-files")
+      set_subtitle "Installed Units"
+      echo -en "${ico[back]}  Back\n"
+      print_divider
       rofi_list_all_units
       ;;
     "list-failed")
-      rofi_list_failed
-      ;;
-    "list-services")
+      set_subtitle "Failed"
       echo -en "${ico[back]}  Back\n"
       print_divider
-      # list_units "--user -t service"
-      list_units "-t service"
+      rofi_list_failed
       ;;
+    # "list-services")
+    #   set_subtitle "Installed Services"
+    #   echo -en "${ico[back]}  Back\n"
+    #   print_divider
+    #   list_unit_files "-t service"
+    #   ;;
     ${ctrl[enabled]}:*)
       toggle_enabled $ROFI_INFO
       ;;
