@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
+#
+# TODO: systemd service
+# TODO: auto-detect device, multiple devices
 
 icon= 
 title=Wireless
-# TODO: remove this hardcoded reference
-# TODO: add support for multiple devices
+# XXX: remove this hardcoded reference
 iwctl_station=wlan0
 
+# look into ' +' regex for field separator, like rofi-systemctl
 # awk field widths
 fields_station_show="2 10 20 21"
 fields_get_networks="4 31 18 6"
