@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 #
-# Based on rofi-bluetooth by Nick Clyde (clydedroid)
+# Written by Andrés González (in0ni)
+#
+# Inspired by rofi-bluetooth by Nick Clyde (clydedroid)
 # Dependencies (arch): rofi, bluez-utils (bluetoothctl)
 #
 # FIXME: when unpairing a device, should return to main menu
+# TODO: systemd service
 # TODO: add refresh, only when discovering
+# TODO: look into using all icons below, might be too much
+# TODO: multi-line notifications, or parse cmd output and simplify
 
 icon=
 title=Bluetooth
@@ -22,20 +27,28 @@ dev[connect]=Connected
 dev[pair]=Paired
 dev[trust]=Trusted
 
-# Fontawesome
+# Fontawesome, some currently unused
 declare -A ico
-ico[bt]=
-ico[scan]=
-ico[pair]=
-ico[trust]=
-ico[power]=
+# ico[bt]=
+# ico[scan]=
+# ico[pair]=
+# ico[trust]=
+# ico[power]=
 ico[toggle_on]=
 ico[toggle_off]=
-ico[check_on]=
-ico[check_off]=
+# ico[check_on]=
+# ico[check_off]=
 ico[back]=
 
-$back=back
+back=back
+
+is_service_active() {
+  if systemctl is-active bluetooth.service --quiet; then
+    return 0
+  else
+    return 1
+  fi
+}
 
 # STATE TESTS
 is_ctrl_state_on() {
@@ -184,7 +197,7 @@ print_divider() {
 
 toggle() {
   [[ $2 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
-  [[ ! -z $3 ]] && info="$1":"$3" || info="$1"
+  [[ -n $3 ]] && info="$1":"$3" || info="$1"
   echo -en "$icon  $1\0info\x1f$info\n"
 }
 
@@ -205,22 +218,28 @@ notify() {
 # }
 
 show_menu() {
-  is_ctrl_state_on ${ctrl[power]}
-  toggle ${ctrl[power]} $?
+  if is_service_active; then
+    is_ctrl_state_on ${ctrl[power]}
+    toggle ${ctrl[power]} $?
 
-  if is_ctrl_state_on ${ctrl[power]}; then
-    is_ctrl_state_on ${ctrl[scan]}
-    toggle ${ctrl[scan]} $?
-    
-    is_ctrl_state_on ${ctrl[pair]}
-    toggle ${ctrl[pair]} $?
+    if is_ctrl_state_on ${ctrl[power]}; then
+      is_ctrl_state_on ${ctrl[scan]}
+      toggle ${ctrl[scan]} $?
+      
+      is_ctrl_state_on ${ctrl[pair]}
+      toggle ${ctrl[pair]} $?
 
-    is_ctrl_state_on ${ctrl[discover]}
-    toggle ${ctrl[discover]}  $?
+      is_ctrl_state_on ${ctrl[discover]}
+      toggle ${ctrl[discover]}  $?
+    fi
+
+    print_divider
+    list_devices
+else
+    set_message "Bluetooth service is <b>off</b>"
+    echo -en "Start bluetooth service (systemd)\0info"
+    systemctl start bluetooth.service
   fi
-
-  print_divider
-  list_devices
 }
 
 set_title $title
