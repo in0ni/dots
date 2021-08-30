@@ -1,5 +1,5 @@
 [Unit]
-Description=(swayidle) idle manager
+Description=Idle manager
 Documentation=man:swayidle(1)
 PartOf=graphical-session.target
 

@@ -1,5 +1,5 @@
 [Unit]
-Description= (swaybg) wallpaper utility
+Description=Wallpaper utility
 Documentation=https://github.com/swaywm/swaybg
 PartOf=graphical-session.target
 

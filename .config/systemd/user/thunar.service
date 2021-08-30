@@ -1,5 +1,5 @@
 [Unit]
-Description=(thunar) file manager
+Description=File manager
 Documentation=https://docs.xfce.org/xfce/thunar/start
 PartOf=graphical-session.target
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=(waybar) customizable desktop bar
+Description=Desktop bar
 Documentation=https://github.com/Alexays/Waybar/wiki/
 PartOf=graphical-session.target
 

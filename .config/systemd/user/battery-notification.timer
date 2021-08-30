@@ -1,5 +1,5 @@
 [Unit]
-Description=Run battery monitor notifications
+Description=Battery notifications timer
 
 [Timer]
 OnBootSec=10

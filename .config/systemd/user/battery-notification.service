@@ -1,5 +1,5 @@
 [Unit]
-Description=Battery Notification
+Description=Battery Notifications
 
 [Service]
 Type=simple

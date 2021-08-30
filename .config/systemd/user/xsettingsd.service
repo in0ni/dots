@@ -1,5 +1,5 @@
 [Unit]
-Description=(xsettingsd) daemon that implements the XSETTINGS specification
+Description=Daemon implementation of XSETTINGS spec
 Documentation=https://github.com/derat/xsettingsd/wiki
 PartOf=graphical-session.target
 
