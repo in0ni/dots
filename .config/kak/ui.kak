@@ -18,7 +18,7 @@ hook global WinSetOption filetype=man %{
 }
 
 # set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
-set-option global ui_options 'ncurses_assistant=none' 'ncurses_status_on_top=yes'
+set-option global ui_options 'terminal_assistant=none' 'terminal_status_on_top=yes'
 set-option global tabstop 4
 set-option global indentwidth 2
 set-option global scrolloff 4,6
