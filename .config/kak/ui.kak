@@ -1,5 +1,6 @@
 # Universal options
-set-face global Search +bu
+# set-face global search +bu
+# add-highlighter global/search dynregex '%reg{/}' 0:search
 add-highlighter global/ show-matching
 add-highlighter global/ wrap -indent
 add-highlighter global/ show-whitespaces -spc ' ' -lf ' ' -nbsp '·'
@@ -19,14 +20,11 @@ hook global WinSetOption filetype=man %{
 
 # set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
 set-option global ui_options 'terminal_assistant=none' 'terminal_status_on_top=yes'
+set-option global autoreload yes
 set-option global tabstop 4
 set-option global indentwidth 2
 set-option global scrolloff 4,6
 set-option global grepcmd 'rg --follow --with-filename --column'
-
-alias global g grep
-alias global f find
-
 # paste with middle mouse button
 # hook global RawKey <mouse:press:middle:.*> %{ evaluate-commands exec wl-paste<space>-p<ret> }
 

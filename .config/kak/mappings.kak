@@ -8,6 +8,9 @@ map global normal '<=>' :buffer-next<ret> -docstring 'next buffer'
 
 map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
 
+alias global g grep
+alias global f find
+
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
 hook global InsertCompletionShow .* %{
@@ -19,12 +22,11 @@ hook global InsertCompletionShow .* %{
     execute-keys -draft 'h<a-K>\h<ret>'
     map window insert <tab> <c-n>
     map window insert <s-tab> <c-p>
+    hook -once -always window InsertCompletionHide .* %{
+      unmap window insert <tab> <c-n>
+      unmap window insert <s-tab> <c-p>
+    }
   }
-}
-
-hook global InsertCompletionHide .* %{
-  unmap window insert <tab> <c-n>
-  unmap window insert <s-tab> <c-p>
 }
 
 #

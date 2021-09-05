@@ -1,38 +1,14 @@
-# essentially a copy of colorscheme command, just sets a 'colorscheme' option
-# to the current colorscheme
-declare-option str colorscheme 'default'
-def -params 1 -docstring "colorscheme <name>: enable named colorscheme" \
-  -shell-script-candidates %{
-  find -L "${kak_runtime}/colors" "${kak_config}/colors" -type f -name '*\.kak' \
-    | while read -r filename; do
-      basename="${filename##*/}"
-      printf %s\\n "${basename%.*}"
-    done | sort -u
-  } \
-  cs %{ evaluate-commands %sh{
-    find_colorscheme() {
-      find -L "${1}" -type f -name "${2}".kak | head -n 1
-    }
-
-    filename=""
-    if [ -d "${kak_config}/colors" ]; then
-      filename=$(find_colorscheme "${kak_config}/colors" "${1}")
-    fi
-    if [ -z "${filename}" ]; then
-      filename=$(find_colorscheme "${kak_runtime}/colors" "${1}")
-    fi
-    if [ -n "${filename}" ]; then      echo "set-option global colorscheme ${1}"
-      printf 'source %%{%s}' "${filename}"
-    else
-      echo "fail 'No such colorscheme'"
-    fi
-}}
+source "%val{config}/colorscheme.kak"
 
 # plug.kak
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
-plug "andreyorst/fzf.kak" config %{
+plug "andreyorst/smarttab.kak" %{
+  # for now...
+  hook global WinSetOption .* expandtab
+}
+plug "andreyorst/fzf.kak" %{
   map -docstring 'fzf mode' global user f ': fzf-mode<ret>'
 } demand fzf %{
   set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
@@ -40,11 +16,7 @@ plug "andreyorst/fzf.kak" config %{
 } demand fzf-file %{
   set-option global fzf_file_command 'rg --files --hidden'
 }
-plug "andreyorst/tagbar.kak" defer "tagbar" %{
-  set-option global tagbar_sort false
-  set-option global tagbar_size 40
-  set-option global tagbar_display_anon false
-} config %{
+plug "andreyorst/tagbar.kak" %{
   # if you have wrap highlighter enamled in you configuration
   # files it's better to turn it off for tagbar, using this hook:
   hook global WinSetOption filetype=tagbar %{
@@ -52,28 +24,24 @@ plug "andreyorst/tagbar.kak" defer "tagbar" %{
     # you can also disable rendering whitespaces here, line numbers, and
     # matching characters
   }
+} defer "tagbar" %{
+  set-option global tagbar_sort false
+  set-option global tagbar_size 40
+  set-option global tagbar_display_anon false
 }
 
-plug "alexherbo2/prelude.kak"
-plug "alexherbo2/word-select.kak" demand word-select %{
-  word-select-add-mappings
+plug "alexherbo2/lib.kak"
+plug "alexherbo2/surround.kak" %{
+  map -docstring 'surround mode' global user s ':surround<ret>'
 }
-plug "alexherbo2/search-highlighter.kak" demand search-highlighter %{
-  search-highlighter-enable
-}
+plug "alexherbo2/auto-pairs.kak" %{ enable-auto-pairs }
+plug "alexherbo2/word-select.kak" defer word-select %{ word-select-add-mappings }
 
-plug "h-youhei/kakoune-close-tag" config %{
-  map global insert <a-c> '<esc>: close-tag<ret>i'
+plug "occivink/kakoune-vertical-selection" %{
+  map -docstring 'vertsel down' global user v     ': vertical-selection-down<ret>'
+  map -docstring 'vertsel up' global user <a-v> ': vertical-selection-up<ret>'
+  map -docstring 'vertsel up/down' global user V     ': vertical-selection-up-and-down<ret>'
 }
-plug "h-youhei/kakoune-surround" config %{
-  declare-user-mode surround
-  map global surround s ':surround<ret>' -docstring 'surround'
-  map global surround c ':change-surround<ret>' -docstring 'change'
-  map global surround d ':delete-surround<ret>' -docstring 'delete'
-  map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
-  map -docstring 'surround mode' global user s ':enter-user-mode surround<ret>'
-} demand kakoune-surround
-
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
 plug "occivink/kakoune-snippets"
@@ -83,3 +51,5 @@ source "%val{config}/files.kak"
 source "%val{config}/mappings.kak"
 source "%val{config}/code.kak"
 source "%val{config}/kitty-ide.kak"
+source "%val{config}/asterisk.kak"
+source "%val{config}/toggle-highlighter.kak"

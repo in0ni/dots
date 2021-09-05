@@ -1,7 +1,15 @@
+#
+# lsp
+#
 eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
 hook global WinSetOption filetype=(javascript) %{
   lsp-enable-window
+  lsp-auto-hover-insert-mode-enable
 }
+
+#
+# Snippets
+# 
 def -hidden insert-c-n %{
   try %{
     snippets-select-next-placeholders
@@ -12,10 +20,6 @@ def -hidden insert-c-n %{
 }
 map global insert <a-n> "<a-;>: insert-c-n<ret>"
 map global insert <a-s> '<a-;>: snippets '
-
-# source /usr/share/kak-lsp/rc/lsp.kak
-# lsp-enable
-# lsp-auto-hover-insert-mode-enable
 
 #
 # Hooks
@@ -51,7 +55,7 @@ hook global WinSetOption filetype=(css|scss) %{
 }
 
 hook global WinSetOption filetype=(javascript|html) %{
-  set window lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
+  set-option window lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
   evaluate-commands %sh{
     if [ "$kak_opt_autolint" == "true" ]; then
       echo "enable-autolint"
@@ -74,6 +78,7 @@ define-command enable-autoformat -docstring 'enable auto-format' %{
   hook buffer -group format BufWritePre .* format
 }
 define-command disable-autoformat -docstring 'disable auto-format' %{
+  unset-option buffer formatcmd
   remove-hooks buffer format
 }
 
@@ -82,5 +87,6 @@ define-command enable-autolint -docstring 'enable auto-lint' %{
 }
 define-command disable-autolint -docstring 'disable auto-lint' %{
   lint-hide-diagnostics
+  unset-option buffer lintcmd
   remove-hooks buffer lint
 }
