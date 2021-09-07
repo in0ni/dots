@@ -1,41 +1,47 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# this is a very CRUDE start
+# (k)akoune (s)way (k)itty IDE
+# ... this is a very CRUDE start
+#
+icon=
 package=$(basename $0)
-session_name=$(basename `pwd`)
-socket_file=$(kak -l | grep $session_name)
-base_title="$session_name </>"
+session_name=${KSKIDE_SESSION:-$(basename $(pwd))}
+socket_file=$(kak -l | grep "$session_name")
+base_title="$icon  ${session_name}::"
+projects_file=${XDG_CONFIG_HOME}/kskide.projs
+rofi_title="$icon Kakoune Projects"
 join_session=false
 
-# project & theme support
-# project_conf="$HOME/.config/kskide.projs"
-# theme_variant=$(waystep kak)
-# theme_file="$HOME/.config/rofi/theme/$theme_variant.rasi"
-# rofi_theme_option=""
-# if [ -f "${theme_file}" ]; then
-#   rofi_theme_option="-theme $theme_file"
-# fi
+# theme support
+theme_variant=$(waystep kak)
+theme_file="${XDG_CONFIG_HOME}/rofi/theme/$theme_variant.rasi"
+rofi_theme_option=""
+if [ -f "${theme_file}" ]; then
+  rofi_theme_option="-theme $theme_file"
+fi
 
 # parse/handle args
 while test $# -gt 0; do
   case "$1" in
-    # -p|--projects)
-    #   delim=';'
-    #   # TODO: if user escapes rofi, return and end process
-    #   selection=$(cat $project_conf | cut -d $delim -f 1 | \
-    #     rofi -dmenu -p '  → Select Project' $rofi_theme_option | sed -E "s/\w+: //g")
-    #   selection_path=$(grep $selection $project_conf | cut -d $delim -f 2)
-    #   selection_type=$(grep $selection $project_conf | cut -d $delim -f 3)
+    -p|--rofi-projects)
+      projs=$(awk -F';' '{ printf "%s\\0info\\x1f%s;%s\\n", $1, $1, $2  }' < $projects_file)
+      proj=$(echo -en $projs | rofi -dmenu -i -p "$rofi_title" $rofi_theme_option)
+      if [[ -n "$proj" ]]; then
+        selected=$(grep $proj < $projects_file)
+        proj_session=$(echo $selected | cut -d ';' -f 1)
+        proj_path=$(echo $selected | cut -d ';' -f 2)
 
-    #   kitty @ launch --no-response --cwd $selection_path --type os-window kskide
-    #   exit 0
-   #   ;;
+        env KSKIDE_SESSION=$proj_session kitty -d $proj_path kskide &
+      fi
+      exit 0
+      ;;
     -h|--help)
       echo "$package - Kakoune, Sway, Kitty based IDE. Will create windows: main, docs, tools, shell"
       echo " "
       echo "$package [options]"
       echo " "
       echo "options:"
+      echo "-p, --rofi-projects       use rofi to open project"
       echo "-h, --help                show brief help"
       echo "-j, --join-existing-session"
       exit 0
@@ -51,42 +57,42 @@ done
 
 # create new layout using kitty and sway
 createLayout() {
-  title_shell="$base_title shell"
-  title_main="$base_title main"
-  title_docs="$base_title docs"
-  title_tools="$base_title tools"
+  basic_args=(--no-response --type os-window --os-window-class)
+  title_shell="${base_title}shell"
+  title_main="${base_title}main"
+  title_docs="${base_title}docs"
+  title_tools="${base_title}tools"
 
-  kitty @ launch --cwd `pwd` --no-response --type os-window\
-    --env KAKOUNE_SESSION=$session_name\
-    --env KAKOUNE_CLIENT=main\
-    --env NNN_OPENER="kcr edit"\
-    --title "$title_shell"\
+  kitty @ launch --cwd $(pwd) "${basic_args[@]}" kskide_shell \
+    --env KAKOUNE_SESSION="$session_name" \
+    --env NNN_OPENER="kcr edit" \
+    --title "$title_shell" \
 
   # create main client
-  kitty @ launch --no-response --type os-window\
-    --env $KAKOUNE_SESSION=$session_name\
-    --title "$title_main"\
-    kak -e "ide-set-client main jumpclient" -c $session_name
+  kitty @ launch "${basic_args[@]}" kskide_main \
+    --env KAKOUNE_SESSION="$session_name" \
+    --title "$title_main" \
+    kak -e "ide-set-client main jumpclient" -c "$session_name"
 
   swaymsg move left
   swaymsg "[title=\"$title_shell\"] focus"
   swaymsg splitv
 
   # create docs client
-  kitty @ launch --no-response --type os-window\
-    --env $KAKOUNE_SESSION=$session_name\
-    --title "$title_docs"\
-    kak -e "ide-set-client docs docsclient" -c $session_name
+  kitty @ launch "${basic_args[@]}" kskide_docs \
+    --env KAKOUNE_SESSION="$session_name" \
+    --title "$title_docs" \
+    kak -e "ide-set-client docs docsclient" -c "$session_name"
 
   swaymsg move up
   swaymsg "[title=\"$title_shell\"] focus"
   swaymsg splith
 
   # create tools client
-  kitty @ launch --no-response --type os-window\
-    --env $KAKOUNE_SESSION=$session_name\
-    --title "$title_tools"\
-    kak -e "ide-set-client tools toolsclient" -c $session_name
+  kitty @ launch "${basic_args[@]}" kskide_tools \
+    --env KAKOUNE_SESSION="$session_name" \
+    --title "$title_tools" \
+    kak -e "ide-set-client tools toolsclient" -c "$session_name"
 
   swaymsg move left
   swaymsg layout tabbed
@@ -100,20 +106,20 @@ createLayout() {
   # swayid_docs=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_docs\")|.id")
   # swayid_tools=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_tools\")|.id")
 
-  kcr -s $session_name send unalias global q quit
-  kcr -s $session_name send unalias global q! quit!
+  kcr -s "$session_name" send alias global q delete-buffer
+  kcr -s "$session_name" send alias global q! delete-buffer!
 }
 
 # handle basic command logic
 if [[ $socket_file == "" ]]; then
   # start daemon & set term title
-  setsid kak -d -s $session_name &
+  setsid kak -d -s "$session_name" &
   # kcr shell -s $session_name
   createLayout
 elif [[ $socket_file != "" && $join_session == true ]]; then
   createLayout
 else
-  echo "To join this session use the -j parameter: 'kskide -j'"
+  echo "To join this session use the -j parameter: 'kskide_main -j'"
   echo "Session \"$session_name\" already exists."
   exit 1
 fi
