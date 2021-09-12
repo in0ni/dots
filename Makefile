@@ -48,10 +48,6 @@ build_gtk-3.0: DIR = $(CONF_DIR)/gtk-3.0
 build_gtk-3.0: FILES = _settings.ini _gtk.css
 build_gtk-3.0: parse_gtk-3.0
 
-build_xsettingsd: DIR = $(HOME)
-build_xsettingsd: FILES = ._xsettingsd
-build_xsettingsd: parse_xsettingsd
-
 build_kitty: DIR = $(CONF_DIR)/kitty
 build_kitty: FILES = _theme.conf
 build_kitty: parse_kitty
@@ -59,6 +55,10 @@ build_kitty: parse_kitty
 build_kak: DIR = $(CONF_DIR)/kak
 build_kak: FILES = colors/_gruv-term.kak
 build_kak: parse_kak
+
+build_mpv: DIR = $(CONF_DIR)/mpv
+build_mpv: FILES = _mpv.conf
+build_mpv: parse_mpv
 
 build_rofi: DIR = $(CONF_DIR)/rofi
 build_rofi: FILES = _config.rasi \
@@ -77,6 +77,10 @@ build_waybar: DIR = $(CONF_DIR)/waybar
 build_waybar: FILES = _style.css
 build_waybar: SERVICE = waybar.service
 build_waybar: parse_waybar
+
+build_xsettingsd: DIR = $(HOME)
+build_xsettingsd: FILES = ._xsettingsd
+build_xsettingsd: parse_xsettingsd
 
 build_zim: DIR = $(CONF_DIR)/zim
 build_zim: FILES = _style.conf
