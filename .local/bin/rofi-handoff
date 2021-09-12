@@ -3,8 +3,8 @@
 cachefs=~/.cache/rofi-handoff
 output=$(${CMD} 2>&1)
 ret=$?
-echo "inf=$INF" > $cachefs
-echo "msg=$output" >> $cachefs
-echo "ret=$ret" >> $cachefs
+echo "$INF" > $cachefs
+echo "$ret" >> $cachefs
+echo "$output" >> $cachefs
 
 rofi -modi "x:$RSN" -show x

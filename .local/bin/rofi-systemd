@@ -2,6 +2,8 @@
 #
 # TODO: support 0 units being returned
 
+# NAME="$(basename "$0")"
+# VERSION="0.2"
 icon=
 title=systemd
 
@@ -26,13 +28,16 @@ ico[toggle_on]=
 ico[toggle_off]=
 ico[units]=
 ico[unit]=
-ico[memory]=
+ico[memory]=
 ico[user]=
 ico[sys]=
 
 declare -A ctrl
 ctrl[enabled]=Enabled
 ctrl[active]=Active
+
+ARGS_FAILED=(--failed)
+ARGS_USER=(--user)
 
 # UTILS
 import_icons() {
@@ -123,10 +128,11 @@ list_unit_files() {
 }
 
 list_units() {
+  args=("$@")
   trim_last_rows=6
   [[ "$1" =~ "--failed" ]] && trim_last_rows=5
 
-  output=$(systemctl --no-pager -l $(echo "$1") |
+  output=$(systemctl --no-pager -l "${args[@]}" |
     head -n -${trim_last_rows} | \
     awk -F' +' $(import_icons) $(import_colors) \
     '
@@ -208,7 +214,7 @@ list_units() {
 
 rofi_default() {
   echo -e "${ico[units]}  Installed Units\0info\x1flist-unit-files"
-  echo -e "${ico[memory]}  In Memory\0info\x1flist-units"
+  echo -e "${ico[memory]}  Running Units\0info\x1flist-units"
   echo -e " ${ico[error]}   Failed\0info\x1flist-failed"
   # print_divider
   # echo -e "       Services\0info\x1flist-services"
@@ -223,18 +229,15 @@ rofi_default() {
 }
 
 rofi_list_all_units() {
-  # list_units "list-unit-files --user"
   list_unit_files
 }
 
 rofi_list_units() {
-  # list_units "--user"
   list_units
 }
 
 rofi_list_failed() {
- # list_units "--user --failed"
- list_units "--failed"
+ list_units "${ARGS_FAILED}"
 }
 
 rofi_service() {
@@ -294,10 +297,15 @@ if [[ $ROFI_RETV == 0 ]]; then
   if [[ ! -f ~/.cache/rofi-handoff ]]; then
     rofi_default
   else
-    # ROFI_RETV=1
-    # ROFI_INFO=$(< ~/.cache/rofi-handoff)
-    cat ~/.cache/rofi-handoff
+    ROFI_RETV=1
+    # XXX: this is problematic as hitting "back" allows will return
+    # to same area and try to say, enable/disable a unit
+    ROFI_INFO=$(awk 'NR==1' ~/.cache/rofi-handoff)
+    ret=$(awk 'NR==2' ~/.cache/rofi-handoff)
+    msg=$(awk 'NR>2' ~/.cache/rofi-handoff)
+
     rm ~/.cache/rofi-handoff
+    notify "$msg" $ret
   fi
 fi
 
@@ -305,7 +313,7 @@ fi
 if [[ $ROFI_RETV == 1 ]]; then
   case $ROFI_INFO in
     "list-units")
-      set_subtitle "In Memory"
+      set_subtitle "Running Units"
       echo -en "${ico[back]}  Back\n"
       print_divider
       rofi_list_units
