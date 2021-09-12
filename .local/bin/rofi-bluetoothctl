@@ -10,6 +10,8 @@
 # TODO: add refresh, only when discovering
 # TODO: look into using all icons below, might be too much
 # TODO: multi-line notifications, or parse cmd output and simplify
+# TODO: disable all features when powered off
+# TODO: handle turning on/off service
 
 icon=
 title=Bluetooth
@@ -237,8 +239,8 @@ show_menu() {
     list_devices
 else
     set_message "Bluetooth service is <b>off</b>"
-    echo -en "Start bluetooth service (systemd)\0info"
-    systemctl start bluetooth.service
+    # TODO: allow starting from here
+    # echo -en "Start bluetooth service (systemd)\0info"
   fi
 }
 
