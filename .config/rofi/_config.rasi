@@ -1,5 +1,4 @@
 configuration {
-  width: 500;
   font: "%{{font_sans}} %{{font_size_sm}}";
   theme: "theme/default.rasi";
   show-icons: false;

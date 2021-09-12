@@ -10,8 +10,21 @@
 window {
   border: 2px;
   border-color: @base-bg;
+  width: 500px;
 }
 
+
+/*
+ * WIDGET: inputbar
+ *         > (@box|cas-indeicator|prompt|entry|num-rows|num-filtered-rows)
+ * TODO: num-filtered-rows is not working properly, seems like a bug
+ */
+inputbar {
+  padding: 5px 3px 7px 3px;
+  children: [prompt,entry,num-filtered-rows,textbox-num-sep,num-rows,case-indicator];
+}
+
+/* input bar > (items listed below, except for @box) */
 prompt,
 entry,
 textbox-num-sep,
@@ -27,17 +40,11 @@ num-filtered-rows,
 num-rows {
   padding: 4px 0 0 0;
   expand: false;
-  
+
 }
 
 textbox-num-sep {
   str: "/";
-}
-
-/* TODO: num-filtered-rows is not working properly, seems like a bug */
-inputbar {
-  padding: 5px 3px 7px 3px;
-  children: [prompt,entry,num-filtered-rows,textbox-num-sep,num-rows,case-indicator];
 }
 
 inputbar,
@@ -56,6 +63,9 @@ case-indicator {
   padding: 5px 10px;
 }
 
+/*
+ * WIDGET: message > textbox
+ */
 message,
 textbox
 {
@@ -64,6 +74,9 @@ textbox
   text-color: @message-fg;
 }
 
+/*
+ * WIDGET: listview > scrollbar, element
+ */
 listview {
   scrollbar: @scrollbar;
   spacing: 1px;
@@ -77,6 +90,9 @@ scrollbar {
   padding:      0;
 }
 
+/*
+ * WIDGET: element > element-(icon|index|text)
+ */
 element {
   margin: 0;
   padding: 8px 8px 8px 12px;
@@ -95,36 +111,9 @@ element.normal.urgent,
 element.alternate.urgent {
   text-color: @urgent-selected;
 }
-/*
-mode-switcher {
-    border:       2px 0 0;
-    border-color: @separatorcolor;
-}
 
-inputbar {
-    spacing:    0;
-    text-color: @normal-foreground;
-    padding:    6px 8px;
-    children:   [ prompt, textbox-prompt-sep, entry, case-indicator ];
+/* fix added after release of rofi 1.7.0 */
+element-text, element-icon {
+  background-color: inherit;
+  text-color: inherit;
 }
-
-case-indicator,
-entry,
-prompt,
-button {
-    spacing:    0;
-    text-color: @normal-foreground;
-}
-
-button.selected {
-    background-color: @selected-normal-background;
-    text-color:       @selected-normal-foreground;
-}
-
-textbox-prompt-sep {
-    expand:     false;
-    str:        " ";
-    text-color: @normal-foreground;
-    margin:     0 0.3em 0 0;
-}
-*/

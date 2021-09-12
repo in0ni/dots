@@ -6,43 +6,44 @@ import sys
 import signal
 import argparse
 from i3ipc import Connection, Event
+
 # TODO: standardize use of run/check_output/Popen
 # 		coming form a shell script, so just made it work.
 from subprocess import check_output, run, Popen, DEVNULL
 
 
 def get_session():
-    if os.environ.get('KAKOUNE_SESSION') is not None:
-        return os.environ['KAKOUNE_SESSION']
+    if os.environ.get("KAKOUNE_SESSION") is not None:
+        return os.environ["KAKOUNE_SESSION"]
     else:
         return os.path.basename(os.getcwd())
 
 
 def new_client(name, win_type):
-    kitty_cmd = 'kitty @ launch'
+    kitty_cmd = "kitty @ launch"
     win_title = f'--title "{base_window_title}{name}"'
-    base_args = '--no-response --type os-window --os-window-class kskide'
+    base_args = "--no-response --type os-window --os-window-class kskide"
 
     kak_cmd = f'kak -e "ide-set-client {name} {win_type}" -c "{session}"'
-    shell_cmd = f'{kitty_cmd} {win_title} {base_args} {kak_cmd}'
+    shell_cmd = f"{kitty_cmd} {win_title} {base_args} {kak_cmd}"
 
     run(shell_cmd, shell=True)
     focused = ipc.get_tree().find_focused()
-    focused.command(f'mark {session}::{name}')
+    focused.command(f"mark {session}::{name}")
     return focused
 
 
 def new_shell(name, arg_string=None):
-    base_args = '--no-response --type os-window --os-window-class kskide'
+    base_args = "--no-response --type os-window --os-window-class kskide"
     win_title = f'--title "{base_window_title}{name}"'
-    shell_cmd = f'kitty @ launch {win_title} {base_args}'
+    shell_cmd = f"kitty @ launch {win_title} {base_args}"
 
     if arg_string is not None:
-        shell_cmd += f' {arg_string}'
+        shell_cmd += f" {arg_string}"
 
     run(shell_cmd, shell=True)
     focused = ipc.get_tree().find_focused()
-    focused.command(f'mark {session}::{name}')
+    focused.command(f"mark {session}::{name}")
     return focused
 
 
@@ -51,19 +52,19 @@ def bind_keys(ipc, event):
     bind_windows = []
 
     for window in ipc.get_tree():
-        if window.app_id == 'kskide':
+        if window.app_id == "kskide":
             bind_windows.append(window)
 
     # if there are no windows left... just close bitch
     if not len(bind_windows):
         kill(ipc)
 
-    if con.app_id != 'kskide':
+    if con.app_id != "kskide":
         unbind_keys(ipc)
     else:
         if len(con.marks):
             # XXX: this is will break if marks are added
-            session = con.marks[0].split('::')[0]
+            session = con.marks[0].split("::")[0]
 
             ipc.command(f'bindsym Alt+7 [con_mark="{session}::main"] focus')
             ipc.command(f'bindsym Alt+8 [con_mark="{session}::docs"] focus')
@@ -78,28 +79,28 @@ def kill(ipc):
 
 
 def unbind_keys(ipc):
-    ipc.command('unbindsym Alt+7')
-    ipc.command('unbindsym Alt+8')
-    ipc.command('unbindsym Alt+9')
-    ipc.command('unbindsym Alt+0')
+    ipc.command("unbindsym Alt+7")
+    ipc.command("unbindsym Alt+8")
+    ipc.command("unbindsym Alt+9")
+    ipc.command("unbindsym Alt+0")
 
 
 def create_layout():
     global win_main, win_docs, win_tools, win_shell
 
-    win_main = new_client('main', 'jumpclient')
-    win_docs = new_client('docs', 'docsclient')
+    win_main = new_client("main", "jumpclient")
+    win_docs = new_client("docs", "docsclient")
 
-    ipc.command('splitv')
+    ipc.command("splitv")
 
-    win_tools = new_client('tools', 'toolsclient')
+    win_tools = new_client("tools", "toolsclient")
 
-    ipc.command('splith; layout tabbed')
+    ipc.command("splith; layout tabbed")
 
-    win_shell = new_shell('shell')
+    win_shell = new_shell("shell")
 
-    win_tools.command('focus')
-    win_main.command('focus')
+    win_tools.command("focus")
+    win_main.command("focus")
 
     # we don't want to close windows/clients, rather buffers
     # if anything we want to quit the session
@@ -115,29 +116,28 @@ def rofi_projects():
     global rofi_title, rofi_proj_file
 
     get_rofi_menu = check_output(
-        f'cut -d ";" -f 1 < {rofi_proj_file}',
-        shell=True, encoding="utf-8")
+        f'cut -d ";" -f 1 < {rofi_proj_file}', shell=True, encoding="utf-8"
+    )
     run_rofi_selection = run(
         f'echo -en "{get_rofi_menu}" | rofi -dmenu -i -p "{rofi_title}"',
-        shell=True, encoding="utf-8", capture_output=True)
+        shell=True,
+        encoding="utf-8",
+        capture_output=True,
+    )
 
     # only continue if selection made
     if run_rofi_selection.stdout:
         session = run_rofi_selection.stdout.strip()
         get_session_path = check_output(
             f'grep "{session}" < {rofi_proj_file} | cut -d ";" -f 2',
-            shell=True, encoding="utf-8"
+            shell=True,
+            encoding="utf-8",
         )
 
         path = get_session_path.strip()
-        env_vars = {
-            **os.environ,
-            "KAKOUNE_SESSION": session
-        }
+        env_vars = {**os.environ, "KAKOUNE_SESSION": session}
 
-        run(
-            f'kitty -d "{path}" ksk.py &',
-            shell=True, env=env_vars)
+        run(f'kitty -d "{path}" ksk.py &', shell=True, env=env_vars)
 
     sys.exit(0)
 
@@ -145,9 +145,9 @@ def rofi_projects():
 if __name__ == "__main__":
     icon = ""
     session = get_session()
-    base_window_title = f'{icon}  {session}::'
+    base_window_title = f"{icon}  {session}::"
 
-    rofi_title = f'{icon}  Kakoune Projects'
+    rofi_title = f"{icon}  Kakoune Projects"
     rofi_proj_file = "${XDG_CONFIG_HOME}/kskide.projs"
 
     win_main = None
@@ -186,10 +186,7 @@ if __name__ == "__main__":
         ipc = Connection()
         has_socket = run(f'kak -l | grep -q "{session}"', shell=True)
         keybinder_pid = run(
-            'pgrep -f "ksk.py -b"',
-            shell=True,
-            stdout=DEVNULL,
-            stderr=DEVNULL
+            'pgrep -f "ksk.py -b"', shell=True, stdout=DEVNULL, stderr=DEVNULL
         )
 
         if has_socket.returncode == 0:
