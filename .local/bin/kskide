@@ -5,7 +5,7 @@
 #
 icon=
 package=$(basename $0)
-session_name=${KSKIDE_SESSION:-$(basename $(pwd))}
+session_name=${KAKOUNE_SESSION:-$(basename $(pwd))}
 socket_file=$(kak -l | grep "$session_name")
 base_title="$icon  ${session_name}::"
 projects_file=${XDG_CONFIG_HOME}/kskide.projs
@@ -31,7 +31,7 @@ while test $# -gt 0; do
         proj_session=$(echo $selected | cut -d ';' -f 1)
         proj_path=$(echo $selected | cut -d ';' -f 2)
 
-        env KSKIDE_SESSION=$proj_session kitty -d $proj_path kskide &
+        env KAKOUNE_SESSION=$proj_session kitty -d $proj_path kskide &
       fi
       exit 0
       ;;
@@ -57,19 +57,19 @@ done
 
 # create new layout using kitty and sway
 createLayout() {
-  basic_args=(--no-response --type os-window --os-window-class)
+  basic_args=(--no-response --type os-window --os-window-class kskide)
   title_shell="${base_title}shell"
   title_main="${base_title}main"
   title_docs="${base_title}docs"
   title_tools="${base_title}tools"
 
-  kitty @ launch --cwd $(pwd) "${basic_args[@]}" kskide_shell \
+  kitty @ launch --cwd $(pwd) "${basic_args[@]}" \
     --env KAKOUNE_SESSION="$session_name" \
     --env NNN_OPENER="kcr edit" \
-    --title "$title_shell" \
+    --title "$title_shell"
 
   # create main client
-  kitty @ launch "${basic_args[@]}" kskide_main \
+  kitty @ launch "${basic_args[@]}" \
     --env KAKOUNE_SESSION="$session_name" \
     --title "$title_main" \
     kak -e "ide-set-client main jumpclient" -c "$session_name"
@@ -79,7 +79,7 @@ createLayout() {
   swaymsg splitv
 
   # create docs client
-  kitty @ launch "${basic_args[@]}" kskide_docs \
+  kitty @ launch "${basic_args[@]}" \
     --env KAKOUNE_SESSION="$session_name" \
     --title "$title_docs" \
     kak -e "ide-set-client docs docsclient" -c "$session_name"
@@ -89,7 +89,7 @@ createLayout() {
   swaymsg splith
 
   # create tools client
-  kitty @ launch "${basic_args[@]}" kskide_tools \
+  kitty @ launch "${basic_args[@]}" \
     --env KAKOUNE_SESSION="$session_name" \
     --title "$title_tools" \
     kak -e "ide-set-client tools toolsclient" -c "$session_name"
@@ -99,13 +99,12 @@ createLayout() {
 
   # set focus on main client
   swaymsg "[title=\"$title_main\"] focus"
-  
-  
-  # swayid_shell=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_shell\")|.id")
-  # swayid_main=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_main\")|.id")
-  # swayid_docs=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_docs\")|.id")
-  # swayid_tools=$(swaymsg -t get_tree|jq -r "..|try select(.name==\"$title_tools\")|.id")
 
+  swaymsg "[title=\"$title_main\"] mark ${session_name}::main"
+  swaymsg "[title=\"$title_shell\"] mark ${session_name}::shell"
+  swaymsg "[title=\"$title_docs\"] mark ${session_name}::docs"
+  swaymsg "[title=\"$title_tools\"] mark ${session_name}::tools"
+  
   kcr -s "$session_name" send alias global q delete-buffer
   kcr -s "$session_name" send alias global q! delete-buffer!
 }
