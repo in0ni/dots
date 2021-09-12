@@ -73,6 +73,19 @@ hook global WinSetOption filetype=python %{
   set-option buffer indentwidth 4
   set-option buffer lsp_server_configuration pyls.configurationSources=["flake8"]
   jedi-enable-autocomplete
+
+  set-option window lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
+  evaluate-commands %sh{
+    if [ "$kak_opt_autolint" == "true" ]; then
+      echo "enable-autolint"
+    fi
+  }
+  set-option window formatcmd "black -"
+  evaluate-commands %sh{
+    if [ "$kak_opt_autolint" == "true" ]; then
+      echo "enable-autolint"
+    fi
+  }
 }
 
 hook global WinSetOption filetype=sh %{
