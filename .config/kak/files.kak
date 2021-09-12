@@ -1,26 +1,3 @@
-# Source a local project kak config if it exists
-# Make sure it is set as a kak filetype
-hook global BufCreate (.*/)?(\.kakrc) %{
-    set-option buffer filetype kak
-}
-try %{ source .kakrc }
-
-#
-# Set custom filetypes for syntax/formatting/linting
-#
-hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
-  set buffer filetype i3
-}
-hook global BufCreate .*(dunstrc|pacman\.conf)$ %{
-  set buffer filetype ini
-}
-hook global BufCreate .*(waybar/config|\.rasi)$ %{
-  set buffer filetype json
-}
-hook global BufCreate .*theme/.*\.rasi$ %{
-  set buffer filetype css
-}
-
 # Searching Files & Buffers w/ rofi
 #
 define-command files -docstring 'Open one or many files' %{ evaluate-commands %sh{

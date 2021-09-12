@@ -4,10 +4,11 @@ source "%val{config}/colorscheme.kak"
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
-plug "andreyorst/smarttab.kak" %{
-  # for now...
-  hook global WinSetOption .* expandtab
+plug "andreyorst/smarttab.kak" defer %{
+  set-option global softtabstop 2
+  hook global WinSetOption .* %{ expandtab }
 }
+
 plug "andreyorst/fzf.kak" %{
   map -docstring 'fzf mode' global user f ': fzf-mode<ret>'
 } demand fzf %{
@@ -16,6 +17,7 @@ plug "andreyorst/fzf.kak" %{
 } demand fzf-file %{
   set-option global fzf_file_command 'rg --files --hidden'
 }
+
 plug "andreyorst/tagbar.kak" %{
   # if you have wrap highlighter enamled in you configuration
   # files it's better to turn it off for tagbar, using this hook:
@@ -31,10 +33,13 @@ plug "andreyorst/tagbar.kak" %{
 }
 
 plug "alexherbo2/lib.kak"
+
 plug "alexherbo2/surround.kak" %{
   map -docstring 'surround mode' global user s ':surround<ret>'
 }
+
 plug "alexherbo2/auto-pairs.kak" %{ enable-auto-pairs }
+
 plug "alexherbo2/word-select.kak" defer word-select %{ word-select-add-mappings }
 
 plug "occivink/kakoune-vertical-selection" %{
@@ -42,9 +47,21 @@ plug "occivink/kakoune-vertical-selection" %{
   map -docstring 'vertsel up' global user <a-v> ': vertical-selection-up<ret>'
   map -docstring 'vertsel up/down' global user V     ': vertical-selection-up-and-down<ret>'
 }
+
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
-plug "occivink/kakoune-snippets"
+plug "occivink/kakoune-snippets" %{
+  def -hidden insert-c-n %{
+    try %{
+      snippets-select-next-placeholders
+      exec '<a-;>d'
+    } catch %{
+      exec -with-hooks '<c-n>'
+    }
+  }
+  map global insert <a-n> "<a-;>: insert-c-n<ret>"
+  map global insert <a-s> '<a-;>: snippets '
+}
  
 source "%val{config}/ui.kak"
 source "%val{config}/files.kak"

@@ -1,3 +1,6 @@
+alias global g grep
+alias global f find
+
 map global normal '#' :comment-line<ret> -docstring 'comment line'
 map global normal '<a-#>' :comment-block<ret> -docstring 'comment block'
 map global normal '<c-p>' :files<ret> -docstring 'browse files'
@@ -7,9 +10,6 @@ map global normal '<minus>' :buffer-previous<ret> -docstring 'previous buffer'
 map global normal '<=>' :buffer-next<ret> -docstring 'next buffer'
 
 map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
-
-alias global g grep
-alias global f find
 
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
