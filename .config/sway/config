@@ -49,12 +49,7 @@ input type:pointer {
 
 # NOTE: only real use of having this is for whenever a theme is changed, this
 # 		way a reload should update... but not sure how much this is helping
-exec_always waygsettings \
-  gtk-theme:gtk-theme-name \
-  icon-theme:gtk-icon-theme-name \
-  font-name:gtk-font-name
-}
-
+exec_always sway-gsettings
 # can't get this working with systemd service
 exec sway-alttab
 

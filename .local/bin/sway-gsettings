@@ -1,12 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 
-# usage: import-gsettings <gsettings key>:<settings.ini key> <gsettings key>:<settings.ini key> ...
+# usage: sway-gsettings <settings.ini key>:<gsettings key> <settings.ini key>:<gsettings key>...
 
-expressions="BEGIN{FS=\" = \"}"
-for pair in "$@"; do
-    IFS=:; set -- $pair
-    # expressions="$expressions -e 's:^$2 = (.*)$:gsettings set org.gnome.desktop.interface $1 \1:e'"
-    expressions="$expressions /^$2/{ print \"gsettings set org.gnome.desktop.interface $1 \\\"\" \$2 \"\\\"\" }"
-done
-IFS=
-eval awk '$expressions' "${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini | sh
+config="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
+[[ ! -f "$config" ]] && exit 1
+
+call_gsettings() {
+  for pair in "$@"; do
+    IFS=':' read -r -a NAMES <<< $pair
+    exp="$exp /^${NAMES[0]}/{
+      cmd=sprintf(\"gsettings set org.gnome.desktop.interface %s \\\"%s\\\"\\n\",
+      \"${NAMES[1]}\", \$2)
+      system(cmd)
+    }"
+  done
+  IFS=
+  awk -F' +?= +?' "$exp" "$config"
+}
+
+call_gsettings \
+  gtk-theme-name:gtk-theme \
+  gtk-icon-theme-name:icon-theme \
+  gtk-font-name:font-name \
+  gtk-cursor-theme-name:cursor-theme \
+  gtk-cursor-theme-size:cursor-size

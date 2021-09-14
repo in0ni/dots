@@ -2,8 +2,10 @@
 # THEME
 #
 theme=Arc-Dark
-theme_icon=Tela-manjaro-dark
-theme_icon_variant=Tela-manjaro
+theme_icon=Flat-Remix-Green-Dark
+theme_icon_variant=Flat-Remix-Green-Light
+theme_cursor=Adwaita
+theme_cursor_size=0
 
 #
 # FONTS
