@@ -42,3 +42,5 @@ ring-clear-color=%{{theme_dark_1}}%{{trnz_80}}
 ring-caps-lock-color=%{{theme_dark_1}}%{{trnz_80}}
 ring-ver-color=%{{theme_dark_1}}%{{trnz_80}}
 ring-wrong-color=%{{theme_dark_1}}%{{trnz_80}}
+
+# vim: ft=ini

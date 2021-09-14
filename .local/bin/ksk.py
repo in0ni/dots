@@ -140,6 +140,7 @@ def rofi_projects():
 
         # TODO: fzf w/ overlay only works when launching w/ --listen-on
         #       will not work if launching w/o rofi
+        # NOTE: need to consider using listen_on in kitty.conf
         run(
             f'kitty --listen-on=unix:@{session} -d "{path}" ksk.py &',
             shell=True,
