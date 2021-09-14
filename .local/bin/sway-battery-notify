@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+dunst_id=99901
+
+notify_low=1
+notify_critical=1
+
+while true; do
+  level=$(cat /sys/class/power_supply/BAT0/capacity)
+  state=$(cat /sys/class/power_supply/BAT0/status)
+
+  if [[ $state == "Discharging" ]]; then
+    if [[ $level -le 5 && $notify_critical -eq 1 ]]; then
+      dunstify "Battery Critically Low" "Battery reports ${level}% charge left." -r $dunst_id -i battery-empty -u critical
+    elif [[ $level -le 25 && $notify_low -eq 1 ]]; then
+      dunstify "Battery Low" -r $dunst_id -i battery-low
+      notify_low=0
+    fi
+  elif [[ $level -gt 5 || $state == "Charging" ]]; then
+    notify_low=1
+    notify_critical=1
+    dunstify -C $dunst_id
+  fi
+
+  sleep 2m
+done

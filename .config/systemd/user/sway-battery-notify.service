@@ -3,7 +3,7 @@ Description=Battery Notifications
 
 [Service]
 Type=simple
-ExecStart=%h/.local/bin/wayde-battery-notification
+ExecStart=%h/.local/bin/sway-battery-notify
 
 [Install]
 WantedBy=multi-user.target
