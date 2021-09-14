@@ -19,7 +19,6 @@ hook global WinCreate .* %{ try %{
   add-highlighter buffer/fix regex \b(FIXME|XXX)\b 0:default+arb
 }}
 
-# set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
 set-option global ui_options 'terminal_assistant=none' 'terminal_status_on_top=yes'
 set-option global autoreload yes
 set-option global tabstop 4

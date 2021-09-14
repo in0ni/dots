@@ -7,9 +7,10 @@ If no client is passed then the current one is used' \
   }
 }
 
+# TODO: create PR for kakoune
 define-command kitty-terminal-overlay -params 1.. -shell-completion -docstring '
-kitty-terminal-overlay <program> [<arguments>]: create a new terminal as kitty tab
-The program passed as argument will be executed in the new terminal' \
+kitty-terminal-overlay <program> [<arguments>]: create a new terminal as overlay
+The program passed as argument will be executed in the new overlay' \
 %{
   nop %sh{
     match=""
