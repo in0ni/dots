@@ -21,6 +21,4 @@ call_gsettings() {
 call_gsettings \
   gtk-theme-name:gtk-theme \
   gtk-icon-theme-name:icon-theme \
-  gtk-font-name:font-name \
-  gtk-cursor-theme-name:cursor-theme \
-  gtk-cursor-theme-size:cursor-size
+  gtk-font-name:font-name
