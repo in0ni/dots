@@ -1,3 +1,5 @@
+/* vim: ft=css */
+
 * {
   spacing: 0;
   margin: 0;

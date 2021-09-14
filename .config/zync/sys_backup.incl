@@ -1,6 +1,4 @@
-#!/bin/sh
-# above is just for syntax highligting
-#
+# vim: ft=sh
 # this file is used by gnu tar, an inclusive backup list
 
 # update mirrors

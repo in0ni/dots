@@ -140,3 +140,5 @@
     "on-click-right": "waystep toggle; pkill -SIGRTMIN+8 waybar"
   }
 }
+
+// vim: ft=json

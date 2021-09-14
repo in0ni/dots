@@ -11,26 +11,11 @@ hook global WinSetOption filetype=(javascript|python) %{
 #
 # NOTE: if editorconfig is not found, an error is thrown, which is fine
 # TODO: only run git commands if inside git dir: "git rev-parse --is-inside-work-tree"
+hook global BufOpenFile .* %{ modeline-parse }
 hook global BufOpenFile .* %{ editorconfig-load }
 hook global BufNewFile .* %{ editorconfig-load }
 hook global BufWritePost .* %{ git show-diff }
 hook global BufReload .* %{ git show-diff }
-
-#
-# Set custom filetypes for syntax/formatting/linting
-#
-hook global BufCreate .*(sway|i3)/(config|[\d\w\s_\-]+)\.conf$ %{
-  set buffer filetype i3
-}
-hook global BufCreate .*(dunstrc|pacman\.conf)$ %{
-  set buffer filetype ini
-}
-hook global BufCreate .*(waybar/config|\.rasi)$ %{
-  set buffer filetype json
-}
-hook global BufCreate .*theme/.*\.rasi$ %{
-  set buffer filetype css
-}
 
 #
 # Format & Lint

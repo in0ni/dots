@@ -5,7 +5,7 @@
 export $(systemctl --user show-environment)
 
 # If running from tty1 start sway
-if [ "$(tty)" = "/dev/tty1" ]; then
+if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
   # enable logging and journalctl
   systemd-cat --identifier=sway sway
   systemctl --user stop sway-session.target

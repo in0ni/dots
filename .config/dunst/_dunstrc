@@ -75,3 +75,5 @@ foreground = "#%{{theme_light_0}}"
 highlight = "#%{{theme_highlight}}"
 frame_color = "#%{{theme_dark_4}}"
 timeout = 2
+
+# vim: ft=ini

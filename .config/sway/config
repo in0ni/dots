@@ -16,7 +16,6 @@ set $output_hdmi 'HDMI-A-1'
 ### Default Applications
 #
 set $term kitty
-set $menu rofi -show drun
 
 set $mode_def "default"
 set $mode_resize " - resize"
@@ -65,6 +64,6 @@ exec sway-alttab
 include /etc/sway/config.d/*
 
 # systemd
-# NOTE: sway-session.target needs to be stopped on logout, or service like
-# dunst does not properly end and on next login needs to be killed
-exec_always "systemctl --user import-environment; systemctl --user start sway-session.target"
+exec systemctl --user start sway-session.target
+
+# vim: ft=i3

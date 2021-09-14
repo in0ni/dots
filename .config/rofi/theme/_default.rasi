@@ -1,3 +1,5 @@
+/* vim: ft=css */
+
 * {
     /* Theme settings */
     scrollbar: true;

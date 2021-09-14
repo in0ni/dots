@@ -1,3 +1,5 @@
+/* vim: ft=css */
+
 configuration {
   font: "%{{font_sans}} %{{font_size_sm}}";
   theme: "theme/default.rasi";
