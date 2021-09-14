@@ -4,6 +4,8 @@
 # takes a template file, like '_config', and replaces %{{var}} with matching
 # set environment variable (dotvars.sh) in final parsed file 'config'.
 #
+# TODO: should warn on output when variables are not found and not build.
+#
 # NOTE: filename templates are preceded with an underscore '_FILENAME'
 #		for each build target FILES indicates the tamplate
 # 		example: _config -> config
