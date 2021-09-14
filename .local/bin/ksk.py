@@ -24,7 +24,8 @@ def new_client(name, win_type):
     win_title = f'--title "{base_window_title}{name}"'
     base_args = "--no-response --type os-window --os-window-class kskide"
 
-    kak_cmd = f'kak -e "ide-set-client {name} {win_type}" -c "{session}"'
+    client_cmd = f"rename-client {name}; set global {win_type} {name}"
+    kak_cmd = f'kak -e "{client_cmd}" -c "{session}"'
     shell_cmd = f"{kitty_cmd} {win_title} {base_args} {kak_cmd}"
 
     run(shell_cmd, shell=True)
@@ -137,7 +138,13 @@ def rofi_projects():
         path = get_session_path.strip()
         env_vars = {**os.environ, "KAKOUNE_SESSION": session}
 
-        run(f'kitty -d "{path}" ksk.py &', shell=True, env=env_vars)
+        # TODO: fzf w/ overlay only works when launching w/ --listen-on
+        #       will not work if launching w/o rofi
+        run(
+            f'kitty --listen-on=unix:@{session} -d "{path}" ksk.py &',
+            shell=True,
+            env=env_vars,
+        )
 
     sys.exit(0)
 
