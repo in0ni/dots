@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 dunst_id=99901
 battery_level=$(cat /sys/class/power_supply/BAT0/capacity)
