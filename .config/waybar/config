@@ -134,10 +134,10 @@
     "format": "{icon}",
     "format-icons": ["", "", "", ""],
     "interval": 60,
-    "exec": "waystep waybar",
+    "exec": "sway-gammastep waybar",
     "exec-if": "exit 0",
     "return-type": "json",
-    "on-click-right": "waystep toggle; pkill -SIGRTMIN+8 waybar"
+    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+8 waybar"
   }
 }
 

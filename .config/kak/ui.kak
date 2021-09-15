@@ -65,6 +65,8 @@ evaluate-commands %sh{:
 
 # set theme variant according to time period
 evaluate-commands %sh{
-  theme=$(waystep kak)
-  echo "cs $theme"
+  if which sway-gammastep &> /dev/null; then
+    theme=$(sway-gammastep kak)
+    echo "cs $theme"
+  fi
 }
