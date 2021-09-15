@@ -17,6 +17,10 @@ hook global BufNewFile .* %{ editorconfig-load }
 hook global BufWritePost .* %{ git show-diff }
 hook global BufReload .* %{ git show-diff }
 
+hook global WinSetOption filetype=man %{
+  remove-highlighter buffer/numbers
+}
+
 #
 # Format & Lint
 #
