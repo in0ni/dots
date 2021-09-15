@@ -40,6 +40,7 @@ parse_%:
 
 build_dunst: DIR = $(CONF_DIR)/dunst
 build_dunst: FILES = _dunstrc
+build_dunst: SERVICE = dunst.service
 build_dunst: parse_dunst
 
 build_firefox: DIR = $(CONF_DIR)/firefox
@@ -67,6 +68,7 @@ build_rofi: FILES = _config.rasi \
 	theme/_default.rasi theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi
 build_rofi: parse_rofi
 
+# TODO: add script to restart sway
 build_sway: DIR = $(CONF_DIR)/sway
 build_sway: FILES = _windows.conf
 build_sway: parse_sway
@@ -80,9 +82,10 @@ build_waybar: FILES = _style.css
 build_waybar: SERVICE = waybar.service
 build_waybar: parse_waybar
 
-build_xsettingsd: DIR = $(HOME)
-build_xsettingsd: FILES = ._xsettingsd
-build_xsettingsd: parse_xsettingsd
+# build_xsettingsd: DIR = $(HOME)
+# build_xsettingsd: FILES = ._xsettingsd
+# build_xsettingsd: SERVICE = xsettingsd.service
+# build_xsettingsd: parse_xsettingsd
 
 build_zim: DIR = $(CONF_DIR)/zim
 build_zim: FILES = _style.conf
