@@ -27,7 +27,7 @@ word_wrap = true
 ### Icons ###
 icon_position = left
 max_icon_size = 64
-icon_path = /usr/share/icons/%{{theme_icon_variant}}/24/status/:/usr/share/icons/%{{theme_icon_variant}}/24/devices/:/usr/share/icons/%{{theme_icon_variant}}/24/actions/:/usr/share/icons/%{{theme_icon_variant}}/24/panel/
+icon_path = /usr/share/icons/%{{theme_icon}}/panel/
 
 ### Misc/Advanced ###
 # dmenu = /usr/bin/rofi -dmenu -p dunst:
@@ -62,18 +62,19 @@ highlight = "#%{{theme_highlight}}"
 timeout = 6
 
 [urgency_critical]
-background = "#%{{theme_dark_1}}"
+background = "#%{{theme_dark_2}}"
 foreground = "#%{{theme_light_0}}"
 highlight = "#%{{b16_01_red}}"
 frame_color = "#%{{b16_01_red}}"
+# icon_path = /usr/share/icons/%{{theme_icon}}/panel/
 timeout = 0
 
-[kyz]
-appname = "kyz"
-background = "#%{{theme_dark_1}}%{{trnz_15}}"
+[sway_hotkeys]
+appname = "sway_hotkeys"
+background = "#%{{theme_dark_2}}%{{trnz_15}}"
 foreground = "#%{{theme_light_0}}"
 highlight = "#%{{theme_highlight}}"
-frame_color = "#%{{theme_dark_4}}"
+frame_color = "#%{{theme_dark_2}}"
 timeout = 2
 
 # vim: ft=ini

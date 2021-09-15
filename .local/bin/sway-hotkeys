@@ -1,48 +1,65 @@
-#!/bin/sh
+#!/bin/bash
 
 # see https://bbs.archlinux.org/viewtopic.php?id=69589
 #
 # see (based off) https://gist.github.com/kui/4691809
 # TODO: clean-up as this is based on github and made significant changes
 file=$(basename "$0")
-usage="usage:\n\t $file COMMAND\nCOMMAND:\n vi\tVolume Increase\n vd\tVolume Decrease\n vm\tVolume Mute\n mt\tMicrophone Toggle\n bi\tBrightness Increase\n bd\tBrightness Decrease"
-
 dunst_id=99902
+dunst_appname="sway_hotkeys"
 command=$1
-increment=5
+increment=${2:-5}
 
 current_value=0
-mic_mute=""
 icon_name=""
-key_leds="/sys/devices/platform/thinkpad_acpi/leds/platform::"
+# key_leds="/sys/devices/platform/thinkpad_acpi/leds/platform::"
+#
+print_usage() {
+  echo -e "Usage:\n $file COMMAND [increment]\n"
+  echo -e "COMMAND:"
+  echo -e " vi\tVolume Increase"
+  echo -e " vd\tVolume Decrease"
+  echo -e " vm\tVolume Mute Toggle"
+  echo -e " mt\tMicrophone Mute Toggle"
+  echo -e " bi\tBrightness Increase"
+  echo -e " bd\tBrightness Decrease\n"
+  echo -e "[increment]:\n int value used for increase/decrease"
+}
 
-# take action
+# check arg2
+if [[ ! $increment =~ ^[0-9]+$ ]]; then
+  echo -e "$file: '$increment' is not a valid integer\n"
+  print_usage
+  exit 1
+fi
+
+# check arg1 and proceed
 case $command in
-vi)
-  pamixer -ui $increment;;
-vd)
-  pamixer -ud $increment;;
-vm)
-  pactl set-sink-mute @DEFAULT_SINK@ toggle;;
-mt)
-  pactl set-source-mute @DEFAULT_SOURCE@ toggle;;
-bi)
-  brightnessctl set +$increment%;;
-bd)
-  brightnessctl set $increment%-;;
-*)
-  echo -e $usage
-  exit 1;;
+  vi)
+    pamixer -ui "$increment";;
+  vd)
+    pamixer -ud "$increment";;
+  vm)
+    pamixer -t;;
+  mt)
+    pamixer --default-source -t;;
+  bi)
+    brightnessctl set +"${increment}"%;;
+  bd)
+    brightnessctl set "${increment}"%-;;
+  *)
+    echo -e "$file: '$command' is not a valid COMMAND"
+    print_usage
+    exit 1;;
 esac
 
 # set title & get value
 if [[ "$command" =~ ^b ]]; then
   txt_header="Brightness"
-  current_value=$(brightnessctl | awk 'match($0, /\((.*)%\)/, arr) { print arr[1] }')
+  current_value=$(brightnessctl -m | cut -d ',' -f 4 | sed 's/%//g')
 else
   txt_header="Volume"
-  current_value=$(pamixer --get-volume-human)
-  if [[ "$current_value" = "muted" ]]; then
+  if pamixer --get-mute &> /dev/null; then
     current_value=0
   else
     current_value=$(pamixer --get-volume)
@@ -50,21 +67,21 @@ else
 fi
 
 # set icon
-if [[ "$command" = "mt" ]]; then
-  if [[ "$mic_mute" = "yes" ]]; then
-    icon_name="mic-on"
-  else
-    icon_name="mic-off"
-  fi
-elif [[ "$command" =~ ^b ]]; then
+# if [[ "$command" == "mt" ]]; then
+#   if [[ "$mic_mute" == "yes" ]]; then
+#     icon_name="mic-on"
+#   else
+#     icon_name="mic-off"
+#   fi
+if [[ "$command" =~ ^b ]]; then
   icon_name="gpm-brightness-lcd"
 else
   # TODO: just one one? progress bar does + text indicator is more than enough
-  if [[ "$current_value" -eq "0" ]]; then
+  if [[ "$current_value" -eq 0 ]]; then
     icon_name="audio-volume-muted"
-  elif [[ "$current_value" -lt "33" ]]; then
+  elif [[ "$current_value" -lt 33 ]]; then
     icon_name="audio-volume-low"
-  elif [[ "$current_value" -lt "67" ]]; then
+  elif [[ "$current_value" -lt 67 ]]; then
     icon_name="audio-volume-medium"
   else
     icon_name="audio-volume-high"
@@ -73,5 +90,6 @@ fi
 
 # notify that bitch
 if [[ "$command" != "mt" ]]; then
-  dunstify "${txt_header}: ${current_value}%" -r $dunst_id -a kyz -i $icon_name -h int:value:$current_value
+  dunstify "${txt_header}: ${current_value}%" \
+  -r "$dunst_id" -a "$dunst_appname" -i "$icon_name" -h int:value:"$current_value"
 fi
