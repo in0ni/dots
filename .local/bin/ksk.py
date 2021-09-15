@@ -36,13 +36,20 @@ def new_client(name, win_type):
 
 def new_shell(name, arg_string=None):
     base_args = "--no-response --type os-window --os-window-class kskide"
-    win_title = f'--title "{base_window_title}{name}"'
-    shell_cmd = f"kitty @ launch {win_title} {base_args}"
+    win_title = f'"{base_window_title}{name}"'
+    shell_cmd = f"kitty @ launch --title {win_title} {base_args}"
 
     if arg_string is not None:
         shell_cmd += f" {arg_string}"
 
     run(shell_cmd, shell=True)
+
+    # all new shells won't allow Control+D to close
+    # NOTE: if creating new windows, perhaps only "::shell" has this behavior
+    run(
+        f'kitty @ send-text --match title:{win_title} "set -o ignoreeof\rclear\r"',
+        shell=True,
+    )
     focused = ipc.get_tree().find_focused()
     focused.command(f"mark {session}::{name}")
     return focused
@@ -108,9 +115,9 @@ def create_layout():
     # TODO: add support for closing clients/session and reopening
     run(f'echo "alias global q delete-buffer" | kak -p {session}', shell=True)
     run(f'echo "alias global q! delete-buffer!" | kak -p {session}', shell=True)
-    run(f'echo "unalias global wq"  | kak -p {session}', shell=True)
-    run(f'echo "unalias global wq!" | kak -p {session}', shell=True)
-    run(f'echo "unalias global waq" | kak -p {session}', shell=True)
+    run(f'echo "alias global wq write-close"  | kak -p {session}', shell=True)
+    run(f'echo "alias global wq! write-close-force" | kak -p {session}', shell=True)
+    run(f'echo "alias global waq write-all-kill" | kak -p {session}', shell=True)
 
 
 def rofi_projects():

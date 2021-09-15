@@ -1,17 +1,34 @@
 define-command ide-focus -params 1 -client-completion -docstring '
 ide-focus [<client>]: focus the given client
-If no client is passed then the current one is used' \
-%{
+If no client is passed then the current one is used' %{
   nop %sh{
     swaymsg "[con_mark=\"${kak_session}::${1}\"] focus"
   }
 }
 
+define-command write-close -docstring '
+write-close: write and close current buffer' %{
+  write
+  delete-buffer
+}
+
+define-command write-close-force -docstring '
+write-close-force: write! & delete-buffer!' %{
+  write!
+  delete-buffer!
+}
+
+define-command write-all-kill -params 0 -docstring '
+write-all-kill: write all buffers and kill current session' %{
+  write-all
+  kill
+}
+
+
 # TODO: create PR for kakoune
 define-command kitty-terminal-overlay -params 1.. -shell-completion -docstring '
 kitty-terminal-overlay <program> [<arguments>]: create a new terminal as overlay
-The program passed as argument will be executed in the new overlay' \
-%{
+The program passed as argument will be executed in the new overlay' %{
   nop %sh{
     match=""
     if [ -n "$kak_client_env_KITTY_WINDOW_ID" ]; then
