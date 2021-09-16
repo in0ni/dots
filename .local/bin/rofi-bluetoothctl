@@ -233,10 +233,10 @@ show_menu() {
 
       is_ctrl_state_on ${ctrl[discover]}
       toggle ${ctrl[discover]}  $?
-    fi
 
-    print_divider
-    list_devices
+      print_divider
+      list_devices
+    fi
 else
     set_message "Bluetooth service is <b>off</b>"
     # TODO: allow starting from here
