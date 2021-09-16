@@ -4,9 +4,10 @@ source "%val{config}/colorscheme.kak"
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 plug "andreyorst/plug.kak" noload
 
-plug "andreyorst/smarttab.kak" defer %{
+plug "andreyorst/smarttab.kak" %{
+  hook global WinSetOption filetype=.* %{ expandtab }
+} defer smarttab %{
   set-option global softtabstop 2
-  hook global WinSetOption .* %{ expandtab }
 }
 
 plug "andreyorst/fzf.kak" %{

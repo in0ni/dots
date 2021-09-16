@@ -56,12 +56,12 @@ hook global WinSetOption filetype=(javascript|typescript|css|scss|json|markdown|
 }
 
 hook global WinSetOption filetype=(css|scss) %{
-  set-option window lintcmd "npx stylelint --fix --stdin-filename='%val{buffile}'"
+  set-option buffer lintcmd "npx stylelint --fix --stdin-filename='%val{buffile}'"
   enable-autolint
 }
 
 hook global WinSetOption filetype=(javascript|html) %{
-  set-option window lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
+  set-option buffer lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
   enable-autolint
 }
 
@@ -74,13 +74,15 @@ hook global WinSetOption filetype=python %{
   set-option buffer lsp_server_configuration pyls.configurationSources=["flake8"]
   jedi-enable-autocomplete
 
-  set-option window lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
-  set-option window formatcmd "black -"
+  set-option buffer lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
+  set-option buffer formatcmd "black -"
   enable-autoformat
   enable-autolint
 }
 
 hook global WinSetOption filetype=sh %{
-  set-option window lintcmd "shellcheck -fgcc -Cnever"
+  set-option buffer lintcmd "shellcheck -fgcc -Cnever"
+  set-option buffer formatcmd "shfmt"
   enable-autolint
+  enable-autoformat
 }
