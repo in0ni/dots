@@ -95,10 +95,12 @@ notify() {
 }
 
 list_unit_files() {
-  output=$(systemctl --no-pager -l list-unit-files $(echo "$1") | \
-    head -n -2 | \
-    awk -F' +' $(import_icons) $(import_colors) \
-    'NR > 1 {
+  # $@ = "one" "two", $* = "one two"
+  [[ "$*" =~ $ARGS_USER ]] && icon_owner="${ico[user]}" || icon_owner="${ico[sys]}"
+
+  output=$(systemctl --no-pager --no-legend -l "$@" list-unit-files | \
+    awk -F' +' -v icon_owner=$icon_owner $(import_icons) $(import_colors) \
+    '{
       name=$1
       state=$2
       preset=$3
@@ -119,24 +121,21 @@ list_unit_files() {
             break
         }
       }
-      printf "    <span color=\"%s\">%s</span> ",gray, icon_sys
+      printf "    <span color=\"%s\">%s</span> ",gray, icon_owner
       printf "<b>%s</b> — <small>%s  %s</small>", $1, $2, $3
       printf "\\0info\x1funit:%s\n", $1
      }'
   )
-  echo -en "$output"
+  echo -e "$output"
 }
 
 list_units() {
-  args=("$@")
-  trim_last_rows=6
-  [[ "$1" =~ "--failed" ]] && trim_last_rows=5
+  # $@ = "one" "two", $* = "one two"
+  [[ "$*" =~ $ARGS_USER ]] && icon_owner="${ico[user]}" || icon_owner="${ico[sys]}"
 
-  output=$(systemctl --no-pager -l "${args[@]}" |
-    head -n -${trim_last_rows} | \
-    awk -F' +' $(import_icons) $(import_colors) \
-    '
-    NR > 1 {
+  output=$(systemctl --no-legend --no-pager -l "$@" |
+    awk -F' +' -v icon_owner=$icon_owner $(import_icons) $(import_colors) \
+    '{
       name=$2
       load=$3
       active=$4
@@ -146,7 +145,7 @@ list_units() {
       if ($1 == "")
         printf "      "
       else
-      printf "<span color=\"%s\">%s</span>  ", yellow, icon_warn
+        printf "<span color=\"%s\">%s</span>  ", yellow, icon_warn
 
       # LOAD
       switch (load) {
@@ -197,7 +196,7 @@ list_units() {
           break
       }
 
-      printf "    <span color=\"%s\">%s</span> ",gray, icon_sys
+      printf "    <span color=\"%s\">%s</span> ",gray, icon_owner
 
       printf "<b>%s</b> [%s] — <small>", name, substate
 
@@ -209,13 +208,13 @@ list_units() {
 
       printf "</small>\\0info\x1funit:%s\n", name
     }')
-  echo -en "$output\n"
+  echo -e "$output\n"
 }
 
 rofi_default() {
-  echo -e "${ico[units]}  Installed Units\0info\x1flist-unit-files"
-  echo -e "${ico[memory]}  Running Units\0info\x1flist-units"
-  echo -e " ${ico[error]}   Failed\0info\x1flist-failed"
+  echo -e "${ico[units]}\tInstalled Units\0info\x1flist-unit-files"
+  echo -e " ${ico[memory]}\tRunning Units\0info\x1flist-units"
+  echo -e " ${ico[error]}\tFailed\0info\x1flist-failed"
   # print_divider
   # echo -e "       Services\0info\x1flist-services"
   # echo -e "       Devices\0info\x1flist-devices"
@@ -229,14 +228,17 @@ rofi_default() {
 }
 
 rofi_list_all_units() {
+  list_unit_files "${ARGS_USER}"
   list_unit_files
 }
 
 rofi_list_units() {
+  list_units "${ARGS_USER}"
   list_units
 }
 
 rofi_list_failed() {
+ list_units "${ARGS_FAILED}" "${ARGS_USER}"
  list_units "${ARGS_FAILED}"
 }
 
@@ -250,7 +252,7 @@ rofi_service() {
   is_service active "$service"
   toggle $service ${ctrl[active]} $?
 
-  echo -en "${ico[back]}  Back\n"
+  echo -en "${ico[back]}\tBack\n"
   print_divider
 
   output=$(systemctl show "$service" | awk -F '=' \
