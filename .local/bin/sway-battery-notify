@@ -10,8 +10,14 @@ while true; do
   state=$(cat /sys/class/power_supply/BAT0/status)
 
   if [[ $state == "Discharging" ]]; then
-    if [[ $level -le 5 && $notify_critical -eq 1 ]]; then
-      dunstify "Battery Critically Low" "Battery reports ${level}% charge left." -r $dunst_id -i battery-empty -u critical
+    if [[ $level -le 5 ]]; then
+      if [[ $notify_critical -gt 1 ]]; then
+        ((notify_critical--))
+      else
+        dunstify "Battery Critically Low" "Battery reports ${level}% charge left." -r $dunst_id -i battery-empty -u critical
+        notify_critical=2
+      fi
+
     elif [[ $level -le 25 && $notify_low -eq 1 ]]; then
       dunstify "Battery Low" -r $dunst_id -i battery-low
       notify_low=0

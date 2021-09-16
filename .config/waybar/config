@@ -125,7 +125,7 @@
     "format": "{}",
     "interval": 3600, // every hour
     "return-type": "json",
-    "exec": "wayupdates", // # of updates
+    "exec": "waybar-updates", // # of updates
     "exec-if": "exit 0" // always run; consider advanced run conditions
     // "on-click": "kitty --class pacman-updates sudo pacman -Syu; pkill -SIGRTMIN+7 waybar"
   },
