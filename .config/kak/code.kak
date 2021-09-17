@@ -82,7 +82,7 @@ hook global WinSetOption filetype=python %{
 
 hook global WinSetOption filetype=sh %{
   set-option buffer lintcmd "shellcheck -fgcc -Cnever"
-  set-option buffer formatcmd "shfmt"
+  set-option buffer formatcmd "shfmt -i %opt{indentwidth} -ci -bn -sr"
   enable-autolint
   enable-autoformat
 }
