@@ -8,7 +8,7 @@ file=$(basename "$0")
 dunst_id=99902
 dunst_appname="sway_hotkeys"
 command=$1
-increment=${2:-5}
+increment=${2:-1}
 
 current_value=0
 icon_name=""
@@ -36,21 +36,28 @@ fi
 # check arg1 and proceed
 case $command in
   vi)
-    pamixer -ui "$increment";;
+    pamixer -ui "$increment"
+    ;;
   vd)
-    pamixer -ud "$increment";;
+    pamixer -ud "$increment"
+    ;;
   vm)
-    pamixer -t;;
+    pamixer -t
+    ;;
   mt)
-    pamixer --default-source -t;;
+    pamixer --default-source -t
+    ;;
   bi)
-    brightnessctl set +"${increment}"%;;
+    brightnessctl set +"${increment}"%
+    ;;
   bd)
-    brightnessctl set "${increment}"%-;;
+    brightnessctl set "${increment}"%-
+    ;;
   *)
     echo -e "$file: '$command' is not a valid COMMAND"
     print_usage
-    exit 1;;
+    exit 1
+    ;;
 esac
 
 # set title & get value
@@ -91,5 +98,5 @@ fi
 # notify that bitch
 if [[ "$command" != "mt" ]]; then
   dunstify "${txt_header}: ${current_value}%" \
-  -r "$dunst_id" -a "$dunst_appname" -i "$icon_name" -h int:value:"$current_value"
+    -r "$dunst_id" -a "$dunst_appname" -i "$icon_name" -h int:value:"$current_value"
 fi
