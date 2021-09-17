@@ -2,12 +2,14 @@
 #
 # TODO: support 0 units being returned
 
-# NAME="$(basename "$0")"
+NAME="$(basename "$0")"
 # VERSION="0.2"
 icon=
 title=systemd
+UNIT_OWNER=system
+UNIT_NAME=
 
-source ~/.config/dotvars.sh
+source "${XDG_CONFIG_HOME:-$HOME/.config}/dotvars.sh"
 
 # fontawesome
 declare -A ico
@@ -17,7 +19,7 @@ ico[check]=
 ico[ok]=
 ico[not_found]=
 ico[bad_setting]=
-ico[error]=  #also failed
+ico[error]= #also failed
 ico[masked]=
 ico[reloading]=
 ico[inactive]=
@@ -36,58 +38,85 @@ declare -A ctrl
 ctrl[enabled]=Enabled
 ctrl[active]=Active
 
-ARGS_FAILED=(--failed)
-ARGS_USER=(--user)
+declare -A args
+args[failed]=--failed
+args[user]=--user
+args[user]=--user
 
 # UTILS
 import_icons() {
+  vars=()
   for key in "${!ico[@]}"; do
-    echo "-v icon_$key=${ico[$key]} "
+    vars+=(-v "icon_${key}=${ico[$key]}")
   done
+  echo "${vars[@]}"
 }
 
-import_colors() {
-  echo "-v green=#${b16_02_green} "
-  echo "-v red=#${b16_01_red} "
-  echo "-v yellow=#${b16_03_yellow} "
-  echo "-v gray=#${theme_dark_4} "
+import_vars() {
+  vars=()
+  # user or sys unit
+  # $@ = "one" "two" "three" vs $* = "one two three"
+  if [[ "$*" =~ ${args[user]} ]]; then
+    vars+=(-v owner=user -v "icon_owner=${ico[user]}")
+  else
+    vars+=(-v owner=system -v "icon_owner=${ico[sys]}")
+  fi
+
+  # colors
+  vars+=(-v green=#"${b16_02_green}"
+    -v red=#"${b16_01_red}"
+    -v yellow=#"${b16_03_yellow}"
+    -v gray=#"${theme_dark_4}"
+  )
+
+  echo "${vars[@]}"
+}
+
+sys_ctl() {
+  cmd=(systemctl)
+  [[ $UNIT_OWNER == "user" ]] && cmd+=(--user)
+  echo "${cmd[@]}"
+}
+
+set_owner() {
+  params=(${1//:/ })
+  UNIT_OWNER="${params[1]}"
+  UNIT_NAME="${params[2]}"
 }
 
 is_service() {
-  systemctl is-$1 $2 -q
+  $(sys_ctl) is-"$1" "$UNIT_NAME" -q
   return $?
 }
 
 handoff() {
-  env CMD="$1" RSN=$(basename $0) INF="$2" rofi-handoff &> /dev/null &
+  env CMD="$1" RSN="$NAME" INF="$2" rofi-handoff &> /dev/null &
   exit
 }
 
 toggle_enabled() {
-  unit=${1#*${ctrl[enabled]}:}
-  if is_service enabled $unit; then
-    handoff "systemctl disable $unit" "unit:$unit"
+  if is_service enabled; then
+    handoff "$(sys_ctl) disable $UNIT_NAME" "unit:${UNIT_OWNER}:${UNIT_NAME}"
   else
-    handoff "systemctl enable $unit" "unit:$unit"
+    handoff "$(sys_ctl) enable $UNIT_NAME" "unit:${UNIT_OWNER}:${UNIT_NAME}"
   fi
 }
 
 toggle_active() {
-  unit=${1#*${ctrl[active]}:}
-  if is_service active $unit; then
-    handoff "systemctl stop $unit" "unit:$unit"
+  if is_service active; then
+    handoff "$(sys_ctl) stop $UNIT_NAME" "unit:${UNIT_OWNER}:${UNIT_NAME}"
   else
-    handoff "systemctl start $unit" "unit:$unit"
+    handoff "$(sys_ctl) start $UNIT_NAME" "unit:${UNIT_OWNER}:${UNIT_NAME}"
   fi
 }
 
 toggle() {
-  [[ $3 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
-  echo -en "$icon  $2\0info\x1f$2:$1\n"
+  [[ $2 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
+  echo -en "$icon  $1\0info\x1f$1:$UNIT_OWNER:$UNIT_NAME\n"
 }
 
 notify() {
-  desc=$(echo $1 | sed 's/\x1b\[[0-9;]*m//g' | sed 's/[\x01\x02]//g')
+  desc=$(echo "$1" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/[\x01\x02]//g')
   status=$2
 
   [[ $status == 0 ]] && urgency=normal || urgency=critical
@@ -95,12 +124,10 @@ notify() {
 }
 
 list_unit_files() {
-  # $@ = "one" "two", $* = "one two"
-  [[ "$*" =~ $ARGS_USER ]] && icon_owner="${ico[user]}" || icon_owner="${ico[sys]}"
-
-  output=$(systemctl --no-pager --no-legend -l "$@" list-unit-files | \
-    awk -F' +' -v icon_owner=$icon_owner $(import_icons) $(import_colors) \
-    '{
+  output=$(
+    systemctl --no-pager --no-legend -l "$@" list-unit-files \
+      | awk -F' +' $(import_vars "$@") $(import_icons) \
+        '{
       name=$1
       state=$2
       preset=$3
@@ -123,19 +150,16 @@ list_unit_files() {
       }
       printf "    <span color=\"%s\">%s</span> ",gray, icon_owner
       printf "<b>%s</b> — <small>%s  %s</small>", $1, $2, $3
-      printf "\\0info\x1funit:%s\n", $1
+      printf "\\0info\x1funit:%s:%s\n", owner, $1
      }'
   )
   echo -e "$output"
 }
 
 list_units() {
-  # $@ = "one" "two", $* = "one two"
-  [[ "$*" =~ $ARGS_USER ]] && icon_owner="${ico[user]}" || icon_owner="${ico[sys]}"
-
-  output=$(systemctl --no-legend --no-pager -l "$@" |
-    awk -F' +' -v icon_owner=$icon_owner $(import_icons) $(import_colors) \
-    '{
+  output=$(systemctl --no-legend --no-pager -l "$@" \
+    | awk -F' +' $(import_vars "$@") $(import_icons) \
+      '{
       name=$2
       load=$3
       active=$4
@@ -206,7 +230,7 @@ list_units() {
        if (i < NF) printf " "
       }
 
-      printf "</small>\\0info\x1funit:%s\n", name
+      printf "</small>\\0info\x1funit:%s:%s\n", owner ,name
     }')
   echo -e "$output\n"
 }
@@ -228,35 +252,34 @@ rofi_default() {
 }
 
 rofi_list_all_units() {
-  list_unit_files "${ARGS_USER}"
+  list_unit_files "${args[user]}"
   list_unit_files
 }
 
 rofi_list_units() {
-  list_units "${ARGS_USER}"
+  list_units "${args[user]}"
   list_units
 }
 
 rofi_list_failed() {
- list_units "${ARGS_FAILED}" "${ARGS_USER}"
- list_units "${ARGS_FAILED}"
+  list_units "${args[failed]}" "${args[user]}"
+  list_units "${args[failed]}"
 }
 
 rofi_service() {
-  service="$1"
-  set_subtitle "$service"
+  set_subtitle "$UNIT_NAME"
 
-  is_service enabled "$service"
-  toggle $service ${ctrl[enabled]} $?
+  is_service active
+  toggle ${ctrl[active]} $?
 
-  is_service active "$service"
-  toggle $service ${ctrl[active]} $?
+  is_service enabled
+  toggle ${ctrl[enabled]} $?
 
-  echo -en "${ico[back]}\tBack\n"
+  echo -en "${ico[back]}\tBack\0info\x1f\n"
   print_divider
 
-  output=$(systemctl show "$service" | awk -F '=' \
-  '{ printf "%s: %s\n", $1, $2 }')
+  output=$($(sys_ctl) show "$UNIT_NAME" | awk -F '=' \
+    '{ printf "<b>%s</b> — %s\\0nonselectable\x1ftrue\n", $1, $2 }')
   echo -en "$output"
 }
 
@@ -276,20 +299,6 @@ print_divider() {
   echo -en " \0nonselectable\x1ftrue\n"
 }
 
-# rofi_list_units() {
-#   opts_list_networks
-#   list_available_networks
-# }
-
-# if [[ -v CMD ]]; then
-#   ex=$(${CMD} 2>&1)
-#   ret=$?
-#   notify "$ex" $ret
-#   unset CMD
-#   rofi -modi "sd:rofi-systemd" -show sd &
-#   exit
-# fi
-
 # DEFAULT TITLE
 set_title $title
 echo -en "\0markup-rows\x1ftrue\n"
@@ -307,46 +316,48 @@ if [[ $ROFI_RETV == 0 ]]; then
     msg=$(awk 'NR>2' ~/.cache/rofi-handoff)
 
     rm ~/.cache/rofi-handoff
-    notify "$msg" $ret
+    notify "$msg" "$ret"
   fi
 fi
 
 # ENTRY MADE
 if [[ $ROFI_RETV == 1 ]]; then
   case $ROFI_INFO in
-    "list-units")
-      set_subtitle "Running Units"
-      echo -en "${ico[back]}  Back\n"
-      print_divider
-      rofi_list_units
-      ;;
     "list-unit-files")
       set_subtitle "Installed Units"
-      echo -en "${ico[back]}  Back\n"
+      echo -e "${ico[back]}\tBack"
       print_divider
       rofi_list_all_units
       ;;
+    "list-units")
+      set_subtitle "Running Units"
+      echo -e "${ico[back]}\tBack"
+      print_divider
+      rofi_list_units
+      ;;
     "list-failed")
       set_subtitle "Failed"
-      echo -en "${ico[back]}  Back\n"
+      echo -e "${ico[back]}\tBack"
       print_divider
       rofi_list_failed
       ;;
-    # "list-services")
-    #   set_subtitle "Installed Services"
-    #   echo -en "${ico[back]}  Back\n"
-    #   print_divider
-    #   list_unit_files "-t service"
-    #   ;;
+      # "list-services")
+      #   set_subtitle "Installed Services"
+      #   echo -en "${ico[back]}  Back\n"
+      #   print_divider
+      #   list_unit_files "-t service"
+      #   ;;
     ${ctrl[enabled]}:*)
-      toggle_enabled $ROFI_INFO
+      set_owner "$ROFI_INFO"
+      toggle_enabled
       ;;
     ${ctrl[active]}:*)
-      toggle_active $ROFI_INFO
+      set_owner "$ROFI_INFO"
+      toggle_active
       ;;
     unit:*)
-      name=${ROFI_INFO#*unit:}
-      rofi_service "$name"
+      set_owner "$ROFI_INFO"
+      rofi_service
       ;;
     *)
       rofi_default
