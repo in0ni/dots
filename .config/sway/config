@@ -50,8 +50,9 @@ input type:pointer {
 # NOTE: only real use of having this is for whenever a theme is changed, this
 # 		way a reload should update... but not sure how much this is helping
 exec_always sway-gsettings
-# can't get this working with systemd service
-exec sway-alttab
+
+# on reload sway-alttab craps out, force kill if already running
+exec_always pgrep sway-alttab &> /dev/null; [[ $? ]] && pkill -9 sway-alttab; sway-alttab
 
 # options passed in to override config
 # exec swayidle -w before-sleep swaylock
