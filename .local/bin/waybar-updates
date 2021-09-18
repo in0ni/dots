@@ -3,10 +3,10 @@
 awk_escape_nl='{ printf "\t%s\\n", $0 }'
 pac=$(checkupdates)
 pac_count=$(echo "$pac" | wc -l)
-pac_info=$(echo -n "$pac" | awk "${awk_escape_nl}")
+pac_info=$(echo "$pac" | awk "${awk_escape_nl}")
 
 aur=$(yay -Qua)
-aur_count=$(echo "$aur" | wc -l)
+aur_count=$(echo -n "$aur" | wc -l)
 aur_info=$(echo "$aur" | awk "$awk_escape_nl")
 
 fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
@@ -17,7 +17,7 @@ fwupd_info=$(echo "$fwupd" | jq --raw-output "${fwupd_jq_finalout}" | awk "${awk
 
 status=""
 if [[ "$pac_count" -gt 0 || "$aur_count" -gt 0 ]]; then
-  if [[ "$pac_count" -gt 0 ]]; then
+  if [[ "$aur_count" -gt 0 ]]; then
     status="*"
   else
     status=""
@@ -25,13 +25,12 @@ if [[ "$pac_count" -gt 0 || "$aur_count" -gt 0 ]]; then
 fi
 
 if [[ "$fwupd_count" -gt 0 ]]; then
- status="${status} "
+  status="${status} "
 fi
 
-tooltip_fwupd="($fwupd_count) firmware:\n$fwupd_info\n"
-tooltip_aur="($aur_count) aur:\n$aur_info\n"
-tooltip_pac="($pac_count) pacman:\n$pac_info"
-tooltip="${tooltip_fwupd}${tooltip_aur}${tooltip_pac}"
+[[ $fwupd_count -gt 0 ]] && tooltip+="($fwupd_count) firmware:\n$fwupd_info\n"
+[[ $aur_count -gt 0 ]] && tooltip+="($aur_count) aur:\n$aur_info\n"
+[[ $pac_count -gt 0 ]] && tooltip+="($pac_count) pacman:\n$pac_info"
 
 if [[ "$status" != "" ]]; then
   echo "{\"text\": \"$status\",\"tooltip\":\"$tooltip\"}"
