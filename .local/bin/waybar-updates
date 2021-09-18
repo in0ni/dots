@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 awk_escape_nl='{ printf "\t%s\\n", $0 }'
 pac=$(checkupdates)
@@ -16,21 +16,21 @@ fwupd_count=$(echo "$fwupd" | jq '.updates[].ver' | wc -l)
 fwupd_info=$(echo "$fwupd" | jq --raw-output "${fwupd_jq_finalout}" | awk "${awk_escape_nl}")
 
 status=""
-if [[ "$pac_count" -gt 0 || "$aur_count" -gt 0 ]]; then
-  if [[ "$aur_count" -gt 0 ]]; then
+if ((pac_count > 0 || aur_count > 0)); then
+  if ((aur_count > 0)); then
     status="*"
   else
     status=""
   fi
 fi
 
-if [[ "$fwupd_count" -gt 0 ]]; then
+if ((fwupd_count > 0)); then
   status="${status} "
 fi
 
-[[ $fwupd_count -gt 0 ]] && tooltip+="($fwupd_count) firmware:\n$fwupd_info\n"
-[[ $aur_count -gt 0 ]] && tooltip+="($aur_count) aur:\n$aur_info\n"
-[[ $pac_count -gt 0 ]] && tooltip+="($pac_count) pacman:\n$pac_info"
+((fwupd_count > 0)) && tooltip+="($fwupd_count) firmware:\n$fwupd_info\n"
+((aur_count > 0)) && tooltip+="($aur_count) aur:\n$aur_info\n"
+((pac_count > 0)) && tooltip+="($pac_count) pacman:\n$pac_info"
 
 if [[ "$status" != "" ]]; then
   echo "{\"text\": \"$status\",\"tooltip\":\"$tooltip\"}"
