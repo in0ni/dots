@@ -27,7 +27,7 @@ word_wrap = true
 ### Icons ###
 icon_position = left
 max_icon_size = 64
-icon_path = /usr/share/icons/%{{theme_icon}}/panel/
+icon_path = /usr/share/icons/%{{theme_icon_variant}}/24/panel/
 
 ### Misc/Advanced ###
 # dmenu = /usr/bin/rofi -dmenu -p dunst:

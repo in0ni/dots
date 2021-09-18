@@ -1,9 +1,9 @@
-#
+#!/usr/bin/env bash
 # THEME
 #
 theme=Arc-Dark
-theme_icon=Flat-Remix-Green-Dark
-theme_icon_variant=Flat-Remix-Green-Light
+theme_icon=Tela-orange-dark
+theme_icon_variant=Tela-orange
 theme_cursor=Adwaita
 theme_cursor_size=0
 

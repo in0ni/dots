@@ -5,6 +5,7 @@
 # set environment variable (dotvars.sh) in final parsed file 'config'.
 #
 # TODO: should warn on output when variables are not found and not build.
+# TODO: currently starting services is --user hardcoded
 #
 # NOTE: filename templates are preceded with an underscore '_FILENAME'
 #		for each build target FILES indicates the tamplate
@@ -82,10 +83,10 @@ build_waybar: FILES = _style.css
 build_waybar: SERVICE = waybar.service
 build_waybar: parse_waybar
 
-# build_xsettingsd: DIR = $(HOME)
-# build_xsettingsd: FILES = ._xsettingsd
-# build_xsettingsd: SERVICE = xsettingsd.service
-# build_xsettingsd: parse_xsettingsd
+build_xsettingsd: DIR = $(HOME)
+build_xsettingsd: FILES = ._xsettingsd
+build_xsettingsd: SERVICE = xsettingsd.service
+build_xsettingsd: parse_xsettingsd
 
 build_zim: DIR = $(CONF_DIR)/zim
 build_zim: FILES = _style.conf
