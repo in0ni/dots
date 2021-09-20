@@ -69,6 +69,10 @@ build_rofi: FILES = _config.rasi \
 	theme/_default.rasi theme/_gruv-dark-hard.rasi theme/_gruv-light-hard.rasi
 build_rofi: parse_rofi
 
+build_swappy: DIR = $(CONF_DIR)/swappy
+build_swappy: FILES = _config
+build_swappy: parse_swappy
+
 # TODO: add script to restart sway
 build_sway: DIR = $(CONF_DIR)/sway
 build_sway: FILES = _windows.conf
