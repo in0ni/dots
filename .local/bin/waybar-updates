@@ -1,37 +1,51 @@
 #!/usr/bin/env bash
 
+# icons to be displayed
+status=
+# get update info on one line w/ ''\n'
 awk_escape_nl='{ printf "\t%s\\n", $0 }'
-pac=$(checkupdates)
-pac_count=$(echo "$pac" | wc -l)
-pac_info=$(echo "$pac" | awk "${awk_escape_nl}")
 
+# pacman
+pac=$(checkupdates)
+# NOTE: NF (number of fields) is empty for blank lines
+# awks default behavior is to print line, so only non-blank are printed
+pac_count=$(echo "$pac" | awk NF | wc -l)
+pac_info=$(echo "$pac" | awk "$awk_escape_nl")
+
+# aur
 aur=$(yay -Qua)
-aur_count=$(echo -n "$aur" | wc -l)
+aur_count=$(echo "$aur" | awk NF | wc -l)
 aur_info=$(echo "$aur" | awk "$awk_escape_nl")
 
+# fwupd (lenovo)
 fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
+fwupd_jq_unique=".updates[].ver"
 fwupd_jq_finalout='.count+" "+.dev, (.updates[]|"   - "+.ver+": "+.name)'
-fwupd=$(fwupdmgr get-updates --json | jq "${fwupd_jq_simplify}" 2> /dev/null)
-fwupd_count=$(echo "$fwupd" | jq '.updates[].ver' | wc -l)
-fwupd_info=$(echo "$fwupd" | jq --raw-output "${fwupd_jq_finalout}" | awk "${awk_escape_nl}")
 
-status=""
-if ((pac_count > 0 || aur_count > 0)); then
-  if ((aur_count > 0)); then
-    status="*"
-  else
-    status=""
+fwupd=$(fwupdmgr get-updates --json | jq "$fwupd_jq_simplify" 2> /dev/null)
+fwupd_count=$(echo "$fwupd" | jq "$fwupd_jq_unique" | awk NF | wc -l)
+fwupd_info=$(echo "$fwupd" | jq --raw-output "$fwupd_jq_finalout" | awk "$awk_escape_nl")
+
+# set status icons & tooltip
+if ((pac_count == 0 && aur_count == 0 && fwupd_count == 0)); then
+  status+=""
+  tooltip+="Up to date"
+
+else
+  if ((pac_count > 0 || aur_count > 0)); then
+    ((aur_count > 0)) && status+="*"
+    status+=""
   fi
+  ((fwupd_count > 0)) && status+=" "
+
+  # print info for tooltip
+  ((fwupd_count > 0)) && tooltip+="(${fwupd_count}) firmware:\n${fwupd_info}\n"
+  ((aur_count > 0)) && tooltip+="(${aur_count}) aur:\n${aur_info}\n"
+  ((pac_count > 0)) && tooltip+="(${pac_count}) pacman:\n${pac_info}\n"
+
+  tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
+
 fi
 
-if ((fwupd_count > 0)); then
-  status="${status} "
-fi
-
-((fwupd_count > 0)) && tooltip+="($fwupd_count) firmware:\n$fwupd_info\n"
-((aur_count > 0)) && tooltip+="($aur_count) aur:\n$aur_info\n"
-((pac_count > 0)) && tooltip+="($pac_count) pacman:\n$pac_info"
-
-if [[ "$status" != "" ]]; then
-  echo "{\"text\": \"$status\",\"tooltip\":\"$tooltip\"}"
-fi
+# write obj for waybar
+[[ "$status" ]] && echo "{\"text\": \"$status\",\"tooltip\":\"$tooltip\"}"

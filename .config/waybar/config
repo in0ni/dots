@@ -121,23 +121,22 @@
     "on-click-right": "pavucontrol"
   },
   "custom/updates": {
-    "signal": 7,
-    "format": "{}",
+    "signal": 1,
     "interval": 3600, // every hour
     "return-type": "json",
     "exec": "waybar-updates", // # of updates
+    "on-right-click": "waybar-updates; pkill -SIGRTMIN+1 waybar",
     "exec-if": "exit 0" // always run; consider advanced run conditions
-    // "on-click": "kitty --class pacman-updates sudo pacman -Syu; pkill -SIGRTMIN+7 waybar"
   },
   "custom/gammastep": {
-    "signal": 8,
+    "signal": 2,
     "format": "{icon}",
     "format-icons": ["", "", "", ""],
     "interval": 60,
     "exec": "sway-gammastep waybar",
     "exec-if": "exit 0",
     "return-type": "json",
-    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+8 waybar"
+    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+2 waybar"
   }
 }
 
