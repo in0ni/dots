@@ -11,7 +11,12 @@ define-command files -docstring 'Open one or many files' %{ evaluate-commands %s
     echo "fail 'Rofi theme not found: $theme_file'"
   fi
 
-  FILES=$(rg --files --hidden --sort path | rofi -dmenu -i -p "  →⁮ Files" -multi-select $rofi_theme_option)
+  files_cmd=(rg --files --hidden --sort path)
+  if [[ "$kak_opt_rofi_files_cmd" ]]; then
+    files_cmd=(${kak_opt_rofi_files_cmd[@]})
+  fi
+
+  FILES=$(${files_cmd[@]} | rofi -dmenu -i -p "  →⁮ Files" -multi-select $rofi_theme_option)
   for file in $FILES; do
     printf 'eval -client %%{%s} edit %%{%s}\n' "$kak_client" "$file" | kak -p "$kak_session"
   done
