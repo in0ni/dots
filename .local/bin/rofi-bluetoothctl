@@ -171,7 +171,7 @@ toggle_trust() {
 }
 
 list_devices() {
-  output=$(bluetoothctl devices |awk '/^Device/{
+  output=$(bluetoothctl devices | awk '/^Device/{
     # get substr of $0 starting at index $3
     name=substr($0, index($0, $3))
     mac=$2
@@ -227,17 +227,17 @@ show_menu() {
     if is_ctrl_state_on ${ctrl[power]}; then
       is_ctrl_state_on ${ctrl[scan]}
       toggle ${ctrl[scan]} $?
-      
+
       is_ctrl_state_on ${ctrl[pair]}
       toggle ${ctrl[pair]} $?
 
       is_ctrl_state_on ${ctrl[discover]}
-      toggle ${ctrl[discover]}  $?
+      toggle ${ctrl[discover]} $?
 
       print_divider
       list_devices
     fi
-else
+  else
     set_message "Bluetooth service is <b>off</b>"
     # TODO: allow starting from here
     # echo -en "Start bluetooth service (systemd)\0info"
