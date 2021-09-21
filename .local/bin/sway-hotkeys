@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+#
 # see https://bbs.archlinux.org/viewtopic.php?id=69589
 #
 # see (based off) https://gist.github.com/kui/4691809
