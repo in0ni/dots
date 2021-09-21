@@ -14,7 +14,7 @@ source "${XDG_CONFIG_HOME:-$HOME/.config}/dotvars.sh"
 # fontawesome
 declare -A ico
 ico[back]=
-ico[warn]=
+ico[warn]=
 ico[check]=
 ico[ok]=
 ico[not_found]=
@@ -148,9 +148,15 @@ list_unit_files() {
             break
         }
       }
-      printf "    <span color=\"%s\">%s</span> ",gray, icon_owner
+
+      if (owner == "user")
+        printf "\t "
+      else
+        printf "\t"
+      printf "%s  ", icon_owner
+
       printf "<b>%s</b> — <small>%s  %s</small>", $1, $2, $3
-      printf "\\0info\x1funit:%s:%s\n", owner, $1
+      printf "\\0info\x1funit:%s:%s\x1fmeta\x1f.%s\n", owner, $1, owner
      }'
   )
   echo -e "$output"
@@ -167,7 +173,7 @@ list_units() {
 
       # status warn
       if ($1 == "")
-        printf "      "
+        printf "   "
       else
         printf "<span color=\"%s\">%s</span>  ", yellow, icon_warn
 
@@ -218,9 +224,13 @@ list_units() {
         default:
           printf "<span color=\"%s\">%s</span>", gray, icon_unconfigured
           break
-      }
+    }
 
-      printf "    <span color=\"%s\">%s</span> ",gray, icon_owner
+      if (owner == "user")
+        printf "\t "
+      else
+        printf "\t"
+      printf "%s  ", icon_owner
 
       printf "<b>%s</b> [%s] — <small>", name, substate
 
@@ -230,9 +240,9 @@ list_units() {
        if (i < NF) printf " "
       }
 
-      printf "</small>\\0info\x1funit:%s:%s\n", owner ,name
+      printf "</small>\\0info\x1funit:%s:%s\x1fmeta\x1f.%s\n", owner, name, owner
     }')
-  echo -e "$output\n"
+  echo -e "$output"
 }
 
 rofi_default() {
@@ -331,6 +341,7 @@ if [[ $ROFI_RETV == 1 ]]; then
       ;;
     "list-units")
       set_subtitle "Running Units"
+      set_message "Try '<b>.user .service</b>' or '<b>.system .timer</b>'. Supports all service types: <i>service</i>, <i>device</i>, <i>path</i>, <i>scope</i>, <i>slice</i>, <i>mount</i>, <i>socket</i>, <i>timer</i>, <i>target</i>"
       echo -e "${ico[back]}\tBack"
       print_divider
       rofi_list_units
