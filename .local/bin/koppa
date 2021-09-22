@@ -10,6 +10,7 @@ vars="${xdg_cfg}/koppa/variables.sh"
 
 # set shellcheck to avoid these errors
 set -a
+# shellcheck disable=1090
 . "${vars}"
 set +a
 
@@ -41,10 +42,13 @@ build_zap() {
   path=$(echo "$zap_obj" | jq -e -r '.path')
   expanded_path=$(eval echo "$path")
   if [[ -d "$expanded_path" ]]; then
+    # TODO: report error if can't cd
     cd "$expanded_path" || exit
+
     # TODO: allow depth setting for find... hardcoding depth for now
     # find zap files within directory
     zaps=$(find . -maxdepth 2 -regextype posix-extended -regex ".*${koppa_id}(\.[a-zA-Z0-9\-_]{1,20})?$")
+
   else
     # in this case, a single file is passed TODO: allow multiple files
     zaps=$(rename "$expanded_path")
@@ -53,26 +57,39 @@ build_zap() {
   # iterate and parse through files
   for zap in $zaps; do
     perl -p -e 's/%\{\{(\w+)\}\}/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' \
-      < $zap > ${zap/${koppa_id}/}
+      < "$zap" > "${zap/${koppa_id}/}"
     echo "$name: $zap -> ${zap/${koppa_id}/}"
   done
 
   # support for restarting services
-  # if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemd | join(" ")'); then
-  #   args=("$systemd")
-  #   # shellcheck disable=2068
-  #   systemctl ${args[@]}
-  # fi
+  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemd | join(" ")'); then
+    args=("$systemd")
+    # shellcheck disable=2068
+    systemctl ${args[@]}
+  fi
 }
 
 case $1 in
-  build)
+  ls)
+    if [[ -z "$2" ]]; then
+      jq '. | keys' "$cfg"
+
+    else
+      if jq -e '.'"$2" "$cfg"; then
+        # XXX: using echo seems to excape color output
+        jq -e '.'"$2" "$cfg"
+      else
+        echo "\"$2\" has no configuration in $cfg"
+      fi
+    fi
+    ;;
+  mk)
     build_zap "$2"
     ;;
   mv)
-    rename $2
+    rename "$2"
     ;;
   *)
-    echo "Usage: $(basename ${0}) <mv|build> args"
+    echo "Usage: $(basename "$0") <mv|build> args"
     ;;
 esac
