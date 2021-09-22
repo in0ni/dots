@@ -14,7 +14,7 @@ set -a
 . "${vars}"
 set +a
 
-rename() {
+toggle_name() {
   input=$1
 
   if [[ "$input" =~ $koppa_id ]]; then
@@ -32,7 +32,7 @@ build_zap() {
   # ensure zap is in config
   name=$1
   if ! jq -e '. | has("'"$name"'")' "$cfg" &> /dev/null; then
-    echo "\"${name}\" does not exist in ${cfg}"
+    echo "\"${name}\" is not a key in: ${cfg}"
     exit
   fi
 
@@ -58,14 +58,15 @@ build_zap() {
   for zap in $zaps; do
     perl -p -e 's/%\{\{(\w+)\}\}/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' \
       < "$zap" > "${zap/${koppa_id}/}"
-    echo "$name: $zap -> ${zap/${koppa_id}/}"
+    echo "$name [file]: $zap -> ${zap/${koppa_id}/}"
   done
 
   # support for restarting services
-  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemd | join(" ")'); then
+  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemctl | join(" ")'); then
     args=("$systemd")
     # shellcheck disable=2068
     systemctl ${args[@]}
+    echo "$name [service]: systemctl ${args[*]}"
   fi
 }
 
@@ -75,11 +76,11 @@ case $1 in
       jq '. | keys' "$cfg"
 
     else
-      if jq -e '.'"$2" "$cfg"; then
+      if jq -e '.'"$2" "$cfg" > /dev/null; then
         # XXX: using echo seems to excape color output
         jq -e '.'"$2" "$cfg"
       else
-        echo "\"$2\" has no configuration in $cfg"
+        echo "\"$2\" is not a key in: $cfg"
       fi
     fi
     ;;
@@ -87,9 +88,13 @@ case $1 in
     build_zap "$2"
     ;;
   mv)
-    rename "$2"
+    echo "$2 -> $(toggle_name $2)"
+    mv "$2" "$(toggle_name "$2")"
     ;;
   *)
-    echo "Usage: $(basename "$0") <mv|build> args"
+    echo -e "Ϟ Usage: $(basename "$0") <ls|mk|mv> [args]\n"
+    echo -e "Ϟ Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
+    echo -e " \t mv FILE\t rename FILE by toggling \""${koppa_id}"\" in filename."
+    echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
     ;;
 esac
