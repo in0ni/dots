@@ -1,0 +1,78 @@
+#!/usr/bin/bash
+#
+
+koppa_id="_Ϟ"
+xdg_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
+cfg="${xdg_cfg}/koppa/config.json"
+vars="${xdg_cfg}/koppa/variables.sh"
+
+# TODO: check files before proceeding
+
+# set shellcheck to avoid these errors
+set -a
+. "${vars}"
+set +a
+
+rename() {
+  input=$1
+
+  if [[ "$input" =~ $koppa_id ]]; then
+    # shellcheck disable=2005
+    echo "$(echo "$input" | sed -E 's/'"$koppa_id"'//')"
+  else
+    # TODO: best if we split the path/filename and only work on filename,
+    # instead of the regex below which ensures /home/h/.xsettingsd works
+    # shellcheck disable=2005
+    echo "$(echo "$input" | sed -E 's/([^./])(\.[^.]+)?$/\1'"$koppa_id"'\2/')"
+  fi
+}
+
+build_zap() {
+  # ensure zap is in config
+  name=$1
+  if ! jq -e '. | has("'"$name"'")' "$cfg" &> /dev/null; then
+    echo "\"${name}\" does not exist in ${cfg}"
+    exit
+  fi
+
+  zap_obj=$(jq '. | .'"$name" "$cfg")
+
+  # cd into directory and find files
+  path=$(echo "$zap_obj" | jq -e -r '.path')
+  expanded_path=$(eval echo "$path")
+  if [[ -d "$expanded_path" ]]; then
+    cd "$expanded_path" || exit
+    # TODO: allow depth setting for find... hardcoding depth for now
+    # find zap files within directory
+    zaps=$(find . -maxdepth 2 -regextype posix-extended -regex ".*${koppa_id}(\.[a-zA-Z0-9\-_]{1,20})?$")
+  else
+    # in this case, a single file is passed TODO: allow multiple files
+    zaps=$(rename "$expanded_path")
+  fi
+
+  # iterate and parse through files
+  for zap in $zaps; do
+    perl -p -e 's/%\{\{(\w+)\}\}/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' \
+      < $zap > ${zap/${koppa_id}/}
+    echo "$name: $zap -> ${zap/${koppa_id}/}"
+  done
+
+  # support for restarting services
+  # if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemd | join(" ")'); then
+  #   args=("$systemd")
+  #   # shellcheck disable=2068
+  #   systemctl ${args[@]}
+  # fi
+}
+
+case $1 in
+  build)
+    build_zap "$2"
+    ;;
+  mv)
+    rename $2
+    ;;
+  *)
+    echo "Usage: $(basename ${0}) <mv|build> args"
+    ;;
+esac
