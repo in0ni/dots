@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 #
+# 0.1. basic functionality for ls|mk|mv
 
-koppa_id="_Ϟ"
+koppa_id="__"
 xdg_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
 cfg="${xdg_cfg}/koppa/config.json"
 vars="${xdg_cfg}/koppa/variables.sh"
@@ -89,12 +90,13 @@ case $1 in
     ;;
   mv)
     echo "$2 -> $(toggle_name $2)"
+    # XXX: should check for overwriting and warn
     mv "$2" "$(toggle_name "$2")"
     ;;
   *)
-    echo -e "Ϟ Usage: $(basename "$0") <ls|mk|mv> [args]\n"
-    echo -e "Ϟ Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
-    echo -e " \t mv FILE\t rename FILE by toggling \""${koppa_id}"\" in filename."
+    echo -e "Usage: $(basename "$0") <ls|mk|mv> [args]\n"
+    echo -e "Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
+    echo -e " \t mv FILE\t rename FILE by toggling \""${koppa_id}"\" in filename (before extension)."
     echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
     ;;
 esac
