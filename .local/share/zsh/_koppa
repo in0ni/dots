@@ -1,0 +1,43 @@
+#compdef koppa
+
+_koppa() {
+  local state line
+  typeset -A opt_args
+
+  _arguments -C \
+    ':list of commands:->cmds' \
+    ':command arguments:->args' \
+    '*:available keys:->args'
+
+  case "$state" in
+    cmds)
+      local commands
+      commands=(
+        'ls:list available configuration keys'
+        'mv:rename file, toggle "__"'
+        'mk:build all files for configuration key'
+      )
+      _describe -t commands 'command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        ls | mk)
+          local -a keys
+          koppa ls \
+            | while read k; do
+              keys+=($k)
+            done
+          _describe -t arguments 'argument' keys
+          ;;
+        mv)
+          _files
+          ;;
+      esac
+
+      ;;
+  esac
+
+  return 1
+}
+
+# vim: ft=sh
