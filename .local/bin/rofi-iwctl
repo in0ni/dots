@@ -3,7 +3,7 @@
 # TODO: systemd service
 # TODO: auto-detect device, multiple devices
 
-icon= 
+icon=
 title=Wireless
 # XXX: remove this hardcoded reference
 iwctl_station=wlan0
@@ -30,6 +30,7 @@ ico[auto]=
 ico[delete]=
 ico[password]=
 ico[warn]=
+ico[not_found]=
 
 # UTILS
 import_icons() {
@@ -40,9 +41,9 @@ import_icons() {
 
 # TEST FUNCTIONS
 is_scanning() {
-  output=$(iwctl station $iwctl_station show | \
-    sed 's/\x1b\[[0-9;]*m//g' | \
-    awk -v FIELDWIDTHS="$fields_station_show" '$3~/Scanning/ { print $4 }')
+  output=$(iwctl station $iwctl_station show \
+    | sed 's/\x1b\[[0-9;]*m//g' \
+    | awk -v FIELDWIDTHS="$fields_station_show" '$3~/Scanning/ { print $4 }')
 
   if [[ $output == "yes" ]]; then
     return 0
@@ -63,13 +64,19 @@ do_station_scan() {
 
 # LISTS
 list_available_networks() {
-  output=$(iwctl station $iwctl_station get-networks | \
-    sed -E 's/\x1b\[1;30m\*{1,3}//g' | \
-    sed 's/\x1b\[[0-9;]*m//g' | \
-    head -n -1 | \
-    awk -v FIELDWIDTHS="$fields_get_networks" \
-    $(import_icons "active" "insecure" "secure" "radio_on" "radio_off") \
-    'NR > 4 {
+  output=$(iwctl station $iwctl_station get-networks \
+    | sed -E 's/\x1b\[1;30m\*{1,3}//g' \
+    | sed 's/\x1b\[[0-9;]*m//g' \
+    | head -n -1 \
+    | awk -v FIELDWIDTHS="$fields_get_networks" \
+      $(import_icons "active" "insecure" "secure" "radio_on" "radio_off" "not_found") \
+      'NR > 4 {
+
+      # no networks found
+      if ($1 == "No n")
+        printf "%s  No networks found...", icon_not_found
+        exit
+
       active=gensub(/ +/, "", "g", $1)
       ssid=gensub(/ +$/,"", "g", $2)
       security=gensub(/ +/,"", "g", $3)
@@ -104,11 +111,11 @@ list_available_networks() {
 }
 
 list_known_networks() {
-  output=$(iwctl known-networks list | \
-    head -n -1 | \
-    awk -v FIELDWIDTHS="$fields_known_networks" \
-    $(import_icons "insecure" "secure") \
-    'NR > 4 {
+  output=$(iwctl known-networks list \
+    | head -n -1 \
+    | awk -v FIELDWIDTHS="$fields_known_networks" \
+      $(import_icons "insecure" "secure") \
+      'NR > 4 {
       ssid=gensub(/ +$/,"", "g", $2)
       security=gensub(/ +/,"", "g", $3)
       hidden=gensub(/ +/, "", "g", $4)
@@ -149,9 +156,9 @@ opts_known_network() {
 }
 
 opt_toggle_auto_connect() {
-  output=$(iwctl known-networks "$1" show | \
-    sed 's/\x1b\[[0-9;]*m//g' | \
-    awk -v FIELDWIDTHS="$fields_known_network_show" '$3~/AutoConnect/ { print $4 }')
+  output=$(iwctl known-networks "$1" show \
+    | sed 's/\x1b\[[0-9;]*m//g' \
+    | awk -v FIELDWIDTHS="$fields_known_network_show" '$3~/AutoConnect/ { print $4 }')
 
   [[ $output == "yes" ]] && toggle=no || toggle=yes
   echo -en "${ico[auto]}  Auto Connect: $output\0info\x1fauto-connect:$1:$toggle\n"
@@ -261,4 +268,3 @@ if [[ $ROFI_RETV == 2 ]]; then
     echo -en "${ico[refresh]}  Try Again...\0info\x1fconnect:$ssid\n"
   fi
 fi
-
