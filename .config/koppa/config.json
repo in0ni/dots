@@ -1,44 +1,57 @@
-{
-  "dunst": {
+[
+  {
+    "id": "dunst",
     "path": "$HOME/.config/dunst",
     "systemctl": ["--user", "restart", "dunst.service"]
   },
-  "firefox": {
+  {
+    "id": "firefox",
     "path": "$HOME/.config/firefox"
   },
-  "gtk-3.0": {
+  {
+    "id": "gtk-3.0",
     "path": "$HOME/.config/gtk-3.0"
   },
-  "kitty": {
+  {
+    "id": "kitty",
     "path": "$HOME/.config/kitty"
   },
-  "kak": {
+  {
+    "id": "kak",
     "path": "$HOME/.config/kak"
   },
-  "mpv": {
+  {
+    "id": "mpv",
     "path": "$HOME/.config/mpv"
   },
-  "rofi": {
+  {
+    "id": "rofi",
     "path": "$HOME/.config/rofi"
   },
-  "swappy": {
+  {
+    "id": "swappy",
     "path": "$HOME/.config/swappy"
   },
-  "sway": {
+  {
+    "id": "sway",
     "path": "$HOME/.config/sway"
   },
-  "swaylock": {
+  {
+    "id": "swaylock",
     "path": "$HOME/.config/swaylock"
   },
-  "waybar": {
+  {
+    "id": "waybar",
     "path": "$HOME/.config/waybar",
     "systemctl": ["--user", "restart", "waybar.service"]
   },
-  "xsettingsd": {
+  {
+    "id": "xsettingsd",
     "path": "$HOME/.xsettingsd",
     "systemctl": ["--user", "restart", "xsettingsd.service"]
   },
-  "zim": {
+  {
+    "id": "zim",
     "path": "$HOME/.config/zim"
   }
-}
+]

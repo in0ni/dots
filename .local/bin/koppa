@@ -18,6 +18,7 @@ set +a
 toggle_name() {
   input=$1
 
+  # XXX: should match with same regex below (not chars not unique like Ϟ)
   if [[ "$input" =~ $koppa_id ]]; then
     # shellcheck disable=2005
     echo "$(echo "$input" | sed -E 's/'"$koppa_id"'//')"
@@ -32,15 +33,13 @@ toggle_name() {
 build_zap() {
   # ensure zap is in config
   name=$1
-  if ! jq -e '. | has("'"$name"'")' "$cfg" &> /dev/null; then
+  if ! zap_obj=$(jq -e -r ".[] | select(.id==\"${name}\")" "$cfg"); then
     echo "\"${name}\" is not a key in: ${cfg}"
     exit
   fi
 
-  zap_obj=$(jq '. | .'"$name" "$cfg")
-
   # cd into directory and find files
-  path=$(echo "$zap_obj" | jq -e -r '.path')
+  path=$(echo "$zap_obj" | jq -e -r ".path")
   expanded_path=$(eval echo "$path")
   if [[ -d "$expanded_path" ]]; then
     # TODO: report error if can't cd
@@ -52,7 +51,7 @@ build_zap() {
 
   else
     # in this case, a single file is passed TODO: allow multiple files
-    zaps=$(rename "$expanded_path")
+    zaps=$(toggle_name "$expanded_path")
   fi
 
   # iterate and parse through files
@@ -74,29 +73,36 @@ build_zap() {
 case $1 in
   ls)
     if [[ -z "$2" ]]; then
-      jq '. | keys' "$cfg"
+      jq -r '.[] | .id' "$cfg"
 
     else
-      if jq -e '.'"$2" "$cfg" > /dev/null; then
+      if jq -e ".[] | select(.id==\"$2\")" "$cfg" > /dev/null; then
         # XXX: using echo seems to excape color output
-        jq -e '.'"$2" "$cfg"
+        jq -e ".[] | select(.id==\"$2\")" "$cfg"
       else
         echo "\"$2\" is not a key in: $cfg"
       fi
     fi
     ;;
   mk)
-    build_zap "$2"
+    if [[ "$2" == "all" ]]; then
+      all_keys=$(jq -r '.[].id' "$cfg")
+      for key in $all_keys; do
+        build_zap "$key"
+      done
+    else
+      build_zap "$2"
+    fi
     ;;
   mv)
-    echo "$2 -> $(toggle_name $2)"
+    echo "$2 -> $(toggle_name "$2")"
     # XXX: should check for overwriting and warn
     mv "$2" "$(toggle_name "$2")"
     ;;
   *)
     echo -e "Usage: $(basename "$0") <ls|mk|mv> [args]\n"
     echo -e "Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
-    echo -e " \t mv FILE\t rename FILE by toggling \""${koppa_id}"\" in filename (before extension)."
+    echo -e " \t mv FILE\t rename FILE by toggling \"$koppa_id\" in filename (before extension)."
     echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
     ;;
 esac
