@@ -48,6 +48,7 @@ unsetopt beep
 
 ### Auto-complete shit
 #
+fpath=("$HOME/.local/share/zsh" $fpath)
 setopt COMPLETE_ALIASES
 zstyle ':completion:*' completer _complete _ignored
 zstyle :compinstall filename '${HOME}/.zshrc'
