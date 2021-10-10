@@ -65,6 +65,11 @@ hook global WinSetOption filetype=(javascript|html) %{
   enable-autolint
 }
 
+hook global WinSetOption filetype=json %{
+  # formatting done w/ prettier above
+  set-option buffer lintcmd %{ run() { cat -- "$1" | jq 2>&1 | awk -v filename="$1" '/ at line [0-9]+, column [0-9]+$/ { line=$(NF - 2); column=$NF; sub(/ at line [0-9]+, column [0-9]+$/, ""); printf "%s:%d:%d: error: %s", filename, line, column, $0; }'; } && run }
+  enable-autolint
+}
 hook global WinSetOption filetype=python %{
   hook global ModuleLoaded smarttab %{
     set-option global softtabstop 4
@@ -81,7 +86,7 @@ hook global WinSetOption filetype=python %{
 }
 
 hook global WinSetOption filetype=sh %{
-  set-option buffer lintcmd "shellcheck -fgcc -Cnever"
+  set-option buffer lintcmd "shellcheck -x -fgcc -Cnever"
   set-option buffer formatcmd "shfmt -i %opt{indentwidth} -ci -bn -sr"
   enable-autolint
   enable-autoformat
