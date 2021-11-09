@@ -73,9 +73,10 @@ list_available_networks() {
       'NR > 4 {
 
       # no networks found
-      if ($1 == "No n")
+      if ($1 == "No n") {
         printf "%s  No networks found...", icon_not_found
         exit
+      }
 
       active=gensub(/ +/, "", "g", $1)
       ssid=gensub(/ +$/,"", "g", $2)
