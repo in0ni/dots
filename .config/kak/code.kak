@@ -50,7 +50,7 @@ hook global WinSetOption filetype=man %{
 
 # NOTE: npx usage -- if tools are not installed (in local project or globally) it will be
 #       temporarily downloaded. Best to *always* have installed locally.
-hook global WinSetOption filetype=(javascript|typescript|css|scss|json|markdown|yaml|html|vue) %{
+hook global WinSetOption filetype=(javascript|typescript|css|scss|json|markdown|yaml|html|vue|twig) %{
   set-option buffer formatcmd "npx prettier --stdin-filepath=%val{buffile}"
   enable-autoformat
 }
@@ -60,8 +60,8 @@ hook global WinSetOption filetype=(css|scss) %{
   enable-autolint
 }
 
-hook global WinSetOption filetype=(javascript|html) %{
-  set-option buffer lintcmd 'npx eslint --config .eslintrc.js --format=node_modules/eslint-formatter-kakoune'
+hook global WinSetOption filetype=javascript %{
+  set-option buffer lintcmd 'npx eslint --format=node_modules/eslint-formatter-kakoune'
   enable-autolint
 }
 
@@ -90,4 +90,9 @@ hook global WinSetOption filetype=sh %{
   set-option buffer formatcmd "shfmt -i %opt{indentwidth} -ci -bn -sr"
   enable-autolint
   enable-autoformat
+}
+
+hook global WinSetOption filetype=php %{
+  set-option window lintcmd 'run() { cat "$1" | phpcs --report="emacs" --stdin-path="$kak_buffile" - | sed "s/ - /: /" ; } && run'
+  set-option window formatcmd 'phpcbf -q --stdin-path="$kak_buffile" - || true'
 }
