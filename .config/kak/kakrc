@@ -71,3 +71,15 @@ source "%val{config}/code.kak"
 source "%val{config}/kitty-ide.kak"
 source "%val{config}/asterisk.kak"
 source "%val{config}/toggle-highlighter.kak"
+
+# local overrides (testing, mainly filetypes)
+evaluate-commands %sh{
+  load_local_rc() {
+    find -L "$1" -type f -name '*\.kak' \
+    | sed 's/.*/try %{ source "&" } catch %{ echo -debug Autoload: could not load "&" }/'
+  }
+
+  if [ -d "${kak_config}/rc" ]; then
+    load_local_rc ${kak_config}/rc
+  fi
+}
