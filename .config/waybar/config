@@ -1,5 +1,5 @@
 {
-  "layer": "top", // Waybar at top layer
+  "layer": "top",
   "height": 25, // Waybar height (to be removed for auto height)
   "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
@@ -16,6 +16,7 @@
   "sway/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,
+    "interval": 30,
     "format": "{icon}",
     "format-icons": {
       "1": "", // network-wired
@@ -24,7 +25,8 @@
       "4": "", // music
       "5": "", // palette
       "6": "", // sticky-note
-      "7": "", // cogs
+      "7": "", // chat
+      "8": "", // cogs
       "urgent": "" // exclamation
     }
   },
