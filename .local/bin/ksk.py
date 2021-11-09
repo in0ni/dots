@@ -8,7 +8,7 @@ import argparse
 from i3ipc import Connection, Event
 
 # TODO: standardize use of run/check_output/Popen
-# 		coming form a shell script, so just made it work.
+#       porting to python form a shell script, so just works.
 from subprocess import check_output, run, Popen, DEVNULL
 
 
@@ -36,8 +36,10 @@ def new_client(name, win_type):
 
 def new_shell(name, arg_string=None):
     base_args = "--no-response --type os-window --os-window-class kskide"
-    win_title = f'"{base_window_title}{name}"'
-    shell_cmd = f"kitty @ launch --title {win_title} {base_args}"
+    win_title = f'--title "{base_window_title}{name}"'
+    kak_client = '--env KAKOUNE_CLIENT="main"'
+    nnn_opener = '--env NNN_OPENER="kcr edit"'
+    shell_cmd = f"kitty @ launch {nnn_opener} {kak_client} {win_title} {base_args}"
 
     if arg_string is not None:
         shell_cmd += f" {arg_string}"
