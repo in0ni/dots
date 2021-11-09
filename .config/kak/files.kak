@@ -11,7 +11,7 @@ define-command files -docstring 'Open one or many files' %{ evaluate-commands %s
     echo "fail 'Rofi theme not found: $theme_file'"
   fi
 
-  files_cmd=(rg --files --hidden --sort path)
+  files_cmd=(rg --files --sort path)
   if [[ "$kak_opt_rofi_files_cmd" ]]; then
     files_cmd=(${kak_opt_rofi_files_cmd[@]})
   fi
