@@ -51,10 +51,10 @@ input type:pointer {
 # 		way a reload should update... but not sure how much this is helping
 exec_always sway-gsettings
 
+# this is stupid, but don't want to spend time getting it to work with systemd
+exec sway-alttab
 # on reload sway-alttab craps out, force kill if already running
 exec_always pkill -9 sway-alttab; sway-alttab
-# options passed in to override config
-# exec swayidle -w before-sleep swaylock
 
 include /etc/sway/config.d/*
 
