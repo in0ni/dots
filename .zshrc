@@ -30,7 +30,6 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 
 ### Aliases
 #
-alias nnn='nnn -c'
 alias ls='exa -gF --git --group-directories-first'
 alias ll='ls -l'
 alias lt='ls --tree'
