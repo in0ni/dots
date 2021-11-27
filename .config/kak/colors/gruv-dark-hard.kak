@@ -27,8 +27,8 @@ evaluate-commands %sh{
         face global value         ${purple}
         face global type          ${yellow}
         face global variable      ${blue}
-        face global module        ${green}
-        face global function      ${blue}
+        face global module        ${green}+i
+        face global function      ${blue}+i
         face global string        ${green}
         face global keyword       ${red}
         face global operator      ${aqua}
