@@ -33,15 +33,27 @@ plug "andreyorst/tagbar.kak" %{
   set-option global tagbar_display_anon false
 }
 
-plug "alexherbo2/lib.kak"
-
-plug "alexherbo2/surround.kak" %{
-  map -docstring 'surround mode' global user s ':surround<ret>'
+# plug "alexherbo2/lib.kak"
+plug "h-youhei/kakoune-surround" %{
+  declare-user-mode surround
+  declare-user-mode surroundtag
+  map global surround s ':surround<ret>' -docstring 'surround'
+  map global surround c ':change-surround<ret>' -docstring 'change'
+  map global surround d ':delete-surround<ret>' -docstring 'delete'
+  map global surround e ':select-surround<ret>' -docstring 'select'
+  map global surround t ':enter-user-mode surroundtag<ret>' -docstring 'tag'
+  map global surroundtag s ':surround-with-tag<ret>' -docstring 'surround tag'
+  map global surroundtag d ':delete-surrounding-tag<ret>' -docstring 'delete tag'
+  map global surroundtag c ':change-surrounding-tag<ret>' -docstring 'change tag'
+  map global surroundtag e ':select-surrounding-tag<ret>' -docstring 'select tag'
+  map -docstring 'surround mode ' global user s ':enter-user-mode surround<ret>'
 }
 
-plug "alexherbo2/auto-pairs.kak" %{ enable-auto-pairs }
+# plug "alexherbo2/surround.kak" %{
+#   map -docstring 'surround mode' global user s ':surround-mode<ret>'
+# }
 
-plug "alexherbo2/word-select.kak" defer word-select %{ word-select-add-mappings }
+# plug "alexherbo2/word-select.kak" defer word-select %{ word-select-add-mappings }
 
 plug "occivink/kakoune-vertical-selection" %{
   map -docstring 'vertsel down' global user v     ': vertical-selection-down<ret>'
@@ -51,18 +63,18 @@ plug "occivink/kakoune-vertical-selection" %{
 
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
-plug "occivink/kakoune-snippets" %{
-  def -hidden insert-c-n %{
-    try %{
-      snippets-select-next-placeholders
-      exec '<a-;>d'
-    } catch %{
-      exec -with-hooks '<c-n>'
-    }
-  }
-  map global insert <a-n> "<a-;>: insert-c-n<ret>"
-  map global insert <a-s> '<a-;>: snippets '
-}
+# plug "occivink/kakoune-snippets" %{
+#   def -hidden insert-c-n %{
+#     try %{
+#       snippets-select-next-placeholders
+#       exec '<a-;>d'
+#     } catch %{
+#       exec -with-hooks '<c-n>'
+#     }
+#   }
+#   map global insert <a-n> "<a-;>: insert-c-n<ret>"
+#   map global insert <a-s> '<a-;>: snippets '
+# }
  
 source "%val{config}/ui.kak"
 source "%val{config}/files.kak"
