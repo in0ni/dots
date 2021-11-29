@@ -10,6 +10,12 @@ plug "andreyorst/smarttab.kak" %{
   set-option global softtabstop 2
 }
 
+plug "alexherbo2/auto-pairs.kak"
+
+plug "lePerdu/kakboard" %{
+    hook global WinCreate .* %{ kakboard-enable }
+}
+
 plug "andreyorst/fzf.kak" %{
   map -docstring 'fzf mode' global user f ': fzf-mode<ret>'
 } demand fzf %{
@@ -33,7 +39,6 @@ plug "andreyorst/tagbar.kak" %{
   set-option global tagbar_display_anon false
 }
 
-# plug "alexherbo2/lib.kak"
 plug "h-youhei/kakoune-surround" %{
   declare-user-mode surround
   declare-user-mode surroundtag
@@ -48,12 +53,6 @@ plug "h-youhei/kakoune-surround" %{
   map global surroundtag e ':select-surrounding-tag<ret>' -docstring 'select tag'
   map -docstring 'surround mode ' global user s ':enter-user-mode surround<ret>'
 }
-
-# plug "alexherbo2/surround.kak" %{
-#   map -docstring 'surround mode' global user s ':surround-mode<ret>'
-# }
-
-# plug "alexherbo2/word-select.kak" defer word-select %{ word-select-add-mappings }
 
 plug "occivink/kakoune-vertical-selection" %{
   map -docstring 'vertsel down' global user v     ': vertical-selection-down<ret>'
