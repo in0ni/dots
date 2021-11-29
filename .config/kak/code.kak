@@ -2,9 +2,10 @@
 # lsp
 #
 eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
-hook global WinSetOption filetype=(javascript|python) %{
+hook global WinSetOption filetype=(javascript|python|php|html|css|scss|less) %{
   lsp-enable-window
 }
+
 # TODO: these commands to enable/disable auto-(lint|format) should only be available
 # if the file format supports it -- look into this below
 define-command enable-autoformat -docstring 'enable auto-format' %{
@@ -50,12 +51,12 @@ hook global WinSetOption filetype=man %{
 
 # NOTE: npx usage -- if tools are not installed (in local project or globally) it will be
 #       temporarily downloaded. Best to *always* have installed locally.
-hook global WinSetOption filetype=(javascript|typescript|css|scss|json|markdown|yaml|html|vue|twig) %{
+hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|markdown|yaml|html|vue|twig) %{
   set-option buffer formatcmd "npx --no-install prettier --stdin-filepath=%val{buffile}"
   enable-autoformat
 }
 
-hook global WinSetOption filetype=(css|scss) %{
+hook global WinSetOption filetype=(css|scss|less) %{
   set-option buffer lintcmd "npx --no-install stylelint --fix --stdin-filename='%val{buffile}'"
   enable-autolint
 }
@@ -95,4 +96,6 @@ hook global WinSetOption filetype=sh %{
 hook global WinSetOption filetype=php %{
   set-option buffer lintcmd 'run() { cat "$1" | phpcs --report="emacs" --stdin-path="$kak_buffile" - | sed "s/ - /: /" ; } && run'
   set-option buffer formatcmd 'phpcbf -q --stdin-path="$kak_buffile" - || true'
+  enable-autoformat
+  enable-autolint
 }
