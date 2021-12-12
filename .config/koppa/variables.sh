@@ -50,6 +50,80 @@ theme_light_2=bbc2d8
 theme_light_3=a5adc5
 theme_light_4=8992a9
 
+# # base 16 colors
+# b16_00_black=$theme_dark_0
+# b16_01_red=ff0077
+# b16_02_green=02d200
+# b16_03_yellow=ffe800
+# b16_04_blue=14a4ff
+# b16_05_purple=f459d0
+# b16_06_aqua=00ffcf
+# b16_07_white=$theme_light_1
+# b16_08_black=$theme_dark_4
+# b16_09_red=ef2121
+# b16_10_green=badf00
+# b16_11_yellow=ffa100
+# b16_12_blue=37d4e7
+# b16_13_purple=b46be6
+# b16_14_aqua=00e88c
+# b16_15_white=$theme_light_0
+
+# highlight for menus
+theme_highlight=06a284
+
+#
+# https://github.com/morhetz/gruvbox
+# [monochrome]
+gruv_dark_bg_0_h=1d2021
+gruv_dark_bg_0_s=32302f
+gruv_dark_bg_0=282828
+gruv_dark_bg_1=3c3836
+gruv_dark_bg_2=504945
+gruv_dark_bg_3=665c54
+gruv_dark_bg_4=7c6f64
+gruv_dark_gray_mute=ebdbb2 #gruv_light_bg_1
+gruv_gray=928374
+gruv_light_bg_0_h=f9f5d7
+gruv_light_bg_0_s=f2e5bc
+gruv_light_bg_0=fbf1c7
+gruv_light_bg_1=ebdbb2
+gruv_light_bg_2=d5c4a1
+gruv_light_bg_3=bdae93
+gruv_light_bg_4=a89984
+gruv_light_gray_mute=3c3836 # dark_bg_1
+
+# [dark:colors]
+gruv_dark_red=fb4934
+gruv_dark_red_mute=cc241d
+gruv_dark_green=b8bb26
+gruv_dark_green_mute=98971a
+gruv_dark_yellow=fabd2f
+gruv_dark_yellow_mute=d79921
+gruv_dark_blue=83a598
+gruv_dark_blue_mute=458588
+gruv_dark_purple=d3869b
+gruv_dark_purple_mute=b16286
+gruv_dark_aqua=8ec07c
+gruv_dark_aqua_mute=689d6a
+gruv_dark_orange=fe8019
+gruv_dark_orange_mute=d65d0e
+
+# [light:clors]
+gruv_light_red=9d0006
+gruv_light_red_mute=cc241d
+gruv_light_green=79740e
+gruv_light_green_mute=98971a
+gruv_light_yellow=b57614
+gruv_light_yellow_mute=d79921
+gruv_light_blue=076678
+gruv_light_blue_mute=458588
+gruv_light_purple=8f3f71
+gruv_light_purple_mute=b16286
+gruv_light_aqua=427b58
+gruv_light_aqua_mute=689d6a
+gruv_light_orange=d65d0e
+gruv_light_orange=af3a03
+
 # base 16 colors
 b16_00_black=$theme_dark_0
 b16_01_red=ff0077
@@ -67,40 +141,6 @@ b16_12_blue=37d4e7
 b16_13_purple=b46be6
 b16_14_aqua=00e88c
 b16_15_white=$theme_light_0
-
-# highlight for menus
-theme_highlight=06a284
-
-#
-## Editor-only theme: gruvbox hard
-# https://github.com/morhetz/gruvbox
-gruv_dark_bg_0=282828
-gruv_dark_bg_1=3c3836
-gruv_dark_bg_2=504945
-gruv_dark_bg_3=665c54
-gruv_dark_bg_4=7c6f64
-gruv_dark_gray=928374
-gruv_dark_red=fb4934
-gruv_dark_green=b8bb26
-gruv_dark_yellow=fabd2f
-gruv_dark_blue=83a598
-gruv_dark_purple=d3869b
-gruv_dark_aqua=8ec07c
-gruv_dark_orange=fe8019
-
-gruv_light_bg_0=f9f5d7
-gruv_light_bg_1=ebdbb2
-gruv_light_bg_2=d5c4a1
-gruv_light_bg_3=bdae93
-gruv_light_bg_4=a89984
-gruv_light_gray=928374
-gruv_light_red=9d0006
-gruv_light_green=79740e
-gruv_light_yellow=b57614
-gruv_light_blue=076678
-gruv_light_purple=8f3f71
-gruv_light_aqua=427b58
-gruv_light_orange=d65d0e
 
 #
 # waybar/firefox require rgb
