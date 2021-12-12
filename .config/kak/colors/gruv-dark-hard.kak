@@ -36,7 +36,7 @@ evaluate-commands %sh{
         face global comment       ${bg4}+i
         face global documentation comment
 
-        face global meta          ${aqua}
+        face global meta          ${aqua}+i
         face global builtin       ${fg}+b
 
         # Markdown highlighting
