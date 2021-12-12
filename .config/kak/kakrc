@@ -10,7 +10,9 @@ plug "andreyorst/smarttab.kak" %{
   set-option global softtabstop 2
 }
 
-plug "alexherbo2/auto-pairs.kak"
+plug "alexherbo2/auto-pairs.kak" %{
+  enable-auto-pairs
+}
 
 plug "lePerdu/kakboard" %{
     hook global WinCreate .* %{ kakboard-enable }
