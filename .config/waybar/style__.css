@@ -119,10 +119,10 @@ window#waybar.empty #window { background-color: transparent; }
 }
 #cpu { border-top: 1px solid #%{{b16_04_blue}}; }
 #memory { border-top: 1px solid #%{{b16_05_purple}}; }
-#temperature { border-top: 1px solid #%{{b16_11_yellow}}; }
+#temperature { border-top: 1px solid #%{{b16_03_yellow}}; }
 #temperature.critical { background-color: #%{{b16_01_red}}; }
 #battery.great { border-top: 1px solid #%{{b16_02_green}}; }
-#battery.good { border-top: 1px solid #%{{b16_14_aqua}}; }
+#battery.good { border-top: 1px solid #%{{b16_10_green}}; }
 #battery.fair { border-top: 1px solid #%{{b16_10_green}}; }
 /* #battery.low is found below w/ network & pulse */
 #battery.charging { border-top: 1px solid #%{{b16_06_aqua}}; }
