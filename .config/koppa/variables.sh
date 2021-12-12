@@ -124,23 +124,23 @@ gruv_light_aqua_mute=689d6a
 gruv_light_orange=d65d0e
 gruv_light_orange=af3a03
 
-# base 16 colors
-b16_00_black=$theme_dark_0
+# base 16 colors -- gruv-based, but not...
+b16_00_black=$gruv_dark_bg_0_h
 b16_01_red=ff0077
 b16_02_green=02d200
 b16_03_yellow=ffe800
 b16_04_blue=14a4ff
 b16_05_purple=f459d0
-b16_06_aqua=00ffcf
-b16_07_white=$theme_light_1
-b16_08_black=$theme_dark_4
-b16_09_red=ef2121
-b16_10_green=badf00
-b16_11_yellow=ffa100
-b16_12_blue=37d4e7
-b16_13_purple=b46be6
-b16_14_aqua=00e88c
-b16_15_white=$theme_light_0
+b16_06_aqua=00e4c9
+b16_07_white=$gruv_gray
+b16_08_black=$gruv_dark_bg_1
+b16_09_red=ff5764
+b16_10_green=ade525
+b16_11_yellow=f7fe2c
+b16_12_blue=4acdf8
+b16_13_purple=f479f6
+b16_14_aqua=06f6c9
+b16_15_white=$gruv_light_bg_0_h
 
 #
 # waybar/firefox require rgb

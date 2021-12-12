@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 #
 # 0.1. basic functionality for ls|mk|mv
+# @TODO: throw error when processing file if variable does not exist
 
 koppa_id="__"
 xdg_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"

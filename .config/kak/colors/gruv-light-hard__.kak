@@ -1,40 +1,41 @@
+# gruvbox theme
+
 evaluate-commands %sh{
-    gray="rgb:%{{theme_dark_4}}"
-    red="rgb:%{{b16_01_red}}"
-    green="rgb:%{{b16_02_green}}"
-    yellow="rgb:%{{b16_03_yellow}}"
-    blue="rgb:%{{b16_04_blue}}"
-    purple="rgb:%{{b16_05_purple}}"
-    aqua="rgb:%{{b16_06_aqua}}"
-    orange="rgb:%{{b16_11_yellow}}"
+    gray="rgb:%{{gruv_gray}}"
+    red="rgb:%{{gruv_light_red}}"
+    green="rgb:%{{gruv_light_green}}"
+    yellow="rgb:%{{gruv_light_yellow}}"
+    blue="rgb:%{{gruv_light_blue}}"
+    purple="rgb:%{{gruv_light_purple}}"
+    aqua="rgb:%{{gruv_light_aqua}}"
+    orange="rgb:%{{gruv_light_orange}}"
 
-    bg="rgb:%{{theme_dark_0}}"
-    bg1="rgb:%{{theme_dark_1}}"
-    bg2="rgb:%{{theme_dark_2}}"
-    bg3="rgb:%{{theme_dark_3}}"
-    bg4="rgb:%{{theme_dark_4}}"
+    bg="rgb:%{{gruv_light_bg_0_h}}"
+    bg1="rgb:%{{gruv_light_bg_1}}"
+    bg2="rgb:%{{gruv_light_bg_2}}"
+    bg3="rgb:%{{gruv_light_bg_3}}"
+    bg4="rgb:%{{gruv_light_bg_4}}"
 
-    fg="rgb:%{{theme_light_0}}"
-    fg0="rgb:%{{theme_light_1}}"
-    fg2="rgb:%{{theme_light_2}}"
-    fg3="rgb:%{{theme_light_3}}"
-    fg4="rgb:%{{theme_light_4}}"
+    fg0="rgb:%{{gruv_dark_bg_0}}"
+    fg="rgb:%{{gruv_dark_bg_0_h}}"
+    fg2="rgb:%{{gruv_dark_bg_2}}"
+    fg3="rgb:%{{gruv_dark_bg_3}}"
+    fg4="rgb:%{{gruv_dark_bg_4}}"
 
     echo "
         # Code highlighting
         face global value         ${purple}
         face global type          ${yellow}
         face global variable      ${blue}
-        face global module        ${green}
-        face global function      ${blue}
+        face global module        ${green}+i
+        face global function      ${blue}+i
         face global string        ${green}
         face global keyword       ${red}
         face global operator      ${aqua}
         face global attribute     ${orange}
         face global comment       ${bg4}+i
         face global documentation comment
-
-        face global meta          ${aqua}
+        face global meta          ${aqua}+i
         face global builtin       ${fg}+b
 
         # Markdown highlighting
@@ -59,9 +60,9 @@ evaluate-commands %sh{
         face global MenuForeground     ${bg},${orange}
         face global MenuBackground     ${fg},${bg2}
         face global MenuInfo           ${fg}
-        face global Information        ${bg},${fg2}
+        face global Information        ${bg},${fg3}
         face global Error              ${bg},${red}
-        face global StatusLine         ${yellow},${bg1}
+        face global StatusLine         ${orange},${bg1}
         face global StatusLineMode     ${bg},${orange}+b
         face global StatusLineInfo     ${aqua}
         face global StatusLineValue    ${blue}
