@@ -15,7 +15,7 @@ export EXA_COLORS
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
 # http://www.unicode-symbol.com/u/E0B0.html 
-PROMPT='%K{232}%F{10}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{232}%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -33,6 +33,7 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 alias ls='exa -gF --git --group-directories-first'
 alias ll='ls -l'
 alias lt='ls --tree'
+alias rm='gio trash'
 alias vi='vim'
 alias less=$PAGER
 alias diff='diff --color=auto'
