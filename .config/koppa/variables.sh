@@ -121,8 +121,9 @@ gruv_light_purple=8f3f71
 gruv_light_purple_mute=b16286
 gruv_light_aqua=427b58
 gruv_light_aqua_mute=689d6a
-gruv_light_orange=d65d0e
-gruv_light_orange=af3a03
+gruv_light_orange=f06810
+# gruv_light_orange=d65d0e
+gruv_light_orange_mute=af3a03
 
 # base 16 colors -- gruv-based, but not...
 b16_00_black=$gruv_dark_bg_0_h
@@ -140,7 +141,7 @@ b16_11_yellow=f7fe2c
 b16_12_blue=4acdf8
 b16_13_purple=f479f6
 b16_14_aqua=06f6c9
-b16_15_white=$gruv_light_bg_0_h
+b16_15_white=fffef7
 
 #
 # waybar/firefox require rgb
