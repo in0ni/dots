@@ -14,9 +14,9 @@ plug "alexherbo2/auto-pairs.kak" %{
   enable-auto-pairs
 }
 
-plug "lePerdu/kakboard" %{
-    hook global WinCreate .* %{ kakboard-enable }
-}
+# plug "lePerdu/kakboard" %{
+#   hook global WinCreate .* %{ kakboard-enable }
+# }
 
 plug "andreyorst/fzf.kak" %{
   map -docstring 'fzf mode' global user f ': fzf-mode<ret>'
