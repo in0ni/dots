@@ -50,24 +50,6 @@ theme_light_2=bbc2d8
 theme_light_3=a5adc5
 theme_light_4=8992a9
 
-# # base 16 colors
-# b16_00_black=$theme_dark_0
-# b16_01_red=ff0077
-# b16_02_green=02d200
-# b16_03_yellow=ffe800
-# b16_04_blue=14a4ff
-# b16_05_purple=f459d0
-# b16_06_aqua=00ffcf
-# b16_07_white=$theme_light_1
-# b16_08_black=$theme_dark_4
-# b16_09_red=ef2121
-# b16_10_green=badf00
-# b16_11_yellow=ffa100
-# b16_12_blue=37d4e7
-# b16_13_purple=b46be6
-# b16_14_aqua=00e88c
-# b16_15_white=$theme_light_0
-
 # highlight for menus
 theme_highlight=06a284
 
@@ -121,7 +103,7 @@ gruv_light_purple=8f3f71
 gruv_light_purple_mute=b16286
 gruv_light_aqua=427b58
 gruv_light_aqua_mute=689d6a
-gruv_light_orange=f06810
+gruv_light_orange=e7610b
 # gruv_light_orange=d65d0e
 gruv_light_orange_mute=af3a03
 
@@ -132,9 +114,9 @@ b16_02_green=02d200
 b16_03_yellow=ffe800
 b16_04_blue=14a4ff
 b16_05_purple=f459d0
-b16_06_aqua=00e4c9
-b16_07_white=$gruv_gray
-b16_08_black=$gruv_dark_bg_1
+b16_06_aqua=00d1bb
+b16_07_white=$gruv_light_bg_0_h
+b16_08_black=$gruv_gray
 b16_09_red=ff5764
 b16_10_green=ade525
 b16_11_yellow=f7fe2c
