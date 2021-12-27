@@ -91,9 +91,9 @@ list_available_networks() {
 
       # security
       if (security == "open")
-        printf "%s  ", icon_insecure
+        printf "%s ", icon_insecure
       else
-        printf "%s  ", icon_secure
+        printf "%s ", icon_secure
 
       # signal
       for (i = 0; i < signal; ++i)
