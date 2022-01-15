@@ -369,8 +369,8 @@ STICKY_OTHER_WRITABLE 48;5;235;38;5;139;3
 .SKIP                 38;5;8
 # }}}
 # patch files {{{2
-.diff                 30;106
-.patch                30;106;1
+.diff                 38;5;8
+.patch                38;5;8
 #}}}
 # graphics {{{1
 .bmp                  35
