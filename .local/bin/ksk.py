@@ -2,6 +2,8 @@
 # TODO: catch errors and display in rofi
 #
 import os
+
+# import time
 import sys
 import signal
 import argparse
@@ -39,7 +41,8 @@ def new_shell(name, arg_string=None):
     win_title = f'--title "{base_window_title}{name}"'
     kak_client = '--env KAKOUNE_CLIENT="main"'
     nnn_opener = '--env NNN_OPENER="kcr edit"'
-    shell_cmd = f"kitty @ launch {nnn_opener} {kak_client} {win_title} {base_args}"
+    win_session = f'--env KAKOUNE_SESSION="{session}"'
+    shell_cmd = f"kitty @ launch {win_session} {nnn_opener} {kak_client} {win_title} {base_args}"
 
     if arg_string is not None:
         shell_cmd += f" {arg_string}"
@@ -147,15 +150,26 @@ def rofi_projects():
         path = get_session_path.strip()
         env_vars = {**os.environ, "KAKOUNE_SESSION": session}
 
-        # TODO: fzf w/ overlay only works when launching w/ --listen-on
+        # NOTE: fzf w/ overlay only works when launching w/ --listen-on
         #       will not work if launching w/o rofi
         # NOTE: need to consider using listen_on in kitty.conf
-        run(
-            f'kitty --listen-on=unix:@{session} -d "{path}" ksk.py &',
+        # run(
+        #     f'kitty --hold -d "{path}" ksk.py',
+        #     shell=True,
+        #     env=env_vars,
+        # )
+        Popen(
+            "kitty",
             shell=True,
+            stdout=DEVNULL,
             env=env_vars,
+            cwd=path,
         )
-
+        # time.sleep(5)
+        # run(
+        #     "kitty @ send-text --match title:ksk_launcher 'kskp.py'",
+        #     shell=True,
+        # )
     sys.exit(0)
 
 
