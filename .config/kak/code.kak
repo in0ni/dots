@@ -51,7 +51,7 @@ hook global WinSetOption filetype=man %{
 
 # NOTE: npx usage -- if tools are not installed (in local project or globally) it will be
 #       temporarily downloaded. Best to *always* have installed locally.
-hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|markdown|yaml|html|vue|twig) %{
+hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|markdown|yaml|html|vue|twig|svelte) %{
   set-option buffer formatcmd "npx --no-install prettier --stdin-filepath=%val{buffile}"
   enable-autoformat
 }
@@ -61,8 +61,8 @@ hook global WinSetOption filetype=(css|scss|less) %{
   enable-autolint
 }
 
-hook global WinSetOption filetype=javascript %{
-  set-option buffer lintcmd "npx --no-install eslint --format=node_modules/eslint-formatter-kakoune"
+hook global WinSetOption filetype=(javascript|svelte) %{
+  set-option buffer lintcmd "npx --no-install eslint --config .eslintrc.cjs --format=node_modules/eslint-formatter-kakoune"
   enable-autolint
 }
 
