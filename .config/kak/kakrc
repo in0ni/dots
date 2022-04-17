@@ -85,6 +85,12 @@ source "%val{config}/kitty-ide.kak"
 source "%val{config}/asterisk.kak"
 source "%val{config}/toggle-highlighter.kak"
 
+
+# support kcr
+evaluate-commands %sh{
+  kcr init kakoune
+}
+
 # local overrides (testing, mainly filetypes)
 evaluate-commands %sh{
   load_local_rc() {
