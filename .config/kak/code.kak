@@ -57,18 +57,18 @@ hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|mark
 }
 
 hook global WinSetOption filetype=(css|scss|less) %{
-  set-option buffer lintcmd "npx --no-install stylelint --fix --stdin-filename='%val{buffile}'"
+  set-option window lintcmd "npx --no-install stylelint --fix --stdin-filename='%val{buffile}'"
   enable-autolint
 }
 
 hook global WinSetOption filetype=(javascript|svelte) %{
-  set-option buffer lintcmd "npx --no-install eslint --config .eslintrc.cjs --format=node_modules/eslint-formatter-kakoune"
+  set-option window lintcmd 'run() { cat "$1" |npx --no-install eslint --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
   enable-autolint
 }
 
 hook global WinSetOption filetype=json %{
   # formatting done w/ prettier above
-  set-option buffer lintcmd %{ run() { cat -- "$1" | jq 2>&1 | awk -v filename="$1" '/ at line [0-9]+, column [0-9]+$/ { line=$(NF - 2); column=$NF; sub(/ at line [0-9]+, column [0-9]+$/, ""); printf "%s:%d:%d: error: %s", filename, line, column, $0; }'; } && run }
+  set-option window lintcmd %{ run() { cat -- "$1" | jq 2>&1 | awk -v filename="$1" '/ at line [0-9]+, column [0-9]+$/ { line=$(NF - 2); column=$NF; sub(/ at line [0-9]+, column [0-9]+$/, ""); printf "%s:%d:%d: error: %s", filename, line, column, $0; }'; } && run }
   enable-autolint
 }
 hook global WinSetOption filetype=python %{
@@ -80,21 +80,21 @@ hook global WinSetOption filetype=python %{
   set-option buffer lsp_server_configuration pyls.configurationSources=["flake8"]
   jedi-enable-autocomplete
 
-  set-option buffer lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
+  set-option window lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
   set-option buffer formatcmd "black -"
   enable-autoformat
   enable-autolint
 }
 
 hook global WinSetOption filetype=sh %{
-  set-option buffer lintcmd "shellcheck -x -fgcc -Cnever"
+  set-option window lintcmd "shellcheck -x -fgcc -Cnever"
   set-option buffer formatcmd "shfmt -i %opt{indentwidth} -ci -bn -sr"
   enable-autolint
   enable-autoformat
 }
 
 hook global WinSetOption filetype=php %{
-  set-option buffer lintcmd 'run() { cat "$1" | phpcs --report="emacs" --stdin-path="$kak_buffile" - | sed "s/ - /: /" ; } && run'
+  set-option window lintcmd 'run() { cat "$1" | phpcs --report="emacs" --stdin-path="$kak_buffile" - | sed "s/ - /: /" ; } && run'
   set-option buffer formatcmd 'phpcbf -q --stdin-path="$kak_buffile" - || true'
   enable-autoformat
   enable-autolint
