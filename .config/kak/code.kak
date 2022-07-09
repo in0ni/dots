@@ -2,7 +2,12 @@
 # lsp
 #
 eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
-hook global WinSetOption filetype=(javascript|python|php|html|css|scss|less) %{
+set-option global lsp_config %{
+  [language.python.settings._]
+  "pyls.configurationSources" = ["flake8"]
+}
+
+hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less) %{
   lsp-enable-window
 }
 
@@ -57,12 +62,12 @@ hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|mark
 }
 
 hook global WinSetOption filetype=(css|scss|less) %{
-  set-option window lintcmd "npx --no-install stylelint --fix --stdin-filename='%val{buffile}'"
+  set-option window lintcmd "npx --no-install stylelint --formatter unix --stdin-filename='%val{buffile}'"
   enable-autolint
 }
 
 hook global WinSetOption filetype=(javascript|svelte) %{
-  set-option window lintcmd 'run() { cat "$1" |npx --no-install eslint --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
+  set-option window lintcmd 'run() { cat "$1" |npx --no-install eslint --stdin --stdin-filename "$kak_buffile" --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
   enable-autolint
 }
 
@@ -71,15 +76,13 @@ hook global WinSetOption filetype=json %{
   set-option window lintcmd %{ run() { cat -- "$1" | jq 2>&1 | awk -v filename="$1" '/ at line [0-9]+, column [0-9]+$/ { line=$(NF - 2); column=$NF; sub(/ at line [0-9]+, column [0-9]+$/, ""); printf "%s:%d:%d: error: %s", filename, line, column, $0; }'; } && run }
   enable-autolint
 }
+
 hook global WinSetOption filetype=python %{
   hook global ModuleLoaded smarttab %{
     set-option global softtabstop 4
   }
 
   set-option buffer indentwidth 4
-  set-option buffer lsp_server_configuration pyls.configurationSources=["flake8"]
-  jedi-enable-autocomplete
-
   set-option window lintcmd "flake8 --filename='*' --format='%%(path)s:%%(row)d:%%(col)d: error: %%(text)s' --ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501,E221,E127,E128,E129,F405"
   set-option buffer formatcmd "black -"
   enable-autoformat
