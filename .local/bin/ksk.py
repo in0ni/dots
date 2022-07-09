@@ -48,7 +48,6 @@ def new_shell(name, arg_string=None):
         shell_cmd += f" {arg_string}"
 
     run(shell_cmd, shell=True)
-
     # all new shells won't allow Control+D to close
     # NOTE: if creating new windows, perhaps only "::shell" has this behavior
     run(
@@ -98,7 +97,7 @@ def unbind_keys(ipc):
     ipc.command("unbindsym Alt+0")
 
 
-def create_layout():
+def create_layout(path):
     global win_main, win_docs, win_tools, win_shell
 
     win_main = new_client("main", "jumpclient")
@@ -110,7 +109,7 @@ def create_layout():
 
     ipc.command("splith; layout tabbed")
 
-    win_shell = new_shell("shell")
+    win_shell = new_shell("shell", f"--cwd={path}")
 
     win_tools.command("focus")
     win_main.command("focus")
@@ -123,16 +122,22 @@ def create_layout():
     run(f'echo "alias global wq write-close"  | kak -p {session}', shell=True)
     run(f'echo "alias global wq! write-close-force" | kak -p {session}', shell=True)
     run(f'echo "alias global waq write-all-kill" | kak -p {session}', shell=True)
+    run('swaymsg "[app_id=.*]" show_marks no', shell=True)
 
 
 def rofi_projects():
-    global rofi_title, rofi_proj_file
+    global rofi_title, rofi_proj_file, uw2_dir
+
+    uw2_dir_list = os.listdir(uw2_dir)
+    uw2_projects = [x for x in uw2_dir_list if x.startswith("UW2-")]
+    uw2_projects_joined = "\n".join(uw2_projects)
 
     get_rofi_menu = check_output(
         f'cut -d ";" -f 1 < {rofi_proj_file}', shell=True, encoding="utf-8"
     )
+    merged_rofi_menu = get_rofi_menu + uw2_projects_joined
     run_rofi_selection = run(
-        f'echo -en "{get_rofi_menu}" | rofi -dmenu -i -p "{rofi_title}"',
+        f'echo -en "{merged_rofi_menu}" | rofi -dmenu -i -p "{rofi_title}"',
         shell=True,
         encoding="utf-8",
         capture_output=True,
@@ -141,11 +146,14 @@ def rofi_projects():
     # only continue if selection made
     if run_rofi_selection.stdout:
         session = run_rofi_selection.stdout.strip()
-        get_session_path = check_output(
-            f'grep "{session}" < {rofi_proj_file} | cut -d ";" -f 2',
-            shell=True,
-            encoding="utf-8",
-        )
+        if session.startswith("UW2-"):
+            get_session_path = uw2_dir + "/" + session
+        else:
+            get_session_path = check_output(
+                f'grep "{session}" < {rofi_proj_file} | cut -d ";" -f 2',
+                shell=True,
+                encoding="utf-8",
+            )
 
         path = get_session_path.strip()
         env_vars = {**os.environ, "KAKOUNE_SESSION": session}
@@ -153,22 +161,19 @@ def rofi_projects():
         # NOTE: fzf w/ overlay only works when launching w/ --listen-on
         #       will not work if launching w/o rofi
         # NOTE: need to consider using listen_on in kitty.conf
-        # run(
-        #     f'kitty --hold -d "{path}" ksk.py',
-        #     shell=True,
-        #     env=env_vars,
-        # )
-        Popen(
-            "kitty",
+        run(
+            f'kitty -d "{path}" ksk.py',
             shell=True,
-            stdout=DEVNULL,
-            env=env_vars,
             cwd=path,
+            env=env_vars,
         )
-        # time.sleep(5)
-        # run(
-        #     "kitty @ send-text --match title:ksk_launcher 'kskp.py'",
+        # create_layout(path)
+        # Popen(
+        #     "kitty",
         #     shell=True,
+        #     stdout=DEVNULL,
+        #     env=env_vars,
+        #     cwd=path,
         # )
     sys.exit(0)
 
@@ -180,6 +185,7 @@ if __name__ == "__main__":
 
     rofi_title = f"{icon}  Kakoune Projects"
     rofi_proj_file = "${XDG_CONFIG_HOME}/kskide.projs"
+    uw2_dir = f"{os.environ['HOME']}/Work/un/repos"
 
     win_main = None
     win_docs = None
@@ -229,5 +235,8 @@ if __name__ == "__main__":
                 # https://unix.stackexchange.com/questions/506537/nohup-ignoring-input-and-appending-output-to-nohup-out
                 Popen(["nohup", "ksk.py", "-b"], stdout=DEVNULL, stderr=DEVNULL)
 
-            Popen(["setsid", "kak", "-d", "-s", session], stdout=DEVNULL)
-            create_layout()
+            Popen(
+                ["setsid", "kak", "-d", "-s", session],
+                stdout=DEVNULL,
+            )
+            create_layout(os.getcwd())
