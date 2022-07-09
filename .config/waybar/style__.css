@@ -1,7 +1,7 @@
 * {
   border: none;
   border-radius: 0;
-  font-family: "%{{font_icon}}", "%{{font_sans}}";
+  font-family: "%{{font_sans}}, %{{font_icon}}";
   font-size: 12px;
   min-height: 0;
 }

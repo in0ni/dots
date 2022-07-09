@@ -12,7 +12,7 @@ theme_cursor_size=0
 #
 font_sans="IBM Plex Sans"
 font_mono="IBM Plex Mono"
-font_icon="Font Awesome 5 Free"
+font_icon="Font Awesome 6 Free"
 font_size=11
 font_size_sm=10
 hintstyle=hintslight
