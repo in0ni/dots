@@ -33,7 +33,7 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 alias ls='exa -gF --git --group-directories-first'
 alias ll='ls -l'
 alias lt='ls --tree'
-alias rm='gio trash'
+alias rm='trash-put'
 alias vi='vim'
 alias less=$PAGER
 alias diff='diff --color=auto'
