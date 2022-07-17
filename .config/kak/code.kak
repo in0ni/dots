@@ -62,12 +62,12 @@ hook global WinSetOption filetype=(javascript|typescript|css|scss|less|json|mark
 }
 
 hook global WinSetOption filetype=(css|scss|less) %{
-  set-option window lintcmd "npx --no-install stylelint --formatter unix --stdin-filename='%val{buffile}'"
+  set-option window lintcmd 'run() { cat "$1" | npx --no-install stylelint --formatter unix --stdin-filename="$kak_buffile";} && run'
   enable-autolint
 }
 
 hook global WinSetOption filetype=(javascript|svelte) %{
-  set-option window lintcmd 'run() { cat "$1" |npx --no-install eslint --stdin --stdin-filename "$kak_buffile" --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
+  set-option window lintcmd 'run() { cat "$1" | npx --no-install eslint --stdin --stdin-filename "$kak_buffile" --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
   enable-autolint
 }
 
