@@ -28,7 +28,7 @@ set-option global scrolloff 3,6
 set-option global grepcmd 'rg --follow --with-filename --column'
 # set-option global lsp_auto_highlight_references true
 
-hook global ModuleLoaded kitty %{ set-option global kitty_window_type 'os' }
+hook global ModuleLoaded kitty %{ set-option global kitty_window_type 'os-window' }
 
 # paste with middle mouse button
 # hook global RawKey <mouse:press:middle:.*> %{ evaluate-commands exec wl-paste<space>-p<ret> }
