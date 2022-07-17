@@ -2,8 +2,9 @@
 
 configuration {
   font: "%{{font_sans}} %{{font_size_sm}}";
-  theme: "theme/default.rasi";
   show-icons: false;
   terminal: "kitty";
   sort: false;
 }
+
+@theme "theme/default.rasi"

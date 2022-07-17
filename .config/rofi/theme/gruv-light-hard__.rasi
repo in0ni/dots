@@ -26,3 +26,5 @@
 }
 
 @import "base.rasi"
+
+window { width: 650px; }

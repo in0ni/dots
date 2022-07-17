@@ -1,7 +1,6 @@
 /* vim: ft=css */
 
 * {
-    /* Theme settings */
     scrollbar: true;
 
     /* Flat Remix Dark Green colors */
@@ -22,6 +21,7 @@
     message-fg:	@darkest;
     listview-bg:@darkest;
     scroll-fg:	@mid;
+    accent-fg: @light;
 }
 
 @import "base.rasi"
