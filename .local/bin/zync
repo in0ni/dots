@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # a quite crude script to backup os/home, has gotten job done for years
-# 
+#
 # this is an old script intended to learn basic scripting, and my first
 # operation tool. it's definitely not optimal it might need some
 # reconsidering now I am starting to manage my dotfiles w/ git,
@@ -30,11 +30,14 @@ cfg_paths_json=$cfg_path/paths.json
 cfg_home_backup_excl=$cfg_path/home_backup.excl
 cfg_home_restore_incl=$cfg_path/home_restore.incl
 cfg_sys_backup_incl=$cfg_path/sys_backup.incl
+cfg_music_incl=$cfg_path/music_sync.incl
 
 # NOTE: read eval isn't ideal, not clear why but it's easy so using it now.
 # TODO: find better approach, instead of eval, for var expansion in cfg strings
 path_log=/tmp/zync-$today.log
 path_usb_os=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_os'))
+path_music=$(eval echo $(cat $cfg_paths_json | jq -r '.music'))
+path_android_internal=$(eval echo $(cat $cfg_paths_json | jq -r '.android_internal'))
 path_usb_home=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_home'))
 path_crypt_home_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_home_part'))
 path_crypt_usb_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_usb_part'))
@@ -46,7 +49,7 @@ z="~zync~"
 err="$z (err)"
 info="$z (info)"
 
-manage_service () {
+manage_service() {
   echo "$info $1 service is about to $2..."
   sudo systemctl $2 $1.service
 }
@@ -63,8 +66,8 @@ db_backup() {
   echo "$info backing up all $1 databases..."
   if [[ $1 == "mariadb" ]]; then
     echo "$info $1 backup with mysqldump..."
-    sudo mysqldump -u root -p="" --all-databases | \
-      gzip > "$path_usb_os/$1-$today.sql.gz" 2>> $path_log
+    sudo mysqldump -u root -p="" --all-databases \
+      | gzip > "$path_usb_os/$1-$today.sql.gz" 2>> $path_log
   elif [[ $1 == "mongodb" ]]; then
     echo "$info $1 backup with mongodump..."
     # TODO: ensure only error is logging
@@ -111,7 +114,6 @@ crypt_backup() {
         ;;
     esac
   done
- 
 
   # local: luks header
   printf "\nDo you want to backup local luks header?\n"
@@ -141,6 +143,57 @@ crypt_backup() {
   done
 }
 
+music_sync() {
+  # reserved characters in fat32
+  # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
+  # ? [%3F]
+  # < [%3C]
+  # > [%3E]
+  # * [...]
+  # | [%7C]
+  # : [%3A]
+  # note: in rhythmbox.xml the following are printed normally and not escaped
+  # :, *
+  flacs=$(find $path_music -name *.flac)
+  flacs_count=$(find $path_music -name *.flac | wc -l)
+  invalid=$(find $path_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)')
+  # @todo -- should re-use variable output here
+  invalid_count=$(find $path_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)' | wc -l)
+
+  # check if flacs are found in source
+  if [ $flacs_count -gt 0 ]; then
+    echo "$flacs"
+    echo "-------------------------------------"
+    echo "$err Found $flacs_count FLAC files."
+    exit
+  fi
+
+  if [ $invalid_count -gt 0 ]; then
+    printf "\nFound %d invalid file names...\n" $invalid_count
+    select opt in Ignore "Print & Exit"; do
+      case $opt in
+        Ignore)
+          echo "$info Ignoring invalid file names..."
+          break
+          ;;
+        "Print & Exit")
+          echo "$invalid"
+          exit
+          ;;
+      esac
+    done
+  fi
+
+  echo "$info synchronizing music..."
+  # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
+  # here -O should remove timestamp errors
+  # rsync -rlDuvsO --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
+  rsync -rltDzv --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
+  echo "$info synchronizing music done."
+  # maybe --8 is required?
+  # rsync -aruv -8 --modify-window=1 --stats --files-from=$cfg_music_incl $path_music $remote_music
+}
+
 home_backup() {
   # NOTE:
   # as time passes, unnecesary files start to build up in home directory,
@@ -157,6 +210,31 @@ home_backup() {
     rsync -av "$HOME/" $path_usb_home --stats --exclude-from=$cfg_home_backup_excl 2>> $path_log
     echo "$info backing up home directory done."
   fi
+}
+
+log() {
+  # view/clear error logs
+  # ignore the leading slash message from tar in log
+  sed -i -r "/^tar: Removing leading.*/d" $path_log
+
+  log_lines=$(wc -l < $path_log)
+  if [[ $log_lines -gt 0 ]]; then
+    printf "\nThere are %d lines in the error log...\n" $log_lines
+    select opt in View Clear; do
+      case $opt in
+        View)
+          less $path_log
+          ;;
+        Clear)
+          echo "$info Clearing log file..."
+          break
+          ;;
+      esac
+    done
+  fi
+
+  rm $path_log
+  echo "$info Done."
 }
 
 case "$1" in
@@ -183,87 +261,19 @@ case "$1" in
       [[ $2 == "--clean-dest" ]] && home_backup clean || home_backup
     fi
     ;;
+  musicsync)
+    music_sync
+    ;;
   *)
     echo "Usage: $(basename $0) {cryptbackup|backup|restore}"
     exit 1
     ;;
 esac
 
-# view/clear error logs
-# ignore the leading slash message from tar in log
-sed -i -r "/^tar: Removing leading.*/d" $path_log
-
-log_lines=$(wc -l < $path_log)
-if [[ $log_lines -gt 0 ]]; then
-  printf "\nThere are %d lines in the error log...\n" $log_lines
-  select opt in View Clear; do
-    case $opt in
-      View)
-        less $path_log
-        ;;
-      Clear)
-        echo "$info Clearing log file..."
-        break
-        ;;
-    esac
-  done
-fi
-
-rm $path_log
-echo "$info Done."
+log
 
 # case "$1" in
 #   music)
-#     # reserved characters in fat32
-#     # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
-#     # ? [%3F]
-#     # < [%3C]
-#     # > [%3E]
-#     # * [...]
-#     # | [%7C]
-#     # : [%3A]
-#     # note: in rhythmbox.xml the following are printed normally and not escaped
-#     # :, *
-#     flacs=$(find $local_music -name *.flac)
-#     flacs_count=$(find $local_music -name *.flac | wc -l)
-#     invalid=$(find $local_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)')
-#     # @todo -- should re-use variable output here
-#     invalid_count=$(find $local_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)' | wc -l)
-
-#     # check if flacs are found in source
-#     if [ $flacs_count -gt 0 ]
-#     then
-#       echo "$flacs"
-#       echo "-------------------------------------"
-#       echo "$err Found $flacs_count FLAC files."
-#       exit
-#     fi
-
-#     if [ $invalid_count -gt 0 ]
-#     then
-#       printf "\nFound %d invalid file names...\n" $invalid_count
-#       select opt in Ignore "Print & Exit"; do
-#         case $opt in
-#           Ignore)
-#             echo "$info Ignoring invalid file names..."
-#             break
-#             ;;
-#           "Print & Exit")
-#             echo "$invalid"
-#             exit
-#             ;;
-#         esac
-#       done
-#     fi
-
-#     echo "$info synchronizing music..."
-#     # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
-#     # here -O should remove timestamp errors
-#     rsync -rlDuvsO --modify-window=1 --stats --files-from=$inc_music "$local_music/" "$remote_music" 2>> $log
-#     echo "$info synchronizing music done."
-#     # maybe --8 is required?
-#     # rsync -aruv -8 --modify-window=1 --stats --files-from=$inc_music $local_music $remote_music
-#     ;;
 #   restore)
 #     echo "$info restoring from backup..."
 #     rsync -arv "$remote_home/" $HOME --stats --files-from=$inc_restore_home 2>> $log
