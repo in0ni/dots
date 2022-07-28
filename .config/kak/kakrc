@@ -14,6 +14,12 @@ plug "alexherbo2/auto-pairs.kak" %{
   enable-auto-pairs
 }
 
+plug "in0ni/kak-dap" do %{
+  cargo install --locked --force --path .
+} config %{
+  map global user x -docstring 'dap' ': enter-user-mode dap<ret>'
+}
+
 # plug "lePerdu/kakboard" %{
 #   hook global WinCreate .* %{ kakboard-enable }
 # }
@@ -84,7 +90,6 @@ source "%val{config}/code.kak"
 source "%val{config}/kitty-ide.kak"
 source "%val{config}/asterisk.kak"
 source "%val{config}/toggle-highlighter.kak"
-
 
 # support kcr
 evaluate-commands %sh{
