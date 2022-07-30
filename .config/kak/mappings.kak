@@ -9,6 +9,21 @@ map global normal '<c-w>' :delete-buffer<ret> -docstring 'delete buffer'
 map global normal '<minus>' :buffer-previous<ret> -docstring 'previous buffer'
 map global normal '<=>' :buffer-next<ret> -docstring 'next buffer'
 
+# lint usermode
+declare-user-mode lint
+map global lint l ':lint-buffer<ret>' -docstring 'lint buffer'
+map global lint n ':lint-next-message<ret>' -docstring 'next message'
+map global lint p ':lint-previous-message<ret>' -docstring 'previous message'
+map global lint h ':lint-hide-diagnostics<ret>' -docstring 'hide diagnostics'
+map global lint s ':lint-selections<ret>' -docstring 'selections'
+map global user i ':enter-user-mode lint<ret>' -docstring 'lint mode'
+
+# format usermode
+declare-user-mode format
+map global format f ':format-buffer<ret>' -docstring 'format buffer'
+map global format s ':format-selections<ret>' -docstring 'format selections'
+map global user m ':enter-user-mode format<ret>' -docstring 'format mode'
+
 # not managed by plug.kak
 map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
 

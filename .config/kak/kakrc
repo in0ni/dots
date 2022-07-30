@@ -17,7 +17,7 @@ plug "alexherbo2/auto-pairs.kak" %{
 plug "in0ni/kak-dap" do %{
   cargo install --locked --force --path .
 } config %{
-  map global user x -docstring 'dap' ': enter-user-mode dap<ret>'
+  map global user x -docstring 'dap mode' ': enter-user-mode dap<ret>'
 }
 
 # plug "lePerdu/kakboard" %{
@@ -45,7 +45,7 @@ plug "andreyorst/tagbar.kak" %{
   map global tagbar e ':tagbar-enable<ret>' -docstring 'enable'
   map global tagbar d ':tagbar-disable<ret>' -docstring 'disable'
   map global tagbar t ':tagbar-toggle<ret>' -docstring 'toggle'
-  map global user t -docstring 'tagbar' ': enter-user-mode tagbar<ret>'
+  map global user t ': enter-user-mode tagbar<ret>' -docstring 'tagbar mode'
 } defer "tagbar" %{
   set-option global tagbar_sort false
   set-option global tagbar_size 40
@@ -64,13 +64,13 @@ plug "h-youhei/kakoune-surround" %{
   map global surroundtag d ':delete-surrounding-tag<ret>' -docstring 'delete tag'
   map global surroundtag c ':change-surrounding-tag<ret>' -docstring 'change tag'
   map global surroundtag e ':select-surrounding-tag<ret>' -docstring 'select tag'
-  map -docstring 'surround mode ' global user s ':enter-user-mode surround<ret>'
+  map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode '
 }
 
 plug "occivink/kakoune-vertical-selection" %{
-  map -docstring 'vertsel down' global user v     ': vertical-selection-down<ret>'
-  map -docstring 'vertsel up' global user <a-v> ': vertical-selection-up<ret>'
-  map -docstring 'vertsel up/down' global user V     ': vertical-selection-up-and-down<ret>'
+  map global user v ': vertical-selection-down<ret>' -docstring 'vertsel down'
+  map global user <a-v> ': vertical-selection-up<ret>' -docstring 'vertsel up'
+  map global user V ': vertical-selection-up-and-down<ret>' -docstring 'vertsel up/down'
 }
 
 plug "occivink/kakoune-find"
