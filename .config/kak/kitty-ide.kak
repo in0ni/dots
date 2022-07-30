@@ -51,5 +51,5 @@ The program passed as argument will be executed in the new overlay' %{
   }
 }
 
-require-module kitty
-alias global focus ide-focus
+# require-module kitty
+# alias global focus ide-focus
