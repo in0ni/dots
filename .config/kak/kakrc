@@ -41,6 +41,11 @@ plug "andreyorst/tagbar.kak" %{
     # you can also disable rendering whitespaces here, line numbers, and
     # matching characters
   }
+  declare-user-mode tagbar
+  map global tagbar e ':tagbar-enable<ret>' -docstring 'enable'
+  map global tagbar d ':tagbar-disable<ret>' -docstring 'disable'
+  map global tagbar t ':tagbar-toggle<ret>' -docstring 'toggle'
+  map global user t -docstring 'tagbar' ': enter-user-mode tagbar<ret>'
 } defer "tagbar" %{
   set-option global tagbar_sort false
   set-option global tagbar_size 40
