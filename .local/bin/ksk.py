@@ -106,13 +106,13 @@ def create_layout(path):
     ipc.command("splitv")
 
     win_tools = new_client("tools", "toolsclient")
-
     ipc.command("splith; layout tabbed")
 
     win_shell = new_shell("shell", f"--cwd={path}")
 
     win_tools.command("focus")
     win_main.command("focus")
+    win_docs.command("resize set height 650 px")
 
     # we don't want to close windows/clients, rather buffers
     # if anything we want to quit the session
