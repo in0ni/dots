@@ -2,6 +2,9 @@
 #
 # TODO: systemd service
 # TODO: auto-detect device, multiple devices
+# TODO: better messaging (on fail/success)
+# TODO: final round of testing (auto-connect not working?)
+# TODO: fix issue with ssid with spaces
 
 icon=
 title=Wireless
@@ -11,8 +14,8 @@ iwctl_station=wlan0
 # look into ' +' regex for field separator, like rofi-systemctl
 # awk field widths
 fields_station_show="2 10 20 21"
-fields_get_networks="4 31 18 6"
-fields_known_networks="2 32 11 9 19"
+fields_get_networks="6 34 20 4"
+fields_known_networks="2 32 13 13 20"
 fields_known_network_show="2 10 18 50"
 
 # fontawesome
@@ -53,19 +56,20 @@ is_scanning() {
 }
 
 is_known_network() {
-  iwctl known-networks ""$1"" show &> /dev/null
+  iwctl known-networks "$1" show &> /dev/null
   return $?
 }
 
 # ACTIONS
 do_station_scan() {
   iwctl station $iwctl_station scan
+  notify "Scanning for networks..." $?
 }
 
 # LISTS
 list_available_networks() {
   output=$(iwctl station $iwctl_station get-networks \
-    | sed -E 's/\x1b\[1;30m\*{1,3}//g' \
+    | sed -E 's/\x1b\[1;90m\*{1,3}//g' \
     | sed 's/\x1b\[[0-9;]*m//g' \
     | head -n -1 \
     | awk -v FIELDWIDTHS="$fields_get_networks" \
@@ -85,15 +89,15 @@ list_available_networks() {
 
       # active
       if (length(active))
-        printf "%s   ", icon_active
+        printf "%s  ", icon_active
       else
         printf "      "
 
       # security
       if (security == "open")
-        printf "%s ", icon_insecure
+        printf "%s  ", icon_insecure
       else
-        printf "%s ", icon_secure
+        printf "%s  ", icon_secure
 
       # signal
       for (i = 0; i < signal; ++i)
@@ -106,13 +110,15 @@ list_available_networks() {
       if (length(active))
         printf "\\0info\x1fdisconnect\n"
       else
-        printf "\\0info\x1fconnect:%s\n", ssid
+        printf "\\0info\x1fconnect:%s:%s\n", gsub(" ","\\ ", ssid), security
   }')
   echo -en "$output"
 }
 
 list_known_networks() {
   output=$(iwctl known-networks list \
+    | sed -E 's/\x1b\[1;90m\*{1,3}//g' \
+    | sed 's/\x1b\[[0-9;]*m//g' \
     | head -n -1 \
     | awk -v FIELDWIDTHS="$fields_known_networks" \
       $(import_icons "insecure" "secure") \
@@ -187,6 +193,14 @@ rofi_list_networks() {
   list_available_networks
 }
 
+notify() {
+  desc=$1
+  status=$2
+
+  [[ $status == 0 ]] && urgency=normal || urgency=critical
+  notify-send "$title" "$desc" -i network-wireless-connected -u "$urgency"
+}
+
 # DEFAULT TITLE
 set_title $title
 set_message ""
@@ -217,34 +231,40 @@ if [[ $ROFI_RETV == 1 ]]; then
     known-network:*)
       ssid=${ROFI_INFO#*known-network:}
       set_subtitle "$ssid" ${ico[saved]}
-      opts_known_network $ssid
+      opts_known_network "$ssid"
       ;;
     forget-network:*)
       ssid=${ROFI_INFO#*forget-network:}
-      iwctl known-networks $ssid forget
+      iwctl known-networks "$ssid" forget
+      notify "Forgot network" $?
       ;;
     auto-connect:*)
       data=(${ROFI_INFO//:/ })
-      iwctl known-networks ${data[1]} set-property AutoConnect ${data[2]}
-      opts_known_network ${data[1]}
+      iwctl known-networks "${data[1]}" set-property AutoConnect "${data[2]}"
+      notify "Toggle auto-connect" $?
+      opts_known_network "${data[1]}"
       ;;
     disconnect)
       iwctl station $iwctl_station disconnect
+      notify "Disconnected" $?
       ;;
     # get-password:*)
     #   ssid=${ROFI_INFO#*get-password:}
     #   # pkexec cat "/var/lib/iwd/$ssid.psk"
     #   ;;
     connect:*)
-      ssid=${ROFI_INFO#*connect:}
-      if is_known_network $ssid; then
+      data=(${ROFI_INFO//:/ })
+      ssid="${data[1]}"
+      security="${data[2]}"
+      if is_known_network "$ssid" || [ "$security" = "open" ]; then
         set_message "Unable to connect to $ssid..."
         cmd=$(iwctl station $iwctl_station connect "$ssid")
-        if [ $? -eq 0 ]; then
-          dunstify "Wireless Connections" "Connected to $ssid"
+        ret=$?
+        if [ $ret -eq 0 ]; then
+          notify "Connected to $ssid" $ret
         fi
       else
-        echo "$ssid" > $HOME/.cache/rofi-iwctl.connect
+        echo "$ssid" > "$HOME"/.cache/rofi-iwctl.connect
         set_subtitle "$ssid" ${ico[password]}
         echo -en "\0message\x1fEnter password for $ssid...\n"
         print_divider
@@ -259,12 +279,14 @@ if [[ $ROFI_RETV == 2 ]]; then
   ssid="$(cat $HOME/.cache/rofi-iwctl.connect)"
   set_subtitle "$ssid" ${ico[password]}
   cmd=$(iwctl -P """$@""" station $iwctl_station connect """$ssid""")
+  ret=$?
 
-  if [[ $? -eq 0 ]]; then
-    dunstify "Wireless Connections" "Connected to $ssid"
+  if [[ $ret -eq 0 ]]; then
+    notify "Connected to $ssid" $ret
   else
     error=$(echo $cmd | sed 's/\x1b\[[0-9;]*m//g')
     set_message "${ico[warn]}  $error."
+    notify "Incorrect Password" $ret
     echo -en "${ico[back]}  Back to networks list...\0info\x1flist-networks\n"
     echo -en "${ico[refresh]}  Try Again...\0info\x1fconnect:$ssid\n"
   fi
