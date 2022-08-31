@@ -39,6 +39,10 @@ evaluate-commands %sh{
         face global meta          ${aqua}+i
         face global builtin       ${fg}+b
 
+        # lsp
+        face global SnippetsNextPlaceholders ${fg},${purple}+uF
+        face global SnippetsOthersPlaceholders ${fg},${purple}+F
+
         # Markdown highlighting
         face global title     ${green}+b
         face global header    ${orange}

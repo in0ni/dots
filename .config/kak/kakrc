@@ -14,6 +14,19 @@ plug "alexherbo2/auto-pairs.kak" %{
   enable-auto-pairs
 }
 
+plug "kak-lsp/kak-lsp" do %{
+  cargo install --locked --force --path .
+} config %{
+  map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
+  map global normal <tab> ': try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
+  map global insert <tab> '<a-;>: try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
+
+  set-option global lsp_config %{
+    [language.python.settings._]
+    "pyls.configurationSources" = ["flake8"]
+  }
+}
+
 plug "in0ni/kak-dap" do %{
   cargo install --locked --force --path .
 } config %{
@@ -75,18 +88,19 @@ plug "occivink/kakoune-vertical-selection" %{
 
 plug "occivink/kakoune-find"
 plug "occivink/kakoune-sudo-write"
-# plug "occivink/kakoune-snippets" %{
-#   def -hidden insert-c-n %{
-#     try %{
-#       snippets-select-next-placeholders
-#       exec '<a-;>d'
-#     } catch %{
-#       exec -with-hooks '<c-n>'
-#     }
-#   }
-#   map global insert <a-n> "<a-;>: insert-c-n<ret>"
-#   map global insert <a-s> '<a-;>: snippets '
-# }
+plug "occivink/kakoune-snippets" %{
+  # def -hidden insert-c-n %{
+  #   try %{
+  #     snippets-select-next-placeholders
+  #     exec '<a-;>d'
+  #   } catch %{
+  #     exec -with-hooks '<c-n>'
+  #   }
+  # }
+  # map global insert <a-n> "<a-;>: insert-c-n<ret>"
+  # map global insert <a-s> '<a-;>: snippets '
+}
+plug "JJK96/kakoune-emmet"
  
 source "%val{config}/ui.kak"
 source "%val{config}/files.kak"

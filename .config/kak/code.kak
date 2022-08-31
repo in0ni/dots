@@ -1,13 +1,4 @@
-#
-# lsp
-#
-eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
-set-option global lsp_config %{
-  [language.python.settings._]
-  "pyls.configurationSources" = ["flake8"]
-}
-
-hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less) %{
+hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less|twig) %{
   lsp-enable-window
 }
 
@@ -67,7 +58,12 @@ hook global WinSetOption filetype=(css|scss|less) %{
 }
 
 hook global WinSetOption filetype=(javascript|svelte) %{
-  set-option window lintcmd 'run() { cat "$1" | npx --no-install eslint --stdin --stdin-filename "$kak_buffile" --format=/usr/lib/node_modules/eslint-formatter-kakoune;} && run'
+  set-option window lintcmd 'run() { cat "$1" | npx --no-install eslint -f unix --stdin --stdin-filename "$kak_buffile";} && run'
+  enable-autolint
+}
+
+hook global WinSetOption filetype=(twig) %{
+  set-option window lintcmd 'run() { cat "$1" | twigcs -r emacs "$kak_buffile" | sed -E "s/: (\w+) - /: \1: /g";} && run'
   enable-autolint
 }
 

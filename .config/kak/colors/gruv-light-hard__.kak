@@ -35,8 +35,13 @@ evaluate-commands %sh{
         face global attribute     ${orange}
         face global comment       ${bg4}+i
         face global documentation comment
+
         face global meta          ${aqua}+i
         face global builtin       ${fg}+b
+
+        # ls
+        face global SnippetsNextPlaceholders ${fg},${purple}+uF
+        face global SnippetsOthersPlaceholders ${fg},${purple}+F
 
         # Markdown highlighting
         face global title     ${green}+b

@@ -9,6 +9,8 @@ map global normal '<c-w>' :delete-buffer<ret> -docstring 'delete buffer'
 map global normal '<minus>' :buffer-previous<ret> -docstring 'previous buffer'
 map global normal '<=>' :buffer-next<ret> -docstring 'next buffer'
 
+map global insert <a-e> '<esc><a-b>: emmet<ret>'
+
 # lint usermode
 declare-user-mode lint
 map global lint l ':lint-buffer<ret>' -docstring 'lint buffer'
@@ -23,9 +25,6 @@ declare-user-mode format
 map global format f ':format-buffer<ret>' -docstring 'format buffer'
 map global format s ':format-selections<ret>' -docstring 'format selections'
 map global user m ':enter-user-mode format<ret>' -docstring 'format mode'
-
-# not managed by plug.kak
-map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
 
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
@@ -71,7 +70,7 @@ define-command set-comments-vue %{
   try %{
     # check to see if you are inside a template. if it fails try the next region
     exec -draft '<a-i>c<lt>template.*?<gt>,<lt>/template<gt><ret>'
-    set-comments '' '<!--' '--!>'
+    set-comments '' '<!--' '-->'
   } catch %{ try %{
     # check for script tags. sass, scss etc... actually use js style
     exec -draft '<a-i>c<lt>style.*?<gt>,<lt>/style<gt><ret>'
