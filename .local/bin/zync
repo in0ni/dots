@@ -188,7 +188,7 @@ music_sync() {
   # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
   # here -O should remove timestamp errors
   # rsync -rlDuvsO --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
-  rsync -rltDzv --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
+  rsync -rltDszv --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
   echo "$info synchronizing music done."
   # maybe --8 is required?
   # rsync -aruv -8 --modify-window=1 --stats --files-from=$cfg_music_incl $path_music $remote_music
