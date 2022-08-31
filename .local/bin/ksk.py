@@ -112,7 +112,7 @@ def create_layout(path):
 
     win_tools.command("focus")
     win_main.command("focus")
-    win_docs.command("resize set height 650 px")
+    win_docs.command("resize set height 700 px")
 
     # we don't want to close windows/clients, rather buffers
     # if anything we want to quit the session
