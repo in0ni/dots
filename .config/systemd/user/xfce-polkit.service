@@ -1,0 +1,11 @@
+[Unit]
+Description=XFCE PolicyKit authentication agent
+Documentation=https://github.com/ncopa/xfce-polkit
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/xfce-polkit/xfce-polkit
+
+[Install]
+WantedBy=sway-session.target

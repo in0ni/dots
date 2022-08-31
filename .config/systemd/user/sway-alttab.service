@@ -1,0 +1,12 @@
+[Unit]
+Description=Alt-tab behaviour (switch to last window)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/sway-alttab
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
