@@ -1,7 +1,9 @@
 [global]
 # on wayland there is no difference between mouse/keyboard
 follow = mouse
-geometry = "350x5-20+20"
+width = 350
+height = 150
+offset = 10x10
 progress_bar_height = 15
 progress_bar_max_width = 400
 separator_height = 1
@@ -27,7 +29,7 @@ word_wrap = true
 ### Icons ###
 icon_position = left
 max_icon_size = 64
-icon_path = /usr/share/icons/%{{theme_icon_variant}}/24/panel/
+icon_path = /usr/share/icons/%{{theme_icon}}/24/panel
 
 ### Misc/Advanced ###
 # dmenu = /usr/bin/rofi -dmenu -p dunst:
@@ -66,7 +68,7 @@ background = "#%{{theme_dark_2}}"
 foreground = "#%{{theme_light_0}}"
 highlight = "#%{{b16_01_red}}"
 frame_color = "#%{{b16_01_red}}"
-# icon_path = /usr/share/icons/%{{theme_icon}}/panel/
+default_icon = /usr/share/icons/%{{theme_icon_variant}}/24/panel
 timeout = 0
 
 [sway_hotkeys]
