@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Written by Andrés González (in0ni)
+# Written by Andrés González
 #
 # Inspired by rofi-bluetooth by Nick Clyde (clydedroid)
 # Dependencies (arch): rofi, bluez-utils (bluetoothctl)
@@ -96,8 +96,8 @@ toggle_power() {
 toggle_scan() {
   if is_ctrl_state_on ${ctrl[scan]}; then
     cmd=$(kill $(pgrep -f "bluetoothctl scan on"))
-    sleep 1
     notify "Stop scanning..." $?
+    sleep 1
   else
     cmd=$(bluetoothctl scan on &> /dev/null &)
     notify "Scanning..." $?
