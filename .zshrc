@@ -61,14 +61,14 @@ autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-# zstyle ':completion:*' menu select
-# zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-# zstyle ':completion:*:pacman:*' force-list always
-# zstyle ':completion:*:*:pacman:*' menu yes select
-# zstyle ':completion:*:*:kill:*' menu yes select
-# zstyle ':completion:*:kill:*'   force-list always
-# zstyle ':completion:*:*:killall:*' menu yes select
-# zstyle ':completion:*:killall:*'   force-list always
+zstyle ':completion:*' menu select
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:pacman:*' force-list always
+zstyle ':completion:*:*:pacman:*' menu yes select
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*'   force-list always
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:killall:*'   force-list always
 
 ### Key bindings
 # NOTE: showkey -a
@@ -90,6 +90,7 @@ bindkey '^[[H'    beginning-of-line                # home
 bindkey '^[[F'    end-of-line                      # end
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
+bindkey '^[[Z'     reverse-menu-complete
 
 ### Titles
 #
