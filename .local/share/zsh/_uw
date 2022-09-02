@@ -1,0 +1,45 @@
+#compdef koppa
+
+_uw() {
+  local state line
+  typeset -A opt_args
+
+  _arguments -C \
+    ':list of commands:->cmds' \
+    ':command arguments:->args' \
+    '*:available keys:->args'
+
+  case "$state" in
+    cmds)
+      local commands
+      commands=(
+        'uli:get lando url and copy to clipboard'
+        'new-branch:create a new branch from dev (new tickets)'
+        'clone-branch:clone existing branch (UATs or testing)'
+        'rm-branch:delete branch and docker images for ticket'
+        'debug:enable debug (for my local install)'
+      )
+      _describe -t commands 'command' commands
+      ;;
+    args)
+      case ${line[1]} in
+        ls | mk)
+          local -a keys
+          koppa ls \
+            | while read k; do
+              keys+=($k)
+            done
+          _describe -t arguments 'argument' keys
+          ;;
+        mv)
+          _files
+          ;;
+      esac
+
+      ;;
+  esac
+
+  return 1
+}
+
+# vim: ft=sh
