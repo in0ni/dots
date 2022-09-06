@@ -51,9 +51,6 @@ unsetopt beep
 #
 fpath=("$HOME/.local/share/zsh" $fpath)
 setopt COMPLETE_ALIASES
-zstyle ':completion:*' completer _complete _ignored
-zstyle :compinstall filename '${HOME}/.zshrc'
-
 autoload -Uz compinit
 compinit
 
@@ -61,14 +58,16 @@ autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-zstyle ':completion:*' menu select
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*:pacman:*' force-list always
-zstyle ':completion:*:*:pacman:*' menu yes select
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:kill:*'   force-list always
-zstyle ':completion:*:*:killall:*' menu yes select
-zstyle ':completion:*:killall:*'   force-list always
+zstyle ':completion:*'             completer   _complete _ignored
+zstyle :compinstall                filename    '${HOME}/.zshrc'
+zstyle ':completion:*'             menu        select
+zstyle ':completion:*:default'     list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:pacman:*'    force-list  always
+zstyle ':completion:*:*:pacman:*'  menu        yes       select
+zstyle ':completion:*:*:kill:*'    menu        yes       select
+zstyle ':completion:*:kill:*'      force-list  always
+zstyle ':completion:*:*:killall:*' menu        yes       select
+zstyle ':completion:*:killall:*'   force-list  always
 
 ### Key bindings
 # NOTE: showkey -a
@@ -77,19 +76,19 @@ zstyle ':completion:*:killall:*'   force-list always
 bindkey -e
 # typeset -g -A key
 
-bindkey '^[[3~'   delete-char                      # delete
-bindkey '^?'      backward-delete-char             # backspace
-bindkey '^[[5~'   up-line-or-history               # pgup
-bindkey '^[[3~'   delete-char                      # delete
-bindkey '^[[6~'   down-line-or-history             # pgdown
-bindkey '^[[A'    up-line-or-beginning-search      # up
-bindkey '^[[B'    down-line-or-beginning-search    # down
-bindkey '^[[D'    backward-char                    # left
-bindkey '^[[C'    forward-char                     # right
-bindkey '^[[H'    beginning-of-line                # home
-bindkey '^[[F'    end-of-line                      # end
-bindkey '^[[1;5D' backward-word
-bindkey '^[[1;5C' forward-word
+bindkey '^[[3~'    delete-char                      # delete
+bindkey '^?'       backward-delete-char             # backspace
+bindkey '^[[5~'    up-line-or-history               # pgup
+bindkey '^[[3~'    delete-char                      # delete
+bindkey '^[[6~'    down-line-or-history             # pgdown
+bindkey '^[[A'     up-line-or-beginning-search      # up
+bindkey '^[[B'     down-line-or-beginning-search    # down
+bindkey '^[[D'     backward-char                    # left
+bindkey '^[[C'     forward-char                     # right
+bindkey '^[[H'     beginning-of-line                # home
+bindkey '^[[F'     end-of-line                      # end
+bindkey '^[[1;5D'  backward-word
+bindkey '^[[1;5C'  forward-word
 bindkey '^[[Z'     reverse-menu-complete
 
 ### Titles
@@ -137,4 +136,3 @@ base16_view_colors() {
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
 
-source /home/in0ni/.config/broot/launcher/bash/br

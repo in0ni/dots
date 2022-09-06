@@ -1,4 +1,4 @@
-hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less|twig) %{
+hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less) %{
   lsp-enable-window
 }
 
@@ -62,10 +62,10 @@ hook global WinSetOption filetype=(javascript|svelte) %{
   enable-autolint
 }
 
-hook global WinSetOption filetype=(twig) %{
-  set-option window lintcmd 'run() { cat "$1" | twigcs -r emacs "$kak_buffile" | sed -E "s/: (\w+) - /: \1: /g";} && run'
-  enable-autolint
-}
+# hook global WinSetOption filetype=(twig) %{
+#   set-option window lintcmd 'run() { cat "$1" | twigcs -r emacs "$kak_buffile" | sed -E "s/: (\w+) - /: \1: /g";} && run'
+#   enable-autolint
+# }
 
 hook global WinSetOption filetype=json %{
   # formatting done w/ prettier above
