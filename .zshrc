@@ -42,6 +42,7 @@ alias grep='grep --color=auto'
 alias ishrink='convert -resize 1200 -quality 90'
 alias o="xdg-open"
 alias sudo="sudo -E"
+alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 #
 # zsh
