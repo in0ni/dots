@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if pidof wf-recorder > /dev/null; then
+  kill -SIGINT "$(pidof wf-recorder)"
+else
+  wf-recorder -g "$(slurp)" -f ~/Videos/screencast-"$(date +%Y.%m.%d_%H%M%S)".mp4
+fi
