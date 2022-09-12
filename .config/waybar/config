@@ -11,7 +11,8 @@
     "temperature",
     "battery",
     "pulseaudio",
-    "tray"
+    "tray",
+    "custom/tomate"
   ],
   "sway/workspaces": {
     "disable-scroll": true,
@@ -139,6 +140,16 @@
     "exec-if": "exit 0",
     "return-type": "json",
     "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+2 waybar"
+  },
+  "custom/tomate": {
+    "signal": 1,
+    "interval": 1,
+    "return-type": "json",
+    "exec": "tomate get-time",
+    "format-icons": [""],
+    "format": "{icon} {}",
+    "exec-if": "exit 0",
+    "on-click-right": "tomate toggle"
   }
 }
 

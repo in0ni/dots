@@ -33,12 +33,14 @@ window#waybar.empty #window { background-color: transparent; }
 
 #mode,
 #window,
-#clock {
+#clock,
+#custom-tomate {
   padding: 0 10px;
 }
 
 #clock,
-#window {
+#window,
+#custom-tomate {
   color: #%{{theme_light_0}};
 }
 
@@ -49,7 +51,8 @@ window#waybar.empty #window { background-color: transparent; }
 #memory,
 #temperature,
 #battery,
-#tray {
+#tray,
+#custom-tomate {
   background-color: rgba(%{{theme_dark_0_rgb}}, 0.35);
 }
 

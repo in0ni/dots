@@ -1,17 +1,43 @@
 #!/bin/bash
 
-timer=${XDG_CONFIG_HOME}/tomate/timer.start
+timer=/tmp/tomate
+pomodoro=1500
+time_set=$(cat $timer)
+
+start() {
+  date +"%s" > $timer
+}
+
+stop() {
+  echo "" > $timer
+}
 
 case $1 in
+  toggle)
+    if [[ $time_set = "" ]]; then
+      start
+    else
+      stop
+    fi
+    ;;
   start)
-    date -d 'now' +"%s" > $timer
+    start
     ;;
 
-  get-timer)
-    seconds_passed=$(echo "$(date -d "now" +"%s")" - $(cat $timer) | bc)
-    date -d @$seconds_passed +"%H:%S"
+  get-time)
+    if [[ $time_set = "" ]]; then
+      echo "{\"text\": \"00:00\"}"
+    else
+      seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
+      echo "{\"text\": \"$(date -d @$seconds_passed +"%M:%S")\"}"
+      if [[ $seconds_passed -gt $pomodoro ]]; then
+        notify-send "🍅 Tomate" "      Time is up, take a break!" -u critical
+      fi
+    fi
     ;;
 
-  stop) ;;
+  stop)
+    stop
+    ;;
 
 esac
