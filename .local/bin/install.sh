@@ -27,6 +27,7 @@ trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 exec 1> >(tee "stdout.log")
 exec 2> >(tee "stderr.log" >&2)
+gitlab_root="https://gitlab.com/gonzalez.af/dots/-/raw/master/"
 
 export SNAP_PAC_SKIP=y
 
@@ -160,9 +161,11 @@ mount -o noatime,nodiratime,compress=zstd,subvol=snapshots /dev/mapper/luks /mnt
 echo -e "\n### Configuring custom repo"
 mkdir "/mnt/var/cache/pacman/${user}-local"
 
-if [[ "${user}" == "maximbaz" && "${hostname}" == "home-"* ]]; then
-  wget -m -nH -np -q --show-progress --progress=bar:force --reject='index.html*' --cut-dirs=2 -P "/mnt/var/cache/pacman/${user}-local" 'https://pkgbuild.com/~maximbaz/repo/'
-  rename -- 'maximbaz.' "${user}-local." "/mnt/var/cache/pacman/${user}-local"/*
+if [[ "${user}" == "in0ni" && "${hostname}" == "home-"* ]]; then
+  wget $(echo $gitlab_root)".local/packages/PKGBUILD" -P "/mnt/var/cache/pacman/${user}-local"
+  cd "/mnt/var/cache/pacman/${user}-local/PKGBUILD"
+  makepkg -sf
+  cd /
 else
   repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
 fi
@@ -179,7 +182,7 @@ EOF
 fi
 
 echo -e "\n### Installing packages"
-pacstrap -i /mnt in0ni-base in0ni-$(uname -m)
+pacstrap -i /mnt in0ni-base
 
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
