@@ -1,0 +1,17 @@
+#!/bin/bash
+
+timer=${XDG_CONFIG_HOME}/tomate/timer.start
+
+case $1 in
+  start)
+    date -d 'now' +"%s" > $timer
+    ;;
+
+  get-timer)
+    seconds_passed=$(echo "$(date -d "now" +"%s")" - $(cat $timer) | bc)
+    date -d @$seconds_passed +"%H:%S"
+    ;;
+
+  stop) ;;
+
+esac
