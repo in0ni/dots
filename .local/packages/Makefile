@@ -1,0 +1,36 @@
+.PHONY: all
+all: build install refresh publish clean
+
+.PHONY: build
+build: ## Build the meta-package
+	PKGEXT='.pkg.tar.zst' makepkg -sf
+
+.PHONY: install
+install: ## Install the meta-package
+	SNAP_PAC_SKIP=true sudo -E pacman --noconfirm -U in0ni-base-*.pkg.tar.zst in0ni-$(shell uname -m)-*.pkg.tar.zst
+
+.PHONY: refresh
+refresh: ## Refresh the backup lists
+	backup-packages
+	if [ -s unknown.list ]; then \
+		xargs -a unknown.list sudo -E pacman -D --asdeps; \
+	fi
+	backup-packages
+
+.PHONY: publish
+publish: ## Publish the meta-package in the local repo
+	for type in base $(shell uname -m); do \
+		pkg=in0ni-$$type-*.pkg.tar.zst; \
+		gpg --detach-sign --yes $$pkg; \
+		repo-add -s /var/cache/pacman/in0ni-local/in0ni-local.db.tar $$pkg; \
+		cp $$pkg* /var/cache/pacman/in0ni-local/; \
+	done
+
+.PHONY: clean
+clean: ## Cleanup
+	rm -rf pkg src *.pkg.tar* *.log
+
+.PHONY: help
+help: ## This help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
