@@ -113,9 +113,9 @@ echo -e "\n### Setting up partitions"
 umount -R /mnt 2> /dev/null || true
 cryptsetup luksClose luks 2> /dev/null || true
 
-lsblk -plnx size -o name "${device}" | xargs -n1 wipefs --all
-sgdisk --clear "${device}" --new 1::-551MiB "${device}" --new 2::0 --typecode 2:ef00 "${device}"
-sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
+# lsblk -plnx size -o name "${device}" | xargs -n1 wipefs --all
+# sgdisk --clear "${device}" --new 1::-551MiB "${device}" --new 2::0 --typecode 2:ef00 "${device}"
+# sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
 
 part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
 part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
@@ -129,8 +129,8 @@ fi
 
 echo -e "\n### Formatting partitions"
 mkfs.vfat -n "EFI" -F 32 "${part_boot}"
-echo -n ${password} | cryptsetup luksFormat --type luks2 --pbkdf argon2id --label luks $cryptargs "${part_root}"
-echo -n ${password} | cryptsetup luksOpen $cryptargs "${part_root}" luks
+echo -n ${password} | cryptsetup luksFormat --label luks $cryptargs "${part_root}"
+echo -n ${password} | cryptsetup open $cryptargs "${part_root}" luks
 mkfs.btrfs -L btrfs /dev/mapper/luks
 
 echo -e "\n### Setting up BTRFS subvolumes"
@@ -138,8 +138,6 @@ mount /dev/mapper/luks /mnt
 btrfs subvolume create /mnt/root
 btrfs subvolume create /mnt/home
 btrfs subvolume create /mnt/pkgs
-btrfs subvolume create /mnt/aurbuild
-btrfs subvolume create /mnt/archbuild
 btrfs subvolume create /mnt/docker
 btrfs subvolume create /mnt/logs
 btrfs subvolume create /mnt/temp
@@ -148,13 +146,11 @@ btrfs subvolume create /mnt/snapshots
 umount /mnt
 
 mount -o noatime,nodiratime,compress=zstd,subvol=root /dev/mapper/luks /mnt
-mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp,lib/{aurbuild,archbuild,docker}},swap,.snapshots}
+mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp,lib/{docker}},swap,.snapshots}
 mount "${part_boot}" /mnt/efi
 mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/luks /mnt/mnt/btrfs-root
 mount -o noatime,nodiratime,compress=zstd,subvol=home /dev/mapper/luks /mnt/home
 mount -o noatime,nodiratime,compress=zstd,subvol=pkgs /dev/mapper/luks /mnt/var/cache/pacman
-mount -o noatime,nodiratime,compress=zstd,subvol=aurbuild /dev/mapper/luks /mnt/var/lib/aurbuild
-mount -o noatime,nodiratime,compress=zstd,subvol=archbuild /dev/mapper/luks /mnt/var/lib/archbuild
 mount -o noatime,nodiratime,compress=zstd,subvol=docker /dev/mapper/luks /mnt/var/lib/docker
 mount -o noatime,nodiratime,compress=zstd,subvol=logs /dev/mapper/luks /mnt/var/log
 mount -o noatime,nodiratime,compress=zstd,subvol=temp /dev/mapper/luks /mnt/var/tmp
@@ -176,9 +172,6 @@ if ! grep "${user}" /etc/pacman.conf > /dev/null; then
 [${user}-local]
 Server = file:///mnt/var/cache/pacman/${user}-local
 
-[maximbaz]
-Server = https://pkgbuild.com/~maximbaz/repo
-
 [options]
 CacheDir = /mnt/var/cache/pacman/pkg
 CacheDir = /mnt/var/cache/pacman/${user}-local
@@ -186,7 +179,7 @@ EOF
 fi
 
 echo -e "\n### Installing packages"
-pacstrap -i /mnt maximbaz-base maximbaz-$(uname -m)
+pacstrap -i /mnt in0ni-base in0ni-$(uname -m)
 
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
@@ -201,8 +194,7 @@ echo "FONT=$font" > /mnt/etc/vconsole.conf
 genfstab -L /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
 echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
-echo "en_DK.UTF-8 UTF-8" >> /mnt/etc/locale.gen
-ln -sf /usr/share/zoneinfo/Europe/Copenhagen /mnt/etc/localtime
+ln -sf /usr/share/zoneinfo/America/Cancun /mnt/etc/localtime
 arch-chroot /mnt locale-gen
 cat << EOF > /mnt/etc/mkinitcpio.conf
 MODULES=()
@@ -224,7 +216,7 @@ echo "/swap/swapfile none swap defaults 0 0" >> /mnt/etc/fstab
 
 echo -e "\n### Creating user"
 arch-chroot /mnt useradd -m -s /usr/bin/zsh "$user"
-for group in wheel network nzbget video input; do
+for group in wheel vboxusers docker input; do
   arch-chroot /mnt groupadd -rf "$group"
   arch-chroot /mnt gpasswd -a "$user" "$group"
 done
@@ -235,13 +227,13 @@ arch-chroot /mnt passwd -dl root
 echo -e "\n### Setting permissions on the custom repo"
 arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
-if [ "${user}" = "maximbaz" ]; then
+if [ "${user}" = "in0ni" ]; then
   echo -e "\n### Cloning dotfiles"
-  arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/maximbaz/dotfiles.git ~/.dotfiles'
+  arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://gitlab.com/gonzalez.af/dots ~/.dotfiles'
 
   echo -e "\n### Running initial setup"
-  arch-chroot /mnt /home/$user/.dotfiles/setup-system.sh
-  arch-chroot /mnt sudo -u $user /home/$user/.dotfiles/setup-user.sh
+  # arch-chroot /mnt /home/$user/.dotfiles/setup-system.sh
+  # arch-chroot /mnt sudo -u $user /home/$user/.dotfiles/setup-user.sh
   arch-chroot /mnt sudo -u $user zsh -ic true
 
   echo -e "\n### DONE - reboot and re-run both ~/.dotfiles/setup-*.sh scripts"
