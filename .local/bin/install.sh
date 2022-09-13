@@ -161,13 +161,13 @@ mount -o noatime,nodiratime,compress=zstd,subvol=snapshots /dev/mapper/luks /mnt
 echo -e "\n### Configuring custom repo"
 mkdir "/mnt/var/cache/pacman/${user}-local"
 
-if [[ "${user}" == "in0ni" && "${hostname}" == "home-"* ]]; then
-  wget $(echo $gitlab_root)".local/packages/PKGBUILD" -P "/mnt/var/cache/pacman/${user}-local"
-  cd "/mnt/var/cache/pacman/${user}-local/PKGBUILD"
-  makepkg -sf
-  cd /
-else
-  repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
+if [[ "${user}" == "in0ni" ]]; then
+  wget -m -nH -np -q --show-progress --progress=bar:force --reject='index.html*' --cut-dirs=2 -P "/mnt/var/cache/pacman/${user}-local" 'http://xi0ix.xyz/pkgs/'
+  # rename -- 'maximbaz.' "${user}-local." "/mnt/var/cache/pacman/${user}-local"/*
+  # wget $(echo $gitlab_root)".local/packages/PKGBUILD" -P "/mnt/var/cache/pacman/${user}-local"
+  # cd "/mnt/var/cache/pacman/${user}-local/PKGBUILD"
+  # makepkg -sf
+  # cd /
 fi
 
 if ! grep "${user}" /etc/pacman.conf > /dev/null; then
