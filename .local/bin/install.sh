@@ -182,7 +182,7 @@ EOF
 fi
 
 echo -e "\n### Installing packages"
-pacstrap -i /mnt in0ni-base
+pacstrap /mnt in0ni-base
 
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
