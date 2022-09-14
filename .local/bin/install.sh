@@ -155,7 +155,7 @@ mount -o noatime,nodiratime,compress=zstd,subvol=pkgs /dev/mapper/luks /mnt/var/
 mount -o noatime,nodiratime,compress=zstd,subvol=docker /dev/mapper/luks /mnt/var/lib/docker
 mount -o noatime,nodiratime,compress=zstd,subvol=logs /dev/mapper/luks /mnt/var/log
 mount -o noatime,nodiratime,compress=zstd,subvol=temp /dev/mapper/luks /mnt/var/tmp
-mount -o noatime,nodiratime,compress=zstd,subvol=swap /dev/mapper/luks /mnt/swap
+mount -o noatime,nodiratime,subvol=swap /dev/mapper/luks /mnt/swap
 mount -o noatime,nodiratime,compress=zstd,subvol=snapshots /dev/mapper/luks /mnt/.snapshots
 
 echo -e "\n### Configuring custom repo"
@@ -214,7 +214,6 @@ arch-chroot /mnt mkinitcpio -p linux-lts
 echo -e "\n### Configuring swap file"
 truncate -s 0 /mnt/swap/swapfile
 chattr +C /mnt/swap/swapfile
-btrfs property set /mnt/swap/swapfile compression none
 dd if=/dev/zero of=/mnt/swap/swapfile bs=1M count=4096
 chmod 600 /mnt/swap/swapfile
 mkswap /mnt/swap/swapfile
