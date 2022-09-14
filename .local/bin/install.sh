@@ -208,7 +208,7 @@ BINARIES=()
 FILES=()
 HOOKS=(base consolefont udev autodetect modconf block encrypt-dh filesystems keyboard)
 EOF
-arch-chroot /mnt mkinitcpio -p linux
+arch-chroot /mnt mkinitcpio -p linux-lts
 # arch-chroot /mnt arch-secure-boot initial-setup
 
 echo -e "\n### Configuring swap file"
