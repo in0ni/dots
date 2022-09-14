@@ -175,6 +175,12 @@ if ! grep "${user}" /etc/pacman.conf > /dev/null; then
 [${user}-local]
 Server = file:///mnt/var/cache/pacman/${user}-local
 
+[in0ni]
+Server = http://xi0ix.xyz/pkgs
+
+[maximbaz]
+Server = https://pkgbuild.com/~maximbaz/repo
+
 [options]
 CacheDir = /mnt/var/cache/pacman/pkg
 CacheDir = /mnt/var/cache/pacman/${user}-local
@@ -182,7 +188,7 @@ EOF
 fi
 
 echo -e "\n### Installing packages"
-pacstrap /mnt in0ni-base
+pacstrap /mnt base base-devel linux-lts linux-firmware iwd dhcpcd man-pages texinfo btrfs git sudo zsh dash kernel-modules-hook logrotate texinfo vi mkinitcpio-encrypt-detached-header btrfs-progs kakoune
 
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
@@ -206,7 +212,7 @@ FILES=()
 HOOKS=(base consolefont udev autodetect modconf block encrypt-dh filesystems keyboard)
 EOF
 arch-chroot /mnt mkinitcpio -p linux
-arch-chroot /mnt arch-secure-boot initial-setup
+# arch-chroot /mnt arch-secure-boot initial-setup
 
 echo -e "\n### Configuring swap file"
 truncate -s 0 /mnt/swap/swapfile
