@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # THEME
 #
-theme=Arc-Dark-solid
+theme=Arc-Dark
 theme_icon=Tela-orange-dark
 theme_icon_variant=Tela-orange
 theme_cursor=Adwaita
@@ -22,6 +22,8 @@ rgba=rgb
 trnz_10=e5
 trnz_15=d9
 trnz_20=cc
+trnz_50=80
+trnz_70=b2
 trnz_80=33
 trnz_100=00
 
@@ -51,9 +53,9 @@ theme_light_3=a5adc5
 theme_light_4=8992a9
 
 # highlight for menus
-theme_highlight=06a284
+# theme_highlight=06a284
+theme_highlight=e7610b
 
-#
 # https://github.com/morhetz/gruvbox
 # [monochrome]
 gruv_dark_bg_0_h=1d2021
@@ -141,3 +143,4 @@ theme_light_1_rgb=$(hex_to_rgb $theme_light_1)
 theme_light_2_rgb=$(hex_to_rgb $theme_light_2)
 theme_light_3_rgb=$(hex_to_rgb $theme_light_3)
 theme_light_4_rgb=$(hex_to_rgb $theme_light_4)
+gruv_dark_0_rgb=$(hex_to_rgb $gruv_dark_bg_0)

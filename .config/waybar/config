@@ -4,14 +4,14 @@
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [
     "idle_inhibitor",
-    "network",
+    "custom/tomate",
     "cpu",
     "memory",
     "temperature",
     "battery",
+    "network",
     "pulseaudio",
-    "tray",
-    "custom/tomate"
+    "tray"
   ],
   "sway/workspaces": {
     "disable-scroll": true,

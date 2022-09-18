@@ -52,31 +52,33 @@ mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 
 [urgency_low]
-background = "#%{{theme_light_0}}%{{trnz_15}}"
-foreground = "#%{{theme_dark_0}}"
+background = "#%{{gruv_dark_bg_0}}%{{trnz_50}}"
+foreground = "#%{{gruv_light_bg_0}}"
 highlight = "#%{{theme_highlight}}"
-timeout = 4
+frame_color = "#%{{gruv_dark_bg_4}}"
+timeout = 2
 
 [urgency_normal]
-background = "#%{{theme_light_0}}%{{trnz_15}}"
-foreground = "#%{{theme_dark_0}}"
+background = "#%{{gruv_dark_bg_0}}%{{trnz_20}}"
+foreground = "#%{{gruv_light_bg_0_h}}"
 highlight = "#%{{theme_highlight}}"
-timeout = 6
+frame_color = "#%{{gruv_dark_bg_3}}"
+timeout = 4
 
 [urgency_critical]
-background = "#%{{theme_dark_2}}"
-foreground = "#%{{theme_light_0}}"
-highlight = "#%{{b16_01_red}}"
-frame_color = "#%{{b16_01_red}}"
+background = "#%{{gruv_light_red}}"
+foreground = "#%{{griv_light_bg_0_h}}"
+highlight = "#%{{gruv_light_bg_0}}"
+frame_color = "#%{{gruv_dark_bg_0}}"
 default_icon = /usr/share/icons/%{{theme_icon_variant}}/24/panel
 timeout = 0
 
 [sway_hotkeys]
 appname = "sway_hotkeys"
-background = "#%{{theme_dark_2}}%{{trnz_15}}"
-foreground = "#%{{theme_light_0}}"
-highlight = "#%{{theme_highlight}}"
-frame_color = "#%{{theme_dark_2}}"
+background = "#%{{gruv_dark_bg_0}}%{{trnz_20}}"
+foreground = "#%{{theme_light_1}}"
+highlight = "#%{{gruv_light_orange}}"
+frame_color = "#%{{gruv_dark_bg_0}}"
 timeout = 2
 
 # vim: ft=ini

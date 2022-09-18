@@ -1,7 +1,7 @@
 {
-  "name": "Arc-Dark-Green",
+  "name": "Arc-Dark-Orange",
   "manifest_version": 2,
-  "version": "1.8",
+  "version": "1.0",
   "theme": {
     "images": {},
     "properties": {},
@@ -12,12 +12,12 @@
       "popup": "rgba(%{{theme_dark_0_rgb}}, 1)",
       "popup_text": "rgb(%{{theme_light_0_rgb}})",
       "tab_background_separator": "rgba(%{{theme_dark_3_rgb}}, 1)",
-      "tab_background_text": "rgba(%{{theme_light_rgb}}, 1)",
+      "tab_background_text": "rgba(%{{theme_light_0_rgb}}, 1)",
       "tab_line": "rgb(%{{theme_highlight_rgb}})",
       "tab_loading": "rgb(%{{theme_highlight_rgb}})",
       "toolbar_field": "rgba(%{{theme_dark_3_rgb}}, 1)",
       "toolbar_field_text": "rgb(%{{theme_light_0_rgb}})",
-      "toolbar": "rgba(%{{theme_dark_rgb}}, 1)"
+      "toolbar": "rgba(%{{theme_dark_0_rgb}}, 1)"
     }
   }
 }
