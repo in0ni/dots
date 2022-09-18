@@ -1,6 +1,5 @@
 {
   "layer": "top",
-  "height": 25,
   "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # THEME
 #
-theme=Arc-Dark
+theme=Arc-Dark-solid
 theme_icon=Tela-orange-dark
 theme_icon_variant=Tela-orange
 theme_cursor=Adwaita
@@ -13,8 +13,8 @@ theme_cursor_size=0
 font_sans="Open Sans"
 font_mono="Fira Code"
 font_icon="Font Awesome 6 Free"
-font_size=14
-font_size_sm=11
+font_size=15
+font_size_sm=12
 hintstyle=hintnone
 rgba=rgb
 

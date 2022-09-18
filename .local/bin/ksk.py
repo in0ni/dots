@@ -137,7 +137,7 @@ def rofi_projects():
     )
     merged_rofi_menu = get_rofi_menu + uw2_projects_joined
     run_rofi_selection = run(
-        f'echo -en "{merged_rofi_menu}" | rofi -dmenu -i -p "{rofi_title}"',
+        f'echo "{merged_rofi_menu}" | rofi -dmenu -i -p "{rofi_title}"',
         shell=True,
         encoding="utf-8",
         capture_output=True,
