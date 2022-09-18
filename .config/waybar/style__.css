@@ -2,8 +2,10 @@
   border: none;
   border-radius: 0;
   font-family: "%{{font_sans}}, %{{font_icon}}";
-  font-size: 12px;
+  font-size: %{{font_size}}px;
   min-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 #waybar {
@@ -21,48 +23,42 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * blocks
  */
-#workspaces,
 #mode,
 #window,
 #clock,
-#network,
-#pulseaudio,
 #tray {
-  margin: 0 5px;
+  margin: 0.5em 0.75em;
+  padding: 0;
 }
 
-#mode,
-#window,
-#clock,
-#custom-tomate {
-  padding: 0 10px;
+#workspaces {
+  margin-left: 0.5em;
+}
+
+#pulseaudio {
+  margin-right: 0.5em;
 }
 
 #clock,
-#window,
-#custom-tomate {
+#window {
   color: #%{{theme_light_0}};
 }
 
-#workspaces button.focused,
-#window,
-#clock,
+#workspaces > *,
+#mode,
 #cpu,
 #memory,
 #temperature,
-#battery,
-#tray,
-#custom-tomate {
-  background-color: rgba(%{{theme_dark_0_rgb}}, 0.35);
+#network,
+#pulseaudio,
+#battery {
+  padding: 0 0.75em;
 }
-
-#clock { font-size: 13px; }
 
 /*
  * workspaces
  */
 #workspaces button {
-  padding: 0 5px;
   border-top: 1px solid transparent;
   color: #%{{theme_light_1}};
   opacity: 0.65;
@@ -90,11 +86,6 @@ window#waybar.empty #window { background-color: transparent; }
   color: #%{{theme_dark_0}};
 }
 
-#tray {
-  margin: 0;
-  padding: 0 10px;
-}
-
 /*
  * misc shit
  */
@@ -115,8 +106,6 @@ window#waybar.empty #window { background-color: transparent; }
 #memory,
 #temperature,
 #battery {
-  margin: 0 1px;
-  padding: 0 3px;
   color: #%{{theme_light_0}};
   opacity: 0.75;
 }
@@ -133,13 +122,6 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * warnings
  */
-/* because these can be warnings with background, padding is required */
-#network,
-#pulseaudio {
-  margin: 0 5px;
-  padding: 0 5px;
-}
-
 #battery.low:not(.charging),
 #network.disconnected,
 #pulseaudio.muted {
