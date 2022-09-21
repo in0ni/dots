@@ -1,0 +1,11 @@
+[Unit]
+Description=playerctld
+Documentation=man:playerctl(1)
+PartOf=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=playerctld daemon
+
+[Install]
+WantedBy=multi-user.target
