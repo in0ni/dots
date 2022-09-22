@@ -66,8 +66,8 @@ frame_color = "#%{{gruv_dark_bg_3}}"
 timeout = 4
 
 [urgency_critical]
-background = "#%{{gruv_light_red}}"
-foreground = "#%{{griv_light_bg_0_h}}"
+background = "#%{{gruv_light_red}}%{{trnz_20}}"
+foreground = "#%{{gruv_light_bg_0_h}}"
 highlight = "#%{{gruv_light_bg_0}}"
 frame_color = "#%{{gruv_dark_bg_0}}"
 default_icon = /usr/share/icons/%{{theme_icon_variant}}/24/panel

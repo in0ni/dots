@@ -50,7 +50,7 @@ window#waybar.empty #window { background-color: transparent; }
 #network,
 #pulseaudio,
 #battery {
-  padding: 0.5em 0.75em;
+  padding: 0.35em 0.75em;
 }
 
 

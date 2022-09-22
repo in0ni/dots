@@ -125,7 +125,7 @@ b16_11_yellow=f7fe2c
 b16_12_blue=4acdf8
 b16_13_purple=f479f6
 b16_14_aqua=06f6c9
-b16_15_white=fffef7
+b16_15_white=ebfdff
 
 #
 # waybar/firefox require rgb
