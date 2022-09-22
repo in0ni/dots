@@ -15,7 +15,7 @@ export EXA_COLORS
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
 # http://www.unicode-symbol.com/u/E0B0.html 
-PROMPT='%K{232}%F{8}%?%f %F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{232}%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
