@@ -3,7 +3,7 @@
 #
 import os
 
-# import time
+import time
 import sys
 import signal
 import argparse
@@ -30,9 +30,11 @@ def new_client(name, win_type):
     kak_cmd = f'kak -e "{client_cmd}" -c "{session}"'
     shell_cmd = f"{kitty_cmd} {win_title} {base_args} {kak_cmd}"
 
-    run(shell_cmd, shell=True)
+    check_output(shell_cmd, shell=True)
+    time.sleep(0.25)
     focused = ipc.get_tree().find_focused()
     focused.command(f"mark {session}::{name}")
+    focused.command("focus")
     return focused
 
 
@@ -48,14 +50,17 @@ def new_shell(name, arg_string=None):
         shell_cmd += f" {arg_string}"
 
     run(shell_cmd, shell=True)
+    time.sleep(0.25)
     # all new shells won't allow Control+D to close
     # NOTE: if creating new windows, perhaps only "::shell" has this behavior
     run(
         f'kitty @ send-text --match title:{win_title} "set -o ignoreeof\rclear\r"',
         shell=True,
     )
+    time.sleep(0.1)
     focused = ipc.get_tree().find_focused()
     focused.command(f"mark {session}::{name}")
+    focused.command("focus")
     return focused
 
 
@@ -107,12 +112,23 @@ def create_layout(path):
 
     win_tools = new_client("tools", "toolsclient")
     ipc.command("splith; layout tabbed")
+    time.sleep(0.25)
 
     win_shell = new_shell("shell", f"--cwd={path}")
-
-    win_tools.command("focus")
-    win_main.command("focus")
+    win_docs.command("focus")
+    time.sleep(0.25)
     win_docs.command("resize set height 700 px")
+    time.sleep(0.25)
+
+    win_shell.command("focus")
+    time.sleep(0.25)
+    win_main.command("focus")
+    time.sleep(0.25)
+    win_tools.command("focus")
+    time.sleep(0.25)
+    win_shell.command("focus")
+    time.sleep(0.25)
+    win_main.command("focus")
 
     # we don't want to close windows/clients, rather buffers
     # if anything we want to quit the session
@@ -161,12 +177,13 @@ def rofi_projects():
         # NOTE: fzf w/ overlay only works when launching w/ --listen-on
         #       will not work if launching w/o rofi
         # NOTE: need to consider using listen_on in kitty.conf
-        run(
+        start = run(
             f'kitty -d "{path}" ksk.py',
             shell=True,
             cwd=path,
             env=env_vars,
         )
+        start.wait()
         # create_layout(path)
         # Popen(
         #     "kitty",
