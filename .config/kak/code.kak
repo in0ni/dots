@@ -1,4 +1,4 @@
-hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less) %{
+hook global WinSetOption filetype=(javascript|json|python|svelte|php|html|css|scss|less|sh) %{
   lsp-enable-window
 }
 
