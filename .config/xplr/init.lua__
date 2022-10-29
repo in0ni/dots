@@ -1,0 +1,36 @@
+version = '0.19.4'
+
+-- ui
+xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
+xplr.config.node_types.directory.meta.icon = ""
+xplr.config.node_types.directory.style.fg = "Blue"
+xplr.config.node_types.directory.style.sub_modifiers = { "Bold" }
+xplr.config.node_types.file.meta.icon = nil
+xplr.config.node_types.file.style.add_modifiers = { "Dim" }
+xplr.config.node_types.symlink.meta.icon = ""
+xplr.config.node_types.symlink.style.sub_modifiers = { "Italic" }
+
+key = xplr.config.modes.builtin.default.key_bindings.on_key
+key.e = xplr.config.modes.builtin.action.key_bindings.on_key.e
+key.x = xplr.config.modes.builtin.go_to.key_bindings.on_key.x
+
+key["enter"] = {
+  help = "Open/Enter",
+  messages = {
+    { CallLuaSilently = "custom.handle_node" }
+  }
+}
+
+xplr.fn.custom.handle_node = function(app)
+  local node = app.focused_node
+
+  if node.is_dir or (node.is_symlink and node.symlink.is_dir) then
+    return {"Enter"}
+  else
+    return {
+      BashExecSilently0 = [===[
+        xdg-open "${XPLR_FOCUS_PATH:?}"
+      ]===],
+    }
+  end 
+end

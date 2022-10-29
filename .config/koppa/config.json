@@ -51,6 +51,10 @@
     "systemctl": ["--user", "restart", "xsettingsd.service"]
   },
   {
+    "id": "xplr",
+    "path": "$HOME/.config/xplr"
+  },
+  {
     "id": "zim",
     "path": "$HOME/.config/zim"
   },
