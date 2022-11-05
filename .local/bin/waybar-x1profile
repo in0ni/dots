@@ -1,0 +1,22 @@
+#!/bin/bash
+
+case $1 in
+  toggle-profile) ;;
+
+  \
+    get-profile)
+    profile=$(cat /sys/firmware/acpi/platform_profile)
+    percentage=0
+
+    if [[ "$profile" = "balanced" ]]; then
+      percentage=50
+    else
+      if [[ "$profile" = "performance" ]]; then
+        percentage=100
+      fi
+    fi
+
+    echo "{\"tooltip\": \"$profile\", \"percentage\": \"$percentage\"}"
+    ;;
+
+esac

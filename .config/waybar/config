@@ -3,6 +3,7 @@
   "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [
+    "custom/x1profile",
     "idle_inhibitor",
     "custom/tomate",
     "cpu",
@@ -149,6 +150,15 @@
     "format": "{icon} {}",
     "exec-if": "exit 0",
     "on-click-right": "tomate toggle"
+  },
+  "custom/x1profile": {
+    "interval": 1,
+    "return-type": "json",
+    "exec": "waybar-x1profile get-profile",
+    "format-icons": ["L", "M", "H"],
+    "format": "{icon} {}",
+    "exec-if": "exit 0",
+    "on-click-right": "waybar-x1profile toggle-profile"
   }
 }
 
