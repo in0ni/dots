@@ -12,6 +12,7 @@
 #   - prefer:	30-37 (fg 0-7), 40-47 (bg 0-7)
 #   - prefer:	38;5 (fg 8+), 48;5 (bg 8+)
 #     - exa/lsd don't fully support 90-97 (fg 8-15), 100-107 (bg 8-15)
+#   - style: 1 = bold, 4 = underline, 7 = reverse color
 
 # core {{{1
 BLK                   34;4;3
