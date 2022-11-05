@@ -1,18 +1,26 @@
-version = '0.19.4'
+version = '0.20.0'
 
--- ui
+local home = os.getenv("HOME")
+
+package.path = os.getenv("XDG_CONFIG_HOME") .. "/xplr/?/init.lua"
+require('files').setup()
+
 xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
-xplr.config.node_types.directory.meta.icon = ""
-xplr.config.node_types.directory.style.fg = "Blue"
-xplr.config.node_types.directory.style.sub_modifiers = { "Bold" }
-xplr.config.node_types.file.meta.icon = nil
-xplr.config.node_types.file.style.add_modifiers = { "Dim" }
-xplr.config.node_types.symlink.meta.icon = ""
-xplr.config.node_types.symlink.style.sub_modifiers = { "Italic" }
 
+-- key bindings
 key = xplr.config.modes.builtin.default.key_bindings.on_key
+key.m = {
+  help = "xpm",
+  messages = {
+    "PopMode",
+    { SwitchModeCustom = "xpm" },
+  },
+}
+
+
+-- ideally these would be replaced by handle_node
 key.e = xplr.config.modes.builtin.action.key_bindings.on_key.e
-key.x = xplr.config.modes.builtin.go_to.key_bindings.on_key.x
+key.o = xplr.config.modes.builtin.go_to.key_bindings.on_key.x
 
 key["enter"] = {
   help = "Open/Enter",
@@ -34,3 +42,37 @@ xplr.fn.custom.handle_node = function(app)
     }
   end 
 end
+
+local xpm_path = home .. "/.local/share/xplr/dtomvan/xpm.xplr"
+local xpm_url = "https://github.com/dtomvan/xpm.xplr"
+
+package.path = package.path
+  .. ";"
+  .. xpm_path
+  .. "/?.lua;"
+  .. xpm_path
+  .. "/?/init.lua"
+
+os.execute(
+  string.format(
+    "[ -e '%s' ] || git clone '%s' '%s'",
+    xpm_path,
+    xpm_url,
+    xpm_path
+  )
+)
+
+-- Let xpm manage itself
+require("xpm").setup({
+  plugins = {
+    'dtomvan/xpm.xplr',
+    'sayanarijit/fzf.xplr',
+    'sayanarijit/wl-clipboard.xplr',
+    'sayanarijit/trash-cli.xplr',
+    'igorepst/context-switch.xplr',
+    'sayanarijit/type-to-nav.xplr',
+  },
+  auto_cleanup = true,
+})
+
+-- vim: ft=lua
