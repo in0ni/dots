@@ -11,5 +11,5 @@
 	remote = origin
 	merge = refs/heads/master
 [remote "origin"]
- 	url = https://gitlab.com/gonzalez.af/dots.git
+ 	url = git@gitlab.com:gonzalez.af/dots.git
  	fetch = +refs/heads/*:refs/remotes/origin/*
