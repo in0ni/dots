@@ -155,7 +155,7 @@
     "interval": 1,
     "return-type": "json",
     "exec": "waybar-x1profile get-profile",
-    "format-icons": ["L", "M", "H"],
+    "format-icons": ["", "", ""],
     "format": "{icon} {}",
     "exec-if": "exit 0",
     "on-click-right": "waybar-x1profile toggle-profile"

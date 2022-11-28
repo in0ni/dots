@@ -34,6 +34,13 @@ window#waybar.empty #window { background-color: transparent; }
   margin-left: 0.5em;
 }
 
+#custom-x1profile.performance {
+  color: #%{{gruv_dark_orange}};
+}
+#custom-x1profile.low-power{
+  opacity: 0.5;
+}
+
 #clock,
 #window {
   color: #%{{gruv_light_bg_0}};
@@ -43,6 +50,7 @@ window#waybar.empty #window { background-color: transparent; }
 #mode,
 #window,
 #custom-tomate,
+#custom-x1profile,
 #clock,
 #cpu,
 #memory,
@@ -68,22 +76,27 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * workspaces
  */
-#workspaces button {
+button {
   border-top: 1px solid transparent;
   color: #%{{gruv_light_bg_1}};
   opacity: 0.65;
 }
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
-#workspaces button:hover {
+button:hover {
   background: rgba(%{{theme_dark_0_rgb}}, 0.35);
   box-shadow: inherit;
 }
-#workspaces button.focused {
+label:disabled,
+button:disabled {
+  color: #%{{gruv_light_bg_1}};
+}
+button.focused {
   color: #%{{theme_highlight}};
   border-top: 1px solid #%{{theme_highlight}};
   opacity: 1;
 }
-#workspaces button.urgent {
+button.urgent {
+  color: #%{{theme_light_0}};
   background-color: #%{{b16_01_red}};
 }
 

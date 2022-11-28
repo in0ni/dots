@@ -16,7 +16,7 @@ case $1 in
       fi
     fi
 
-    echo "{\"tooltip\": \"$profile\", \"percentage\": \"$percentage\"}"
+    echo "{\"tooltip\": \"$profile\", \"class\": \"$profile\", \"percentage\": $percentage}"
     ;;
 
 esac
