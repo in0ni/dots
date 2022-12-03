@@ -42,7 +42,8 @@ alias grep='grep --color=auto'
 alias ishrink='convert -resize 1200 -quality 90'
 alias o="xdg-open"
 alias sudo="sudo -E"
-alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# NOTE: this won't work in kakoune shell, see ~/.local/bin/dots
+# alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias conf='sudo /usr/bin/git --git-dir=/.conffiles/ --work-tree=/'
 
 #

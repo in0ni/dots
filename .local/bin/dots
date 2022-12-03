@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#
+# this used to be an alias, but can't use it within kakoune shell env
+cmd=(--git-dir="$HOME"/.dotfiles/ --work-tree="$HOME")
+cmd+=("$@")
+/usr/bin/git "${cmd[@]}"
