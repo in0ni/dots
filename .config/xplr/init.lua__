@@ -17,6 +17,25 @@ key.m = {
   },
 }
 
+key.R = {
+  help = "batch rename",
+  messages = {
+    {
+      BashExec = [===[
+       renamer *
+       "$XPLR" -m ExplorePwdAsync
+     ]===],
+     --  BashExec = [===[
+     --   SELECTION=$(cat "${XPLR_PIPE_SELECTION_OUT:?}")
+     --   NODES=${SELECTION:-$(cat "${XPLR_PIPE_DIRECTORY_NODES_OUT:?}")}
+     --   if [ "$NODES" ]; then
+     --     echo -e "$NODES" | renamer
+     --     "$XPLR" -m ExplorePwdAsync
+     --   fi
+     -- ]===],
+    },
+  },
+}
 
 -- ideally these would be replaced by handle_node
 key.e = xplr.config.modes.builtin.action.key_bindings.on_key.e
@@ -35,11 +54,7 @@ xplr.fn.custom.handle_node = function(app)
   if node.is_dir or (node.is_symlink and node.symlink.is_dir) then
     return {"Enter"}
   else
-    return {
-      BashExecSilently0 = [===[
-        xdg-open "${XPLR_FOCUS_PATH:?}"
-      ]===],
-    }
+    xplr.util.shell_execute("xdg-open", {app.focused_node.absolute_path})
   end 
 end
 

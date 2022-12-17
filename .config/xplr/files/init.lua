@@ -12,14 +12,11 @@ local function setup()
   --
   -- MIME
   --
-  node_types.mime_essence = {
-    text = {
-      ["*"] = { style = { fg = "Yellow" } },
-    },
-    application = {
-      pdf = { meta = { icon = "" }, style = { fg = "Cyan", add_modifiers = { "Bold" } } },
-    },
-  }
+  -- node_types.mime_essence = {
+  --   text = {
+  --     ["*"] = { style = { fg = "Yellow" } },
+  --   },
+  -- }
 
   --
   -- DOCUMENTS
@@ -58,6 +55,104 @@ local function setup()
     }
   end
   ext.md = { meta = { icon =" " } }
+
+  -- binary
+  exts = {
+    "cbr",
+    "cbz",
+    "chm",
+    "djvu",
+    "pdf",
+    "mobi",
+    "epub",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      meta = { icon = "" },
+      style = { fg = "Cyan" },
+    }
+  end
+  ext.pdf.meta = { icon ="" }
+
+  -- words
+  exts = {
+    "odb",
+    "odt",
+    "pages",
+    "doc",
+    "docm",
+    "docx",
+    "rtf",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      style = { fg = "LightBlue" },
+    }
+  end
+  ext.rtf.style.sub_modifiers = { "Bold" }
+
+  icon_exts = {
+    "odb",
+    "odt",
+    "pages",
+    "doc",
+    "docm",
+    "docx",
+  }
+  for x = 1, #(icon_exts) do
+    ext[icon_exts[x]].meta = { icon ="" }
+  end
+
+  -- presentation
+  exts = {
+    "odp",
+    "key",
+    "pps",
+    "ppt",
+    "pptx",
+    "ppts",
+    "pptxm",
+    "pptm",
+    "pptsm",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      meta = { icon = "" },
+      style = { fg = "LightYellow" },
+    }
+  end
+
+  -- spreadsheet
+  exts = {
+    "csv",
+    "tsv",
+    "ods",
+    "numbers",
+    "xla",
+    "xls",
+    "xlsx",
+    "xlsxm",
+    "xltm",
+    "xltx",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      meta = { icon = "" },
+      style = { fg = "Green" },
+    }
+  end
+  ext.csv.meta.icon = ""
+  ext.csv.style.sub_modifiers = { "Italic" }
+
+  -- -- binary
+  -- exts = {
+  -- }
+  -- for x = 1, #(exts) do
+  --   ext[exts[x]] = {
+  --     style = { fg = "Cyan", add_modifiers = { "Bold" } },
+  --   }
+  -- end
+
 end
 
 return { setup = setup }
