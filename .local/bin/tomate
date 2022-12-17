@@ -2,7 +2,7 @@
 
 timer=/tmp/tomate
 pomodoro=1500
-time_set=$(cat $timer)
+time_set=$(cat $timer 2> /dev/null)
 
 start() {
   date +"%s" > $timer

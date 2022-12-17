@@ -9,8 +9,8 @@
 #     - [0-7]  black, red, green, yellow, blue, purple, cyan, gray
 #     - [8-15] same colors as above, but "bright" or alternate version
 #   - order:	fg;bg;style
-#   - prefer:	30-37 (fg 0-7), 40-47 (bg 0-7)
-#   - prefer:	38;5 (fg 8+), 48;5 (bg 8+)
+#   - prefer:	[30-37] (fg 0-7), 40-47 (bg 0-7)
+#   - prefer:	38;5[9-17] (fg 8+), 48;5[9-17] (bg 8+)
 #     - exa/lsd don't fully support 90-97 (fg 8-15), 100-107 (bg 8-15)
 #   - style: 1 = bold, 4 = underline, 7 = reverse color
 
