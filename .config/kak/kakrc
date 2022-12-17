@@ -14,9 +14,7 @@ plug "alexherbo2/auto-pairs.kak" %{
   enable-auto-pairs
 }
 
-plug "kak-lsp/kak-lsp" do %{
-  cargo install --locked --force --path .
-} config %{
+plug "kak-lsp/kak-lsp" config %{
   map -docstring "lsp mode" global user l ': enter-user-mode lsp<ret>'
   map global normal <tab> ': try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
   map global insert <tab> '<a-;>: try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
@@ -31,6 +29,11 @@ plug "in0ni/kak-dap" do %{
   cargo install --locked --force --path .
 } config %{
   map global user x -docstring 'dap mode' ': enter-user-mode dap<ret>'
+  define-command -override dap-setup-ui %{
+    set global stacktraceclient toolsclient
+    set global variablesclient docsclient
+  }
+  define-command -override dap-takedown-ui %{}
 }
 
 # plug "lePerdu/kakboard" %{
