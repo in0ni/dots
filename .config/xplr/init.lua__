@@ -39,7 +39,6 @@ key.R = {
 
 -- ideally these would be replaced by handle_node
 key.e = xplr.config.modes.builtin.action.key_bindings.on_key.e
-key.o = xplr.config.modes.builtin.go_to.key_bindings.on_key.x
 
 key["enter"] = {
   help = "Open/Enter",
@@ -54,7 +53,13 @@ xplr.fn.custom.handle_node = function(app)
   if node.is_dir or (node.is_symlink and node.symlink.is_dir) then
     return {"Enter"}
   else
-    xplr.util.shell_execute("xdg-open", {app.focused_node.absolute_path})
+    return {
+      {
+        BashExecSilently0 = [===[
+          xdg-open "${XPLR_FOCUS_PATH:?}"
+        ]===],
+      }
+    }
   end 
 end
 
