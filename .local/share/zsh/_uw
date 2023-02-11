@@ -1,4 +1,4 @@
-#compdef koppa
+#compdef uw
 
 _uw() {
   local state line
@@ -14,28 +14,25 @@ _uw() {
       local commands
       commands=(
         'uli:get lando url and copy to clipboard'
-        'new-branch:create a new branch from dev (new tickets)'
-        'clone-branch:clone existing branch (UATs or testing)'
-        'rm-branch:delete branch and docker images for ticket'
-        'debug:enable debug (for my local install)'
+        'dev-update:update latest dev branch (UW2-dev directory)'
+        'new:create a new branch from latest local dev db (new tickets)'
+        'clone:clone an existing branch (UATs or testing)'
+        'rm:destroy lando, and remove local branch'
+        'debug:enable debug, which requires a "lando rebuild -y"'
       )
       _describe -t commands 'command' commands
       ;;
     args)
       case ${line[1]} in
-        ls | mk)
+        rm)
           local -a keys
-          koppa ls \
+          uw ls \
             | while read k; do
-              keys+=($k)
+              keys+=("$k")
             done
           _describe -t arguments 'argument' keys
           ;;
-        mv)
-          _files
-          ;;
       esac
-
       ;;
   esac
 
