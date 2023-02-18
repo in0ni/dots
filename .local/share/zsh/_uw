@@ -13,11 +13,12 @@ _uw() {
     cmds)
       local commands
       commands=(
-        'uli:get lando url and copy to clipboard'
-        'dev-update:update latest dev branch (UW2-dev directory)'
         'new:create a new branch from latest local dev db (new tickets)'
         'clone:clone an existing branch (UATs or testing)'
+        'uli:get lando url and copy to clipboard'
         'rm:destroy lando, and remove local branch'
+        'site-install:install a new site'
+        'dev-update:update latest dev branch (UW2-dev directory)'
         'debug:enable debug, which requires a "lando rebuild -y"'
       )
       _describe -t commands 'command' commands
@@ -26,7 +27,15 @@ _uw() {
       case ${line[1]} in
         rm)
           local -a keys
-          uw ls \
+          uw ls tickets \
+            | while read k; do
+              keys+=("$k")
+            done
+          _describe -t arguments 'argument' keys
+          ;;
+        site-install)
+          local -a keys
+          uw ls sites \
             | while read k; do
               keys+=("$k")
             done
