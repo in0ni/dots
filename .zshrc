@@ -15,7 +15,7 @@ export EXA_COLORS
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
 # http://www.unicode-symbol.com/u/E0B0.html 
-PROMPT='%K{232}%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{232}%F{8}%?|%f%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -35,6 +35,8 @@ alias ll='ls -l'
 alias lt='ls --tree'
 alias rm='trash-put'
 alias vi='vim'
+alias hx='helix'
+alias renamer='renamer *'
 alias less=$PAGER
 alias diff='diff --color=auto'
 alias ip='ip -color=auto'
@@ -45,7 +47,7 @@ alias sudo="sudo -E"
 alias ssh="kitty +kitten ssh"
 # NOTE: this won't work in kakoune shell, see ~/.local/bin/dots
 # alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias conf='sudo /usr/bin/git --git-dir=/.conffiles/ --work-tree=/'
+alias conf='/usr/bin/git --git-dir=/.conffiles/ --work-tree=/'
 
 #
 # zsh
@@ -80,19 +82,19 @@ zstyle ':completion:*:killall:*'   force-list  always
 bindkey -e
 # typeset -g -A key
 
-bindkey '^[[3~'    delete-char                      # delete
 bindkey '^?'       backward-delete-char             # backspace
-bindkey '^[[5~'    up-line-or-history               # pgup
 bindkey '^[[3~'    delete-char                      # delete
-bindkey '^[[6~'    down-line-or-history             # pgdown
-bindkey '^[[A'     up-line-or-beginning-search      # up
-bindkey '^[[B'     down-line-or-beginning-search    # down
+
+bindkey '^K'       up-line-or-history               # pgup
+bindkey '^J'       down-line-or-history             # pgdown
+# bindkey '^[[A'     up-line-or-beginning-search      # up
+# bindkey '^[[B'     down-line-or-beginning-search    # down
 bindkey '^[[D'     backward-char                    # left
 bindkey '^[[C'     forward-char                     # right
 bindkey '^[[H'     beginning-of-line                # home
 bindkey '^[[F'     end-of-line                      # end
-bindkey '^[[1;5D'  backward-word
-bindkey '^[[1;5C'  forward-word
+bindkey '^H'       backward-word
+bindkey '^L'       forward-word
 bindkey '^[[Z'     reverse-menu-complete
 
 ### Titles
@@ -140,3 +142,5 @@ base16_view_colors() {
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
 
+# Load Angular CLI autocompletion.
+source <(ng completion script)
