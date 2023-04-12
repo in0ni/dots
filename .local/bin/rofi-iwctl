@@ -110,7 +110,7 @@ list_available_networks() {
       if (length(active))
         printf "\\0info\x1fdisconnect\n"
       else
-        printf "\\0info\x1fconnect:%s:%s\n", gsub(" ","\\ ", ssid), security
+        printf "\\0info\x1fconnect:%s:%s\n", gsub(" ","\\", ssid), security
   }')
   echo -en "$output"
 }
@@ -256,6 +256,7 @@ if [[ $ROFI_RETV == 1 ]]; then
       data=(${ROFI_INFO//:/ })
       ssid="${data[1]}"
       security="${data[2]}"
+      echo "$ssid & $security" > /tmp/debug
       if is_known_network "$ssid" || [ "$security" = "open" ]; then
         set_message "Unable to connect to $ssid..."
         cmd=$(iwctl station $iwctl_station connect "$ssid")
