@@ -25,6 +25,28 @@ local function setup()
   -- plain-text
   ext["txt"] = { style = { fg = "Gray" } }
 
+  -- markup
+  exts = {
+    "adoc",
+    "asciidoc",
+    "etx",
+    "info",
+    "markdown",
+    "md",
+    "mkd",
+    "nfo",
+    "pod",
+    "rst",
+    "tex",
+    "textile",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      style = { fg = "Yellow" },
+    }
+  end
+
+
   -- key-value, non-relational data
   exts = {
     "bib",
@@ -144,6 +166,34 @@ local function setup()
   ext.csv.meta.icon = ""
   ext.csv.style.sub_modifiers = { "Italic" }
 
+  -- configs
+  exts = {
+    "ini",
+    "plist",
+    "viminfo",
+    "pcf",
+    "psf",
+    "hidden-color-scheme",
+    "hidden-tmTheme",
+    "last-run",
+    "merged-ca-bundle",
+    "sublime-build",
+    "sublime-commands",
+    "sublime-keymap",
+    "sublime-settings",
+    "sublime-snippet",
+    "sublime-project",
+    "sublime-workspace",
+    "tmTheme",
+    "user-ca-bundle",
+    "epf",
+  }
+  for x = 1, #(exts) do
+    ext[exts[x]] = {
+      style = { fg = "White", add_modifiers = { "Bold" } },
+    }
+  end
+
   -- -- binary
   -- exts = {
   -- }
@@ -152,6 +202,25 @@ local function setup()
   --     style = { fg = "Cyan", add_modifiers = { "Bold" } },
   --   }
   -- end
+
+  -- -- binary
+  -- exts = {
+  -- }
+  -- for x = 1, #(exts) do
+  --   ext[exts[x]] = {
+  --     style = { fg = "Cyan", add_modifiers = { "Bold" } },
+  --   }
+  -- end
+
+  -- -- binary
+  -- exts = {
+  -- }
+  -- for x = 1, #(exts) do
+  --   ext[exts[x]] = {
+  --     style = { fg = "Cyan", add_modifiers = { "Bold" } },
+  --   }
+  -- end
+
 
 end
 

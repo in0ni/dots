@@ -5,7 +5,7 @@ local home = os.getenv("HOME")
 package.path = os.getenv("XDG_CONFIG_HOME") .. "/xplr/?/init.lua"
 require('files').setup()
 
-xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
+xplr.config.general.focus_ui.style.fg = { Rgb = {231, 97, 11} }
 
 -- key bindings
 key = xplr.config.modes.builtin.default.key_bindings.on_key
