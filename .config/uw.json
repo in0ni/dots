@@ -5,14 +5,14 @@
       { "composer-require": ["uw_oaj"] },
       { "split-import": ["uw_member"] },
       { "split-enable": ["site_oaj"] },
-      { "drush-cr": "" },
-      { "drush-cim": "-y" }
+      { "drush-cr": [] },
+      { "drush-cim": ["-y"] }
     ],
     "iseek": [
       { "composer-require": ["iseek", "iseek_theme"] },
       { "split-enable": ["uw_group", "site_iseek"] },
-      { "drush-cr": "" },
-      { "drush-cim": "-y" }
+      { "drush-cr": [] },
+      { "drush-cim": ["-y"] }
     ]
   }
 }
