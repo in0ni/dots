@@ -28,21 +28,28 @@ today=$(date --iso)
 cfg_path=$XDG_CONFIG_HOME/zync
 cfg_paths_json=$cfg_path/paths.json
 cfg_home_backup_excl=$cfg_path/home_backup.excl
-cfg_home_restore_incl=$cfg_path/home_restore.incl
+# cfg_home_restore_incl=$cfg_path/home_restore.incl
 cfg_sys_backup_incl=$cfg_path/sys_backup.incl
 cfg_music_incl=$cfg_path/music_sync.incl
+
+get_conf() {
+  echo "$(eval echo $(cat $cfg_paths_json | jq -r $1))"
+}
 
 # NOTE: read eval isn't ideal, not clear why but it's easy so using it now.
 # TODO: find better approach, instead of eval, for var expansion in cfg strings
 path_log=/tmp/zync-$today.log
-path_usb_os=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_os'))
-path_music=$(eval echo $(cat $cfg_paths_json | jq -r '.music'))
-path_android_internal=$(eval echo $(cat $cfg_paths_json | jq -r '.android_internal'))
-path_usb_home=$(eval echo $(cat $cfg_paths_json | jq -r '.usb_home'))
-path_crypt_home_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_home_part'))
-path_crypt_usb_part=$(eval echo $(cat $cfg_paths_json | jq -r '.crypt_usb_part'))
+path_usb_home=$(get_conf ".usb_home")
+path_usb_os=$(get_conf ".usb_os")
+path_music=$(get_conf ".local_music")
+path_aosp_rsync_uri=$(get_conf ".aosp_rsync.uri")
+path_aosp_rsync_port=$(get_conf ".aosp_rsync.port")
+path_aosp_rsync_module=$(get_conf ".aosp_rsync.module")
+path_aosp_rsync_path=$(get_conf ".aosp_rsync.path")
+path_crypt_home_part=$(get_conf ".crypt_home_part")
+path_crypt_usb_part=$(get_conf ".crypt_usb_part")
 
-gpg_recipient=$(eval echo $(cat $cfg_paths_json | jq -r '.gpg_recipient'))
+# gpg_recipient=$(eval echo "$(cat $cfg_paths_json | jq -r '.gpg_recipient')")
 
 # output strings
 z="~zync~"
@@ -51,15 +58,15 @@ info="$z (info)"
 
 manage_service() {
   echo "$info $1 service is about to $2..."
-  sudo systemctl $2 $1.service
+  sudo systemctl "$2" "$1".service
 }
 
 db_backup() {
   # check if service is already running, store exit code
-  systemctl is-active --quiet $1.service
+  systemctl is-active --quiet "$1".service
   is_active=$?
   # if service is not active, start it for backup
-  [[ $is_active -ne 0 ]] && manage_service $1 start
+  [[ $is_active -ne 0 ]] && manage_service "$1" start
 
   # back up db
   # TODO: catch errors -- below I had "-- gzip 2>>", which should print error
@@ -67,15 +74,15 @@ db_backup() {
   if [[ $1 == "mariadb" ]]; then
     echo "$info $1 backup with mysqldump..."
     sudo mysqldump -u root -p="" --all-databases \
-      | gzip > "$path_usb_os/$1-$today.sql.gz" 2>> $path_log
+      | gzip > "$path_usb_os/$1-$today.sql.gz" 2>> "$path_log"
   elif [[ $1 == "mongodb" ]]; then
     echo "$info $1 backup with mongodump..."
     # TODO: ensure only error is logging
-    mongodump --archive="$path_usb_os/$1-$today.gz" --gzip 2>> $path_log
+    mongodump --archive="$path_usb_os/$1-$today.gz" --gzip 2>> "$path_log"
   fi
 
   # if service was not active, stop it to keep it as it was
-  [[ $is_active -ne 0 ]] && manage_service $1 stop
+  [[ $is_active -ne 0 ]] && manage_service "$1" stop
 }
 
 os_backup() {
@@ -88,11 +95,11 @@ os_backup() {
 
   # NOTE: unlike rsync, lines starting w/ '#' or ';' are not ignored
   # /d in regex deletes
-  sed -E "/^(#.*)?$/d" $cfg_sys_backup_incl > $path_tmp_os_includes
+  sed -E "/^(#.*)?$/d" "$cfg_sys_backup_incl" > $path_tmp_os_includes
 
   # TODO: reconsider use of sudo, perhaps files that are only readable by root
   # should not be backed up... nothing major really as backups are encrypted
-  sudo tar cvzf $path_usb_os"/arch-$today.tgz" --files-from $path_tmp_os_includes 2>> $path_log
+  sudo tar cvzf "$path_usb_os/arch-$today.tgz" --files-from $path_tmp_os_includes 2>> "$path_log"
 
   rm $path_tmp_os_includes
 }
@@ -143,6 +150,32 @@ crypt_backup() {
   done
 }
 
+adb_rsync_start() {
+  RSYNCPORT=873
+
+  echo "Waiting for device"
+  adb wait-for-device
+  adb root
+  adb wait-for-device
+  adb shell "umask 077 && test ! -d /storage/emulated/0/rsyncd && mkdir -p /storage/emulated/0/rsyncd"
+  adb shell "umask 077 && printf 'address = 127.0.0.1\npid file = /mnt/secure/rsyncd.pid\nuid = root\ngid = root\n[root_all]\npath = /\nhosts allow = 127.0.0.1\nread only = false\n' > /mnt/secure/rsyncd.conf"
+  adb shell -t -t "umask 077 && rsync --daemon --no-detach --log-file=/storage/emulated/0/rsyncd/rsyncd.log --config=/mnt/secure/rsyncd.conf" &
+
+  # give rsync daemon time to start
+  sleep 2
+
+  adb forward tcp:"$path_aosp_rsync_port" tcp:$RSYNCPORT
+}
+
+adb_rsync_end() {
+  # kill rsyncd
+  adb shell "test -f /mnt/secure/rsyncd.pid && kill $(cat /mnt/secure/rsyncd.pid)"
+
+  # remove temporary files
+  adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid
+  # adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid /mnt/secure/rsyncd.secrets
+}
+
 music_sync() {
   # reserved characters in fat32
   # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
@@ -184,14 +217,19 @@ music_sync() {
     done
   fi
 
+  adb_rsync_start
+
   echo "$info synchronizing music..."
   # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
   # here -O should remove timestamp errors
   # rsync -rlDuvsO --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
-  rsync -rltDszv --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
+  remote_path="$path_aosp_rsync_uri:$path_aosp_rsync_port/$path_aosp_rsync_module$path_aosp_rsync_path"
+  rsync -rltDszv --modify-window=1 --stats --files-from="$cfg_music_incl" "$path_music/" "$remote_path" 2>> $path_log
   echo "$info synchronizing music done."
   # maybe --8 is required?
   # rsync -aruv -8 --modify-window=1 --stats --files-from=$cfg_music_incl $path_music $remote_music
+
+  adb_rsync_end
 }
 
 home_backup() {
@@ -261,7 +299,7 @@ case "$1" in
       [[ $2 == "--clean-dest" ]] && home_backup clean || home_backup
     fi
     ;;
-  musicsync)
+  music)
     music_sync
     ;;
   *)

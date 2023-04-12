@@ -1,8 +1,13 @@
 {
   "usb_os": "/run/media/$USER/n0s/backups/os",
   "usb_home": "/run/media/$USER/n0s/backups/home",
-  "music": "/home/$USER/Music",
-  "android_internal": "rsync://localhost:8873/root/storage/emulated/0/Music",
+  "local_music": "/home/$USER/Music",
+  "aosp_rsync": {
+    "uri": "rsync://backup@localhost",
+    "port": "5000",
+    "module": "root_all",
+    "path": "/storage/emulated/0/Music"
+  },
   "crypt_home_part": "/dev/nvme0n1p3",
   "crypt_usb_part": "/dev/sda1",
   "gpg_recipient": "4DFDEC3DB76AA0DBA1F3046D5FF8F1ABEC0DE51A"
