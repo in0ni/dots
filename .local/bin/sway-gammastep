@@ -4,7 +4,7 @@
 INACTIVE=inactive
 FS=": "
 
-status=$(systemctl --user is-active gammastep.service)
+status=$(systemctl --user is-active wlsunset.service)
 modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g')
 
 period=$(echo "$modeline" | awk -F "$FS" '
@@ -18,15 +18,15 @@ period=$(echo "$modeline" | awk -F "$FS" '
 ')
 
 # TODO: need update module (use signal?)
-toggle_service () {
+toggle_service() {
   if [[ "$status" == "$INACTIVE" ]]; then
-    systemctl --user start gammastep.service
+    systemctl --user start wlsunset.service
   else
-    systemctl --user stop gammastep.service
+    systemctl --user stop wlsunset.service
   fi
 }
 
-status_waybar () {
+status_waybar() {
   tooltip=$(echo "$modeline" | awk -F "$FS" '
     /^Location/{
       printf " %s   ", $2
@@ -40,22 +40,27 @@ status_waybar () {
 
   case $period in
     Daytime)
-      percentage="0";;
+      percentage="0"
+      ;;
     "Transition Day")
-      percentage="34";;
+      percentage="34"
+      ;;
     "Transition Night")
-      percentage="67";;
+      percentage="67"
+      ;;
     Night)
-      percentage="100";;
+      percentage="100"
+      ;;
     *)
       echo "Unable to parse gammastep period to percentage"
-      exit 1;;
+      exit 1
+      ;;
   esac
 
   echo "{\"percentage\":$percentage,\"tooltip\":\"$tooltip\",\"class\":\"$status\"}"
 }
 
-colorscheme_kak () {
+colorscheme_kak() {
   if [[ "$period" =~ Night$ ]]; then
     variant="dark"
   else
@@ -67,15 +72,19 @@ colorscheme_kak () {
 
 case "$1" in
   toggle)
-    toggle_service;;
+    toggle_service
+    ;;
   waybar)
-    status_waybar;;
+    status_waybar
+    ;;
   kak)
-    colorscheme_kak;;
+    colorscheme_kak
+    ;;
   *)
     echo -e "Usage: $(basename $0) {toogle|waybar|kak}\n"
     echo -e "toggle\t\t print systemd service"
     echo -e "waybar\t\t print waybar json data"
     echo -e "kak\t\t theme variant"
-    exit 1;;
+    exit 1
+    ;;
 esac
