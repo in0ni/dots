@@ -12,6 +12,7 @@ set $Super Mod4
 set $Alt Mod1
 set $output_laptop 'eDP-1'
 set $output_hdmi 'HDMI-A-1'
+set $office_monitor 'Samsung Electric Company C24F390 HCPW300066'
 
 ### Default Applications
 #
@@ -29,6 +30,16 @@ include keybindings.conf
 #
 # 
 output $output_laptop subpixel rgb
+output $office_monitor subpixel rgb 
+
+workspace 1 output $output_hdmi $output_laptop
+workspace 2 output $output_hdmi $output_laptop
+workspace 3 output $output_hdmi $output_laptop
+workspace 4 output $output_laptop $output_hdmi
+workspace 5 output $output_hdmi $output_laptop
+workspace 6 output $output_laptop $output_hdmi
+workspace 7 output $output_laptop $output_hdmi
+workspace 8 output $output_laptop $output_hdmi
 
 # NOTE: clamshell mode note required, done in hw
 
