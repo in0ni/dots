@@ -6,13 +6,14 @@
       { "split-import": ["uw_member"] },
       { "split-enable": ["site_oaj"] },
       { "drush-cr": [] },
-      { "drush-cim": ["-y"] }
+      { "drush-cim": [] }
     ],
     "iseek": [
       { "composer-require": ["iseek", "iseek_theme"] },
       { "split-enable": ["uw_group", "site_iseek"] },
       { "drush-cr": [] },
-      { "drush-cim": ["-y"] }
+      { "drush-cim": [] },
+      { "setup-theme": ["iseek_theme"] }
     ]
   }
 }
