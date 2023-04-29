@@ -6,8 +6,8 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/swayidle -w \
-         timeout 90 'swaymsg "output eDP-1 dpms off"' \
-             resume 'swaymsg "output eDP-1 dpms on"' \
+         timeout 90 'sleep 1 && hyprctl dispatch dpms off' \
+             resume 'sleep 1 && hyprctl dispatch dpms on' \
        before-sleep 'swaylock'
 
 [Install]

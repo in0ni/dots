@@ -23,7 +23,7 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * blocks
  */
-#mode,
+#submap,
 #clock,
 #window,
 #tray {
@@ -47,7 +47,7 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 #workspaces > *,
-#mode,
+#submap,
 #window,
 #custom-tomate,
 #custom-x1profile,
@@ -103,7 +103,7 @@ button.urgent {
 /*
  * modes
  */
-#mode {
+#submap{
   font-weight: bold;
   background-color: #%{{gruv_light_bg_0}};
   color: #%{{theme_dark_0}};
