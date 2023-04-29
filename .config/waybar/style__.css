@@ -62,7 +62,7 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 
-#workspaces button.focused,
+#workspaces button.active,
 #cpu,
 #memory,
 #clock,
@@ -90,7 +90,7 @@ label:disabled,
 button:disabled {
   color: #%{{gruv_light_bg_1}};
 }
-button.focused {
+button.active {
   color: #%{{theme_highlight}};
   border-top: 1px solid #%{{theme_highlight}};
   opacity: 1;

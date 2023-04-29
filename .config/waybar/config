@@ -1,6 +1,6 @@
 {
   "layer": "top",
-  "modules-left": ["sway/workspaces", "sway/mode", "sway/window"],
+  "modules-left": ["wlr/workspaces", "hyprland/submap", "hyprland/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [
     "custom/x1profile",
@@ -14,10 +14,7 @@
     "pulseaudio",
     "tray"
   ],
-  "sway/workspaces": {
-    "disable-scroll": true,
-    "all-outputs": true,
-    "interval": 30,
+  "wlr/workspaces": {
     "format": "{icon}",
     "format-icons": {
       "1": "", // network-wired
@@ -29,7 +26,9 @@
       "7": "", // chat
       "8": "", // cogs
       "urgent": "" // exclamation
-    }
+    },
+    "sort-by-number": true,
+    "on-click": "activate"
   },
   "idle_inhibitor": {
     "format": "{icon}",
@@ -38,11 +37,12 @@
       "deactivated": ""
     }
   },
-  "sway/window": {
+  "hyprland/window": {
     "format": "{}",
+    "separate-outputs": true,
     "max-length": 40
   },
-  "sway/mode": {
+  "hyperland/submap": {
     "format": "{}"
   },
   "tray": {

@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/bin/thunar --daemon
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=wm-session.target

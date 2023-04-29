@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-icon= 
+icon=
 title=Session
 
 if [[ $ROFI_RETV == 1 ]]; then
@@ -16,8 +16,8 @@ if [[ $ROFI_RETV == 1 ]]; then
       systemctl reboot
       ;;
     "logout_confirm")
-      swaymsg exit
-      systemctl --user stop sway-session.target
+      hyprctl dispatch exit
+      systemctl --user stop wm-session.target
       ;;
   esac
 

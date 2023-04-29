@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/lib/xfce-polkit/xfce-polkit
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=wm-session.target

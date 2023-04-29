@@ -30,21 +30,31 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 
 ### Aliases
 #
-alias ls='exa -gF --git --group-directories-first'
+# this section is mostly from: https://github.com/maximbaz/dotfiles/blob/master/.zsh-aliases
+command -v dfrs      &> /dev/null    && alias df='dfrs'
+command -v trash-put &> /dev/null    && alias rm='trash-put'
+command -v dua       &> /dev/null    && alias du='dua'
+command -v dua       &> /dev/null    && alias dui='dua interactive'
+command -v fd        &> /dev/null    && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
+command -v rg        &> /dev/null    && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
+command -v exa       &> /dev/null    && alias ls='exa -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
+command -v exa       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
+command -v exa       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
+command -v exa       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
+
+alias o="xdg-open"
 alias ll='ls -l'
 alias lt='ls --tree'
-alias rm='trash-put'
 alias vi='vim'
 alias hx='helix'
-alias renamer='renamer *'
-alias less=$PAGER
-alias diff='diff --color=auto'
 alias ip='ip -color=auto'
+alias renamer='renamer *'
+alias diff='diff --color=auto'
 alias grep='grep --color=auto'
+alias less=$PAGER
 alias ishrink='convert -resize 1200 -quality 90'
-alias o="xdg-open"
-alias sudo="sudo -E"
-alias ssh="kitty +kitten ssh"
+alias sudo='sudo -E '
+alias ssh='kitty +kitten ssh'
 # NOTE: this won't work in kakoune shell, see ~/.local/bin/dots
 # alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias conf='/usr/bin/git --git-dir=/.conffiles/ --work-tree=/'

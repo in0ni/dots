@@ -11,4 +11,4 @@ ExecStart=/usr/bin/swayidle -w \
        before-sleep 'swaylock'
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=wm-session.target
