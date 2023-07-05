@@ -9,5 +9,5 @@ if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
   # enable logging and journalctl
   systemd-cat -t hyprland Hyprland
   systemctl --user stop sway-session.target
-  systemctl --user unset-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+  systemctl --user unset-environment WAYLAND_DISPLAY SWAYSOCK
 fi
