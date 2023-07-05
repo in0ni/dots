@@ -45,9 +45,12 @@ plug "andreyorst/fzf.kak" %{
 } demand fzf %{
   set-option global fzf_terminal_command 'kitty-terminal-overlay kak -c %val{session} -e "%arg{@}"'
   set-option global fzf_highlight_command 'bat'
-} demand fzf-file %{
+} defer fzf-file %{
   set-option global fzf_file_command 'rg --files --hidden'
+} defer fzf-grep %{
+  set-option global fzf_grep_command 'rg'
 }
+
 
 plug "andreyorst/tagbar.kak" %{
   # if you have wrap highlighter enamled in you configuration

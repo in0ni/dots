@@ -26,6 +26,11 @@ map global format f ':format-buffer<ret>' -docstring 'format buffer'
 map global format s ':format-selections<ret>' -docstring 'format selections'
 map global user m ':enter-user-mode format<ret>' -docstring 'format mode'
 
+# uw (drupal) usermode
+declare-user-mode uw
+map global uw c ":lando-cr<ret>" -docstring 'drush cr'
+map global user u ":enter-user-mode uw<ret>" -docstring "UW (Drupal)"
+
 # <tab> for both indenting and completions
 # see: https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
 hook global InsertCompletionShow .* %{
@@ -58,6 +63,12 @@ hook global BufCreate .*\.vue %{
 hook global BufCreate .*\.svelte %{
   map buffer normal '#' ': eval -itersel %{ set-comments-svelte; comment-line; }<ret>'
   map buffer normal '<a-#>' ': eval -itersel %{ set-comments-svelte; comment-block; }<ret>'
+}
+
+define-command lando-cr %{
+  evaluate-commands %sh {
+    echo "lando drush cr"
+  }
 }
 
 define-command set-comments -params 3 %{
