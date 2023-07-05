@@ -1,0 +1,74 @@
+theme="noctis"
+
+[editor]
+bufferline="multiple"
+color-modes=true
+line-number="relative"
+idle-timeout=50
+cursorline=true
+
+[editor.statusline]
+left = ["mode", "spinner", "version-control", "file-name", "file-modification-indicator"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-type", "total-line-numbers"]
+
+[editor.lsp]
+display-messages=true 
+
+[editor.file-picker]
+# git-ignore=false
+
+[editor.cursor-shape]
+insert="bar"
+select="underline"
+
+[editor.indent-guides]
+render = true
+character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
+skip-levels = 1
+
+[editor.soft-wrap]
+enable = true
+
+[keys.normal]
+# navigate manage windows
+"A-h" = "jump_view_left"
+"A-j" = "jump_view_down"
+"A-k" = "jump_view_up"
+"A-l" = "jump_view_right"
+"A-q" = "wclose" # close selected
+"A-Q" = "wonly" # close all but selected
+"A-v" = "vsplit"
+"A-b" = "hsplit"
+
+# prev/next/close buffer
+"A-minus" = "goto_previous_buffer"
+"A-=" = "goto_next_buffer"
+"A-w" = ":bc"
+
+[keys.insert]
+# navigate manage windows
+"A-h" = "jump_view_left"
+"A-j" = "jump_view_down"
+"A-k" = "jump_view_up"
+"A-l" = "jump_view_right"
+"A-q" = "wclose" # close selected
+"A-Q" = "wonly" # close all but selected
+
+# prev/next/close buffer
+"A-minus" = "goto_previous_buffer"
+"A-=" = "goto_next_buffer"
+"A-w" = ":bc"
+
+[keys.select]
+# navigate manage windows
+"A-h" = "jump_view_left"
+"A-j" = "jump_view_down"
+"A-k" = "jump_view_up"
+"A-l" = "jump_view_right"
+"A-q" = "wclose" # close selected
+"A-Q" = "wonly" # close all but selected
+
+# prev/next/close buffer
+"A-minus" = "goto_previous_buffer"
+"A-=" = "goto_next_buffer"
+"A-w" = ":bc"
