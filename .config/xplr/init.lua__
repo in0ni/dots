@@ -56,7 +56,7 @@ xplr.fn.custom.handle_node = function(app)
     return {
       {
         BashExecSilently0 = [===[
-          xdg-open "${XPLR_FOCUS_PATH:?}"
+          xdg-open "${XPLR_FOCUS_PATH:?}" &
         ]===],
       }
     }
