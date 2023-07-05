@@ -1,9 +1,22 @@
 {
   "git_repos_dir": "$HOME/Work/un/repos",
   "sites": {
+    "un3": [
+      { "composer-require": ["uw_un", "un3_theme"] },
+      { "split-enable": ["uw_group", "site_un"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] },
+      { "setup-theme": ["un3_theme"] }
+    ],
+    "calendar": [
+      { "composer-require": ["uw_calendar", "calendar_theme"] },
+      { "split-enable": ["site_calendar"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] },
+      { "setup-theme": ["calendar_theme"] }
+    ],
     "oaj": [
       { "composer-require": ["uw_oaj"] },
-      { "split-import": ["uw_member"] },
       { "split-enable": ["site_oaj"] },
       { "drush-cr": [] },
       { "drush-cim": [] }
@@ -14,6 +27,31 @@
       { "drush-cr": [] },
       { "drush-cim": [] },
       { "setup-theme": ["iseek_theme"] }
+    ],
+    "unsalb": [
+      { "composer-require": ["unsalb"] },
+      { "split-enable": ["site_unsalb"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] }
+    ],
+    "acabq": [
+      { "composer-require": ["uw_acabq"] },
+      { "split-enable": ["site_acabq"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] }
+    ],
+    "policy": [
+      { "composer-require": ["uw_policy"] },
+      { "split-enable": ["site_policy"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] }
+    ],
+    "speech": [
+      { "composer-require": ["uw_speech_repository", "speech_repository_theme"] },
+      { "split-enable": ["site_speech_repository"] },
+      { "drush-cr": [] },
+      { "drush-cim": [] },
+      { "setup-theme": ["speech_repository_theme"] }
     ]
   }
 }
