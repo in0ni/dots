@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 host=$(hostnamectl --static)
-if $host = 'x1'; then
+if [ "$host" = "x1" ]; then
   case $1 in
     toggle-profile) ;;
 
-    \
-      get-profile)
+    get-profile)
       profile=$(cat /sys/firmware/acpi/platform_profile)
       percentage=0
 

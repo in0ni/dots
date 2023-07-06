@@ -1,7 +1,7 @@
 #!/bin/bash
 
 host=$(hostnamectl --static)
-if $host = 'x1'; then
+if [ "$host" = "x1" ]; then
   timer=/tmp/tomate
   pomodoro=1500
   time_set=$(cat $timer 2> /dev/null)
