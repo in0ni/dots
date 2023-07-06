@@ -3,9 +3,9 @@
   "modules-left": ["wlr/workspaces", "hyprland/submap", "hyprland/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [
+    "custom/tomate",
     "custom/x1profile",
     "idle_inhibitor",
-    "custom/tomate",
     "cpu",
     "memory",
     "disk",
@@ -26,7 +26,7 @@
       "6": "",
       "7": "",
       "8": "",
-      "urgent": "" // exclamation
+      "urgent": ""
     },
     "sort-by-number": true,
     "on-click": "activate"
@@ -94,9 +94,9 @@
       "low": 20,
       "critical": 5
     },
-    "format": "{capacity}% {icon}",
-    "format-charging": "{capacity}% ",
-    "format-plugged": "{capacity}% ",
+    "format": "{capacity}⁺ {icon}",
+    "format-charging": "{capacity}⁺ ",
+    "format-plugged": "{capacity}⁺ ",
     "format-alt": "{time} {icon}",
     // "format-good": "", // An empty format will hide the module
     // "format-full": "",

@@ -49,8 +49,6 @@ window#waybar.empty #window { background-color: transparent; }
 #workspaces > *,
 #submap,
 #window,
-#custom-tomate,
-#custom-x1profile,
 #clock,
 #cpu,
 #memory,
@@ -62,6 +60,11 @@ window#waybar.empty #window { background-color: transparent; }
   padding: 0.35em 0.75em;
 }
 
+#custom-tomate,
+#idle_inhibitor,
+#custom-x1profile {
+  padding: 0.35em 0.5em;
+}
 
 #workspaces button.active,
 #cpu,
