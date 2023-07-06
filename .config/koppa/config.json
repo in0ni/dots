@@ -17,10 +17,6 @@
     "path": "$HOME/.config/kitty"
   },
   {
-    "id": "kak",
-    "path": "$HOME/.config/kak"
-  },
-  {
     "id": "mpv",
     "path": "$HOME/.config/mpv"
   },
@@ -53,10 +49,6 @@
   {
     "id": "xplr",
     "path": "$HOME/.config/xplr"
-  },
-  {
-    "id": "zim",
-    "path": "$HOME/.config/zim"
   },
   {
     "id": "vimiv",
