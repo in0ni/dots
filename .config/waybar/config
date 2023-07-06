@@ -18,14 +18,14 @@
   "wlr/workspaces": {
     "format": "{icon}",
     "format-icons": {
-      "1": "", // network-wired
-      "2": "", // terminal
-      "3": "", // code
-      "4": "", // music
-      "5": "", // palette
-      "6": "", // sticky-note
-      "7": "", // chat
-      "8": "", // cogs
+      "1": "",
+      "2": "",
+      "3": "",
+      "4": "",
+      "5": "", // network-wired
+      "6": "", // terminal
+      "7": "", // code
+      "8": "", // music
       "urgent": "" // exclamation
     },
     "sort-by-number": true,
@@ -62,16 +62,16 @@
     "states": {
       "critical": 90
     },
-    "format": "{usage}% ", // brain
+    "format": "{usage}⁺ ", // brain
     "tooltip": false
   },
   "memory": {
     "interval": 10,
-    "format": "{}% " // microchip
+    "format": "{}⁺ " // microchip
   },
   "disk": {
     "interval": 10,
-    "format": "{percentage_free}% ", // microchip
+    "format": "{percentage_free}⁻ ", // microchip
     "path": "/",
     "states": {
       "critical": 96
@@ -83,7 +83,7 @@
     "interval": 5,
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C {icon}",
-    "format": "{temperatureC}°C {icon}",
+    "format": "{temperatureC}° {icon}",
     "format-icons": [""]
   },
   "battery": {

@@ -1,43 +1,46 @@
 #!/bin/bash
 
-timer=/tmp/tomate
-pomodoro=1500
-time_set=$(cat $timer 2> /dev/null)
+host=$(hostnamectl --static)
+if $host = 'x1'; then
+  timer=/tmp/tomate
+  pomodoro=1500
+  time_set=$(cat $timer 2> /dev/null)
 
-start() {
-  date +"%s" > $timer
-}
+  start() {
+    date +"%s" > $timer
+  }
 
-stop() {
-  echo "" > $timer
-}
+  stop() {
+    echo "" > $timer
+  }
 
-case $1 in
-  toggle)
-    if [[ $time_set = "" ]]; then
-      start
-    else
-      stop
-    fi
-    ;;
-  start)
-    start
-    ;;
-
-  get-time)
-    if [[ $time_set = "" ]]; then
-      echo "{\"text\": \"00\"}"
-    else
-      seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
-      echo "{\"text\": \"$(date -d @$seconds_passed +"%M")\",\"tooltip\": \"$(date -d @$seconds_passed +"%M:%S")\"}"
-      if [[ $seconds_passed -gt $pomodoro ]]; then
-        notify-send "🍅 Tomate" "      Time is up, take a break!" -u critical
+  case $1 in
+    toggle)
+      if [[ $time_set = "" ]]; then
+        start
+      else
+        stop
       fi
-    fi
-    ;;
+      ;;
+    start)
+      start
+      ;;
 
-  stop)
-    stop
-    ;;
+    get-time)
+      if [[ $time_set = "" ]]; then
+        echo "{\"text\": \"00\"}"
+      else
+        seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
+        echo "{\"text\": \"$(date -d @$seconds_passed +"%M")\",\"tooltip\": \"$(date -d @$seconds_passed +"%M:%S")\"}"
+        if [[ $seconds_passed -gt $pomodoro ]]; then
+          notify-send "🍅 Tomate" "      Time is up, take a break!" -u critical
+        fi
+      fi
+      ;;
 
-esac
+    stop)
+      stop
+      ;;
+
+  esac
+fi
