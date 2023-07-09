@@ -1,7 +1,7 @@
 ignore-empty-password
 show-failed-attempts
 daemonize
-image=/home/in0ni/Pictures/bgs/current
+image=~/Pictures/bgs/current
 
 clock
 indicator

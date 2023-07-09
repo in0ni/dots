@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/swaybg -o * -i /home/in0ni/Pictures/bgs/current -m fill
+ExecStart=/usr/bin/swaybg -o * -i %h/Pictures/bgs/current -m fill
 
 [Install]
 WantedBy=wm-session.target
