@@ -30,7 +30,7 @@ timezone=America/Cancun
 remote_repo_name=paks
 remote_repo_url=https://xi0ix.xyz/paks
 remote_repo_key_url=https://xi0ix.xyz/paks/paks.asc
-remote_repo_key_id=https://xi0ix.xyz/paks/paks.asc
+remote_repo_key_id=gonzalez.af
 
 export SNAP_PAC_SKIP=y
 
@@ -100,6 +100,10 @@ password=$(get_password "User" "Enter password") || exit 1
 clear
 : ${password:?"password cannot be empty"}
 
+passphrase=$(get_password "Luks" "Enter password") || exit 1
+clear
+: ${password:?"password cannot be empty"}
+
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
 read -r -a devicelist <<< $devicelist
 
@@ -122,8 +126,8 @@ part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
 
 echo -e "\n### Formatting partitions"
 mkfs.vfat -n "EFI" -F 32 "${part_boot}"
-echo -n ${password} | cryptsetup luksFormat "${part_root}"
-echo -n ${password} | cryptsetup open "${part_root}" root
+echo -n ${passphrase} | cryptsetup luksFormat "${part_root}"
+echo -n ${passphrase} | cryptsetup open "${part_root}" root
 mkfs.btrfs -L btrfs /dev/mapper/root
 
 echo -e "\n### Setting up BTRFS subvolumes"
@@ -131,6 +135,8 @@ mount /dev/mapper/root /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@pkgs
+btrfs subvolume create /mnt/@aurbuild
+btrfs subvolume create /mnt/@archbuild
 btrfs subvolume create /mnt/@docker
 btrfs subvolume create /mnt/@logs
 btrfs subvolume create /mnt/@temp
@@ -139,7 +145,7 @@ btrfs subvolume create /mnt/@snapshots
 umount /mnt
 
 mount -o noatime,nodiratime,compress=zstd,subvol=@ /dev/mapper/root /mnt
-mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp,lib/{docker}},swap,.snapshots}
+mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp,lib/{aurbuild,archbild,docker}},swap,.snapshots}
 mount "${part_boot}" /mnt/efi
 mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/root /mnt/mnt/btrfs-root
 mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/root /mnt/home
@@ -196,7 +202,6 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole block sd-encrypt
 EOF
 
 arch-chroot /mnt mkinitcpio -p linux
-arch-chroot /mnt systemd-cryptenroll "${device}" --wipe-slot=empty --tpm2-device=auto
 arch-chroot /mnt arch-secure-boot initial-setup
 
 echo -e "\n### Configuring swap file"
@@ -216,19 +221,9 @@ arch-chroot /mnt passwd -dl root
 echo -e "\n### Setting permissions on the custom repo"
 arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
-# if [ "${user}" = "maximbaz" ]; then
-# echo -e "\n### Cloning dotfiles"
-# arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/maximbaz/dotfiles.git ~/.dotfiles'
-
-# echo -e "\n### Running initial setup"
-# arch-chroot /mnt /home/$user/.dotfiles/setup-system.sh
-# arch-chroot /mnt sudo -u $user /home/$user/.dotfiles/setup-user.sh
-# arch-chroot /mnt sudo -u $user zsh -ic true
-
-# echo -e "\n### DONE - reboot and re-run both ~/.dotfiles/setup-*.sh scripts"
-# else
-# echo -e "\n### DONE - read POST_INSTALL.md for tips on configuring your setup"
-# fi
+echo -e "\n### Unmounting, enrolling encryption for auto-unlock"
+umount -R /mnt
+cryptsetup close /dev/mapper/root
+systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
 
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
-umount -R /mnt
