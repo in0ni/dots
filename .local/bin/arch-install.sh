@@ -100,10 +100,6 @@ password=$(get_password "User" "Enter password") || exit 1
 clear
 : ${password:?"password cannot be empty"}
 
-passphrase=$(get_password "Luks" "Enter password") || exit 1
-clear
-: ${password:?"password cannot be empty"}
-
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
 read -r -a devicelist <<< $devicelist
 
@@ -126,8 +122,9 @@ part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
 
 echo -e "\n### Formatting partitions"
 mkfs.vfat -n "EFI" -F 32 "${part_boot}"
-echo -n ${passphrase} | cryptsetup luksFormat "${part_root}"
-echo -n ${passphrase} | cryptsetup open "${part_root}" root
+echo -n "${password}" | cryptsetup luksFormat "${part_root}"
+echo -n "${password}" | systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
+echo -n "${password}" | cryptsetup open "${part_root}" root
 mkfs.btrfs -L btrfs /dev/mapper/root
 
 echo -e "\n### Setting up BTRFS subvolumes"
@@ -186,8 +183,9 @@ pacstrap -i /mnt paks-base paks-core
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
 
-blkuuid=$(lsblk -pn -o uuid "${device}")
-echo "rd.luks.name=${blkuuid}=root rd.luks.options=${blkuuid}=tpm2-device=auto,discard root=LABEL=btrfs rw rootflags=subvol=@ quiet mem_sleep_default=deep" > /mnt/etc/kernel/cmdline
+echo -e "\n### Setup auto-mount of encrypted drive"
+rootuuid=$(lsblk -pn -o uuid "${part_root}")
+echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard root=LABEL=btrfs_root rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" > /mnt/etc/kernel/cmdline
 
 echo "FONT=$font" > /mnt/etc/vconsole.conf
 genfstab -L /mnt >> /mnt/etc/fstab
@@ -221,9 +219,20 @@ arch-chroot /mnt passwd -dl root
 echo -e "\n### Setting permissions on the custom repo"
 arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
+echo -e "\n### Basic system settings & services"
+echo "%wheel ALL=(ALL:ALL) ALL" > /mnt/etc/sudoers.d/override
+arch-chroot /mnt sysctl --system > /dev/null
+
+arch-chroot /mnt systemctl daemon-reload
+arch-chroot /mnt systemctl enable iwd.service
+arch-chroot /mnt systemctl enable dhcpcd.service
+arch-chroot /mnt systemctl enable nftables.service
+arch-chroot /mnt systemctl enable firewalld.service
+arch-chroot /mnt systemctl enable reflector.timer
+arch-chroot /mnt systemctl enable systemd-resolved.service
+
 echo -e "\n### Unmounting, enrolling encryption for auto-unlock"
 umount -R /mnt
 cryptsetup close /dev/mapper/root
-systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
 
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
