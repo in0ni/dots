@@ -1,4 +1,0 @@
-#!/bin/bash
-
-col --no-backspaces --spaces |
-    kak -e "set buffer filetype man; $*"
