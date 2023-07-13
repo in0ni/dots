@@ -22,7 +22,16 @@ publish: ## Publish the meta-package in the local repo
 	for type in base core desktop media-center hw-ettal; do \
 		pkg=paks-$$type-*.pkg.tar.zst; \
 		gpg --detach-sign --yes $$pkg; \
-		repo-add -s /var/cache/pacman/paks/paks-local.db.tar $$pkg; \
+		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
+		cp $$pkg* /var/cache/pacman/paks/; \
+	done
+
+.PHONY: aurs
+aurs: ## Publish the meta-package in the local repo
+	for pkg in aurs/*.zst; do \
+		echo $$pkg; \
+		# gpg --detach-sign --yes $$pkg; \
+		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
 		cp $$pkg* /var/cache/pacman/paks/; \
 	done
 
