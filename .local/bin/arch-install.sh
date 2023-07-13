@@ -32,6 +32,9 @@ remote_repo_url=https://xi0ix.xyz/paks
 remote_repo_key_url=https://xi0ix.xyz/paks/paks.asc
 remote_repo_key_id=gonzalez.af
 
+label_root=btrfs_root
+label_efi=EFI
+
 export SNAP_PAC_SKIP=y
 
 # Dialog
@@ -118,14 +121,16 @@ sgdisk --clear "${device}" --new 1::-551MiB "${device}" --new 2::0 --typecode 2:
 sgdisk --change-name=1:root --change-name=2:ESP "${device}"
 
 part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
-part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
+part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
+
+echo -e "\n### Setup LUKS, and enroll in TPM"
+echo -n "${password}" | cryptsetup luksFormat "${part_root}"
+systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
+echo -n "${password}" | cryptsetup open "${part_root}" root
 
 echo -e "\n### Formatting partitions"
-mkfs.vfat -n "EFI" -F 32 "${part_boot}"
-echo -n "${password}" | cryptsetup luksFormat "${part_root}"
-echo -n "${password}" | systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
-echo -n "${password}" | cryptsetup open "${part_root}" root
-mkfs.btrfs -L btrfs /dev/mapper/root
+mkfs.vfat -n "$label_efi" -F 32 "$part_efi"
+mkfs.btrfs -L "$label_root" /dev/mapper/root
 
 echo -e "\n### Setting up BTRFS subvolumes"
 mount /dev/mapper/root /mnt
@@ -143,7 +148,7 @@ umount /mnt
 
 mount -o noatime,nodiratime,compress=zstd,subvol=@ /dev/mapper/root /mnt
 mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp,lib/{aurbuild,archbild,docker}},swap,.snapshots}
-mount "${part_boot}" /mnt/efi
+mount "${part_efi}" /mnt/efi
 mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/root /mnt/mnt/btrfs-root
 mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/root /mnt/home
 mount -o noatime,nodiratime,compress=zstd,subvol=@pkgs /dev/mapper/root /mnt/var/cache/pacman
@@ -157,21 +162,11 @@ echo -e "\n### Configuring local & custom repo"
 mkdir "/mnt/var/cache/pacman/${user}-local"
 repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
 
-if ! grep "${user}" /etc/pacman.conf > /dev/null; then
-  cat >> /etc/pacman.conf << EOF
-[${user}-local]
-Server = file:///mnt/var/cache/pacman/${user}-local
-
+echo -e "\n### Adding custom repo & key"
+cat >> /etc/pacman.conf << EOF
 [${remote_repo_name}]
 Server = ${remote_repo_url}
-
-[options]
-CacheDir = /mnt/var/cache/pacman/pkg
-CacheDir = /mnt/var/cache/pacman/${user}-local
 EOF
-fi
-
-echo -e "\n### Adding custom repo key & trusting"
 wget -q $remote_repo_key_url -O- | pacman-key --add -
 pacman-key --finger $remote_repo_key_id
 pacman-key --lsign $remote_repo_key_id
@@ -183,14 +178,15 @@ pacstrap -i /mnt paks-base paks-core
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
 
-echo -e "\n### Setup auto-mount of encrypted drive"
-rootuuid=$(lsblk -pn -o uuid "${part_root}")
-echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard root=LABEL=btrfs_root rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" > /mnt/etc/kernel/cmdline
+rootuuid=$(lsblk -pdn -o uuid "${part_root}")
+echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard root=LABEL=${label_root} rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" > /mnt/etc/kernel/cmdline
 
 echo "FONT=$font" > /mnt/etc/vconsole.conf
 genfstab -L /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
+echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 ln -sf /usr/share/zoneinfo/"${timezone}" /mnt/etc/localtime
+arch-chroot /mnt hwclock --systohc
 arch-chroot /mnt locale-gen
 cat << EOF > /mnt/etc/mkinitcpio.conf
 MODULES=()
@@ -221,15 +217,15 @@ arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
 echo -e "\n### Basic system settings & services"
 echo "%wheel ALL=(ALL:ALL) ALL" > /mnt/etc/sudoers.d/override
-arch-chroot /mnt sysctl --system > /dev/null
 
-arch-chroot /mnt systemctl daemon-reload
-arch-chroot /mnt systemctl enable iwd.service
-arch-chroot /mnt systemctl enable dhcpcd.service
-arch-chroot /mnt systemctl enable nftables.service
-arch-chroot /mnt systemctl enable firewalld.service
-arch-chroot /mnt systemctl enable reflector.timer
-arch-chroot /mnt systemctl enable systemd-resolved.service
+# arch-chroot /mnt sysctl --system > /dev/null
+# arch-chroot /mnt systemctl daemon-reload
+# arch-chroot /mnt systemctl enable iwd.service
+# arch-chroot /mnt systemctl enable dhcpcd.service
+# arch-chroot /mnt systemctl enable nftables.service
+# arch-chroot /mnt systemctl enable firewalld.service
+# arch-chroot /mnt systemctl enable reflector.timer
+# arch-chroot /mnt systemctl enable systemd-resolved.service
 
 echo -e "\n### Unmounting, enrolling encryption for auto-unlock"
 umount -R /mnt

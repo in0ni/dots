@@ -26,7 +26,7 @@ if [[ $ROFI_RETV == 1 ]]; then
       exit 0
       ;;
     "logout_confirm")
-      swaymsg exit
+      hyprctl dispatch exit
       systemctl --user stop sway-session.target
       exit 0
       ;;

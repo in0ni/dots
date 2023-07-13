@@ -22,7 +22,7 @@ key.R = {
   messages = {
     {
       BashExec = [===[
-       renamer
+       renamer -e helix
        "$XPLR" -m ExplorePwdAsync
      ]===],
      --  BashExec = [===[
