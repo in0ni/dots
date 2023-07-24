@@ -36,6 +36,7 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 #
 # this section is mostly from: https://github.com/maximbaz/dotfiles/blob/master/.zsh-aliases
 command -v dfrs      &> /dev/null    && alias df='dfrs'
+command -v batman    &> /dev/null    && alias man='batman'
 command -v trash-put &> /dev/null    && alias rm='trash-put'
 command -v dua       &> /dev/null    && alias du='dua'
 command -v xplr      &> /dev/null    && alias cdx='cd "$(xplr --print-pwd-as-result)"'
