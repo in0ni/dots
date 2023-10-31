@@ -15,7 +15,7 @@ right = ["diagnostics", "selections", "position", "file-encoding", "file-type", 
 display-messages=true 
 
 [editor.file-picker]
-# git-ignore=false
+git-ignore=false
 
 [editor.cursor-shape]
 insert="bar"

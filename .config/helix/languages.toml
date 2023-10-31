@@ -1,31 +1,16 @@
-[language-server]
 #
-# efm-langserver (linters)
+# efm-langserver (custom linters for diagnostics)
 #
 [language-server.efm-langserver]
 command = "efm-langserver"
 
+# currently just for php & phpcbf
 [language-server.efm-langserver.config]
 documentFormatting = true
 
 [language-server.efm-langserver.config.languages]
 
-[[language-server.efm-langserver.config.languages.scss]]
-lintCommand = "npx --no-install stylelint --formatter unix --stdin-filename=${INPUT}"
-lintStdin = true
-lintFormats = [
-  "%f:%l:%c: %m [%trror]",
-  "%f:%l:%c: %m [%tarning]",
-]
-
-[[language-server.efm-langserver.config.languages.less]]
-lintCommand = "npx --no-install stylelint --formatter unix --stdin-filename=${INPUT}"
-lintStdin = true
-lintFormats = [
-  "%f:%l:%c: %m [%trror]",
-  "%f:%l:%c: %m [%tarning]",
-]
-
+# stylelint
 [[language-server.efm-langserver.config.languages.css]]
 lintCommand = "npx --no-install stylelint --formatter unix --stdin-filename=${INPUT}"
 lintStdin = true
@@ -34,6 +19,26 @@ lintFormats = [
   "%f:%l:%c: %m [%tarning]",
 ]
 
+# stylelint
+[[language-server.efm-langserver.config.languages.scss]]
+lintCommand = "npx --no-install stylelint --formatter unix --stdin-filename=${INPUT}"
+lintStdin = true
+lintFormats = [
+  "%f:%l:%c: %m [%trror]",
+  "%f:%l:%c: %m [%tarning]",
+]
+
+# stylelint
+# [[language-server.efm-langserver.config.languages.less]]
+# lintCommand = "npx --no-install stylelint --formatter unix --stdin-filename=${INPUT}"
+# lintStdin = true
+# lintFormats = [
+#   "%f:%l:%c: %m [%trror]",
+#   "%f:%l:%c: %m [%tarning]",
+# ]
+
+
+# eslint
 [[language-server.efm-langserver.config.languages.javascript]]
 lintCommand = "npx --no-install eslint --format visualstudio --stdin --stdin-filename ${INPUT}"
 lintStdin = true
@@ -42,11 +47,17 @@ lintFormats = [
   "%f(%l,%c): %tarning %m",
 ]
 
+# TWIG
 # [[language-server.efm-langserver.config.languages.twig]]
 # lintCommand = "twigcs -r emacs ${INPUT}"
 # lintStdin = true
 
+# phpcs/phpcbf
 [[language-server.efm-langserver.config.languages.php]]
+# issues using helix default "format" command
+formatCommand = "phpcbf --stdin-path=${INPUT} -q - || true"
+formatStdin = true
+
 lintCommand = "phpcs --report=\"emacs\" --stdin-path=${INPUT} -"
 lintStdin = true
 lintFormats = [
@@ -54,13 +65,10 @@ lintFormats = [
   "%f:%l:%c: %tarning - %m"
 ]
 
+# shellcheck
 [[language-server.efm-langserver.config.languages.bash]]
 lintCommand = "shellcheck -x -fgcc -Cnever"
 lintStdin = true
-
-# [[language-server.efm-langserver.config.languages.python]]
-# lintCommand = "flake8 --"
-# lintStdin = true
 
 
 #
@@ -71,38 +79,6 @@ args = ["--stdio"]
 command="emmet-ls"
 
 #
-# Other (defined by default)
-#
-[language-server.typescript-language-server]
-args = ["--stdio"]
-command = "typescript-language-server"
-config = { provideFormatter = false }
-
-[language-server.vscode-css-language-server]
-args = ["--stdio"]
-command = "vscode-css-language-server"
-config = { provideFormatter = false }
-
-[language-server.intelephense]
-args = ["--stdio"]
-command = "intelephense"
-config = { provideFormatter = false }
-
-[language-server.bash-language-server]
-args = ["start"]
-command = "bash-language-server"
-config = { provideFormatter = false }
-
-[language-server.pylsp]
-command = "pylsp"
-config = { provideFormatter = false }
-
-[language-server.svelteserver]
-args = ["--stdio"]
-command = "svelteserver"
-config = { provideFormatter = false }
-
-#
 # Language configuration
 #
 [[language]]
@@ -110,8 +86,9 @@ name="javascript"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "typescript"] }
 language-servers = [
-  { name = "typescript-language-server", except-features=["format"] },
-  { name="efm-langserver", except-features = ["format"] },
+  { name = "typescript-language-server", except-features = ["format"] },
+  # eslint
+  { name = "efm-langserver", only-features = ["diagnostics"] },
 ]
 
 [[language]]
@@ -120,8 +97,9 @@ auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "css"] }
 language-servers = [
   { name = "vscode-css-language-server", except-features=["format"] },
-  { name="efm-langserver", except-features = ["format"] },
-  { name = "emmet-ls" }
+  # stylelint
+  { name = "efm-langserver", only-features = ["diagnostics"] },
+  { name = "emmet-ls", only-features = ["completion"] },
 ]
 
 [[language]]
@@ -130,23 +108,9 @@ auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "scss"] }
 language-servers = [
   { name = "vscode-css-language-server", except-features=["format"] },
-  { name="efm-langserver", except-features = ["format"] },
-  { name = "emmet-ls" }
-]
-
-[[language]]
-name="less"
-auto-format=true
-scope = "source.scss"
-injection-regex = "scss"
-file-types = ["less"]
-roots = []
-indent = { tab-width = 2, unit = "  " }
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "less"] }
-language-servers = [
-  { name = "vscode-css-language-server", except-features=["format"] },
-  { name="efm-langserver", except-features = ["format"] },
-  { name = "emmet-ls" }
+  # stylelint
+  { name = "efm-langserver", only-features = ["diagnostics"] },
+  { name = "emmet-ls", only-features = ["completion"] },
 ]
 
 [[language]]
@@ -155,7 +119,7 @@ auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "html"] }
 language-servers = [
   { name = "vscode-html-language-server", except-features = ["format"] },
-  { name = "emmet-ls" }
+  { name = "emmet-ls", only-features = ["completion"] },
 ]
 
 [[language]]
@@ -163,8 +127,8 @@ name="twig"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "melody"] }
 language-servers = [
-  { name = "efm-langserver", except-features = ["format"] },
-  { name = "emmet-ls" }
+  # { name = "efm-langserver", only-features = ["diagnostics"] },
+  { name = "emmet-ls", only-features = ["completion"] },
 ]
 
 [[language]]
@@ -175,21 +139,24 @@ formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-file
 [[language]]
 name="svelte"
 auto-format=true
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "svelte"] }
 language-servers = [
   { name = "svelteserver", except-features=["format"] },
-  { name = "emmet-ls" }
+  { name = "emmet-ls", only-features = ["completion"] },
 ]
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "svelte"] }
 
 [[language]]
 name="php"
-auto-format=false
+auto-format=true
+# add drupal types
 file-types = ["php", "inc", "theme", "module", "profile"]
 indent = { tab-width = 2, unit = "  " }
-formatter = { command = "phpcbf", args = ["-"] }
+# issues using helix default "format" command
+# formatter = { command = "phpcbf", args = ["-qv", "--stdin-path=${INPUT}", "-", "||", "true"] }
 language-servers = [
  { name = "intelephense", except-features = ["format"] },
- { name = "efm-langserver", except-features = ["format"] },
+ # phpcs & phpcbf
+ { name = "efm-langserver", only-features = ["diagnostics", "format"] },
 ]
 
 [[language]]
@@ -198,7 +165,7 @@ auto-format=true
 formatter = { command = "black", args = ["-"] }
 language-servers = [
  { name = "pylsp", except-features = ["format"] },
- { name = "efm-langserver", except-features = ["format"] },
+ { name = "efm-langserver", only-features = ["diagnostics"] },
 ]
 
 [[language]]
@@ -207,7 +174,7 @@ auto-format = true
 formatter = { command = "shfmt", args = ["-i", "2", "-ci", "-bn", "-sr"] }
 language-servers = [
   { name="bash-language-server", except-features = ["format"] },
-  { name="efm-langserver", except-features = ["format"] },
+  { name="efm-langserver", only-features = ["diagnostics"] },
 ]
 
 [[language]]
