@@ -1,6 +1,6 @@
 {
   "layer": "top",
-  "modules-left": ["wlr/workspaces", "hyprland/submap", "hyprland/window"],
+  "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
   "modules-center": ["custom/updates", "clock", "custom/gammastep"],
   "modules-right": [
     "custom/tomate",
@@ -15,7 +15,7 @@
     "pulseaudio",
     "tray"
   ],
-  "wlr/workspaces": {
+  "hyprland/workspaces": {
     "format": "{icon}",
     "format-icons": {
       "1": "",

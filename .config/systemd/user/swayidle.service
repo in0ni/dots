@@ -6,9 +6,9 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/swayidle -w \
-        timeout 180 'sleep 1 && hyprctl dispatch dpms off' \
-             resume 'sleep 1 && hyprctl dispatch dpms on' \
-       before-sleep 'swaylock'
+        timeout 300 'hyprctl dispatch dpms off' \
+             resume 'hyprctl dispatch dpms on' \
+       before-sleep 'swaylock -f'
 
 [Install]
 WantedBy=wm-session.target
