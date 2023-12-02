@@ -55,7 +55,7 @@ lintFormats = [
 # phpcs/phpcbf
 [[language-server.efm-langserver.config.languages.php]]
 # issues using helix default "format" command
-formatCommand = "phpcbf --stdin-path=${INPUT} -q - || true"
+formatCommand = "phpcbf -q --stdin-path=${INPUT} - || true"
 formatStdin = true
 
 lintCommand = "phpcs --report=\"emacs\" --stdin-path=${INPUT} -"
