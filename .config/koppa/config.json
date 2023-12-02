@@ -29,10 +29,6 @@
     "path": "$HOME/.config/swappy"
   },
   {
-    "id": "sway",
-    "path": "$HOME/.config/sway"
-  },
-  {
     "id": "swaylock",
     "path": "$HOME/.config/swaylock"
   },

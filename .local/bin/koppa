@@ -63,8 +63,9 @@ build_zap() {
   done
 
   # support for restarting services
-  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemctl | join(" ")'); then
-    args=("$systemd")
+  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemctl'); then
+    args_string=$(echo "$systemd" | jq -r '. | join (" ")')
+    args=("$args_string")
     # shellcheck disable=2068
     systemctl ${args[@]}
     echo "$name [service]: systemctl ${args[*]}"
