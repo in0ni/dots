@@ -1,3 +1,6 @@
+# Basic path addition, environment.d may add
+PATH=$HOME/.local/bin:$PATH
+
 # LOCALE
 LANG=en_US.UTF-8
 LANGUAGE=en_US
