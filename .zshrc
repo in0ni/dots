@@ -1,3 +1,19 @@
+# LOCALE
+LANG=en_US.UTF-8
+LANGUAGE=en_US
+
+## XDG Base dirs
+XDG_CONFIG_HOME=$HOME/.config
+XDG_CACHE_HOME=$HOME/.cache
+XDG_DATA_HOME=$HOME/.local/share
+
+## Preferences
+EDITOR=helix
+VISUAL=$EDITOR
+SUDO_EDITOR=$EDITOR
+PAGER=less
+FZF_DEFAULT_OPTS='--layout=reverse'
+
 ### Pimpin' aint easy
 #
 # dircolors & exa
@@ -35,24 +51,35 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 ### Aliases
 #
 # this section is mostly from: https://github.com/maximbaz/dotfiles/blob/master/.zsh-aliases
+
+# disks
 command -v dfrs      &> /dev/null    && alias df='dfrs'
-command -v batman    &> /dev/null    && alias man='batman'
-command -v trash-put &> /dev/null    && alias rm='trash-put'
 command -v dua       &> /dev/null    && alias du='dua'
-command -v xplr      &> /dev/null    && alias cdx='cd "$(xplr --print-pwd-as-result)"'
 command -v dua       &> /dev/null    && alias dui='dua interactive'
+
+# search
 command -v fd        &> /dev/null    && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
 command -v rg        &> /dev/null    && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
+
+# ls
 command -v exa       &> /dev/null    && alias ls='exa -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
 command -v exa       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
 command -v exa       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
 command -v exa       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
 
+# editor
+command -v helix     &> /dev/null    && alias vi='helix'                                           || alias vi='vim'
+command -v helix     &> /dev/null    && alias hx='helix'
+
+# misc
+command -v batman    &> /dev/null    && alias man='batman'
+command -v trash-put &> /dev/null    && alias rm='trash-put'
+command -v gitui     &> /dev/null    && alias gu='gitui'
+# command -v xplr      &> /dev/null    && alias cdx='cd "$(xplr --print-pwd-as-result)"'
+
 alias o="xdg-open"
 alias ll='ls -l'
 alias lt='ls --tree'
-alias vi='vim'
-alias hx='helix'
 alias ip='ip -color=auto'
 alias renamer='renamer *'
 alias diff='diff --color=auto'
