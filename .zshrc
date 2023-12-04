@@ -33,7 +33,7 @@ source /usr/share/zsh/scripts/git-prompt.zsh
 # http://www.unicode-symbol.com/u/E0B0.html 
 ssh=""
 if [[ ${SSH_TTY} ]]; then
-  ssh="%F{yellow}{%m}%f "
+  ssh="%F{8}%n%f%F{yellow}@%m%f "
 fi
 PROMPT='%K{232}$ssh%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
@@ -88,7 +88,6 @@ alias less=$PAGER
 alias ishrink='convert -resize 1200 -quality 90'
 alias sudo='sudo -E '
 alias ssh='kitty +kitten ssh'
-# NOTE: this won't work in kakoune shell, see ~/.local/bin/dots
 alias dots='/usr/bin/git --git-dir=$HOME/.dots-home/ --work-tree=$HOME'
 alias conf='/usr/bin/git --git-dir=$HOME/.dots-root/ --work-tree=/'
 
