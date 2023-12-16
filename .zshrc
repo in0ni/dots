@@ -1,23 +1,3 @@
-# Basic path addition, environment.d may add
-PATH=$HOME/.local/bin:$PATH
-
-# LOCALE
-LANG=en_US.UTF-8
-LANGUAGE=en_US
-
-## XDG Base dirs
-XDG_CONFIG_HOME=$HOME/.config
-XDG_CACHE_HOME=$HOME/.cache
-XDG_DATA_HOME=$HOME/.local/share
-
-## Preferences
-EDITOR=helix
-VISUAL=$EDITOR
-SUDO_EDITOR=$EDITOR
-GIT_EDITOR=$EDITOR
-PAGER=less
-FZF_DEFAULT_OPTS='--layout=reverse'
-
 ### Pimpin' aint easy
 #
 # dircolors & exa
