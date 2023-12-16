@@ -1,10 +1,14 @@
 /* vim: ft=css */
 
 configuration {
-  font: "%{{font_sans}} %{{font_size}}px";
+  font: "%{{font_sans}}, %{{font_icon}} %{{font_size}}px";
   show-icons: false;
   terminal: "kitty";
   sort: false;
+
+  drun {
+    display-name: "  Run";
+  }
 }
 
 @theme "theme/default.rasi"
