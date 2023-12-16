@@ -22,7 +22,7 @@ case "$1" in
     fi
 
     # svr
-    if grep svr ~/.ssh/config; then
+    if grep svr ~/.ssh/config &> 2; then
       svr=$(ssh svr checkupdates)
       svr_count=$(echo "$svr" | awk NF | wc -l)
       svr_info=$(echo "$svr" | awk "$awk_escape_nl")
