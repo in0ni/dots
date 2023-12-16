@@ -15,14 +15,18 @@ case "$1" in
     pac_info=$(echo "$pac" | awk "$awk_escape_nl")
 
     # aur
-    aur=$(aur repo -d paks --list | aur vercmp)
-    aur_count=$(echo "$aur" | awk NF | wc -l)
-    aur_info=$(echo "$aur" | awk "$awk_escape_nl")
+    if aur repo -d paks &> 2; then
+      aur=$(aur repo -d paks --list | aur vercmp)
+      aur_count=$(echo "$aur" | awk NF | wc -l)
+      aur_info=$(echo "$aur" | awk "$awk_escape_nl")
+    fi
 
     # svr
-    svr=$(ssh svr checkupdates)
-    svr_count=$(echo "$svr" | awk NF | wc -l)
-    svr_info=$(echo "$svr" | awk "$awk_escape_nl")
+    if grep svr ~/.ssh/config; then
+      svr=$(ssh svr checkupdates)
+      svr_count=$(echo "$svr" | awk NF | wc -l)
+      svr_info=$(echo "$svr" | awk "$awk_escape_nl")
+    fi
 
     # set status icons & tooltip
     if ((svr_count == 0 && pac_count == 0 && aur_count == 0)); then
