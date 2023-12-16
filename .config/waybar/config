@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
-  "modules-center": ["custom/updates", "clock", "custom/gammastep"],
+  "modules-center": ["custom/updates_software", "custom/updates_firmware", "clock", "custom/gammastep"],
   "modules-right": [
     "custom/tomate",
     "custom/x1profile",
@@ -132,26 +132,46 @@
     },
     "on-click-right": "pavucontrol"
   },
-  "custom/updates": {
+  "custom/updates_software": {
     "signal": 1,
     "interval": 3600, // every hour
+    "format": "{icon}",
+    "format-icons": {
+      "uptodate": "",
+      "pac_only": "",
+      "pac_aur": "°",
+      "pac_aur_svr": "†°",
+      "pac_svr": "†",
+    },
     "return-type": "json",
-    "exec": "waybar-updates", // # of updates
-    "on-right-click": "waybar-updates; pkill -SIGRTMIN+1 waybar",
+    "exec": "waybar-updates software", // # of updates
+    "on-right-click": "pkill -RTMIN+1 waybar",
+    "exec-if": "exit 0" // always run; consider advanced run conditions
+  },
+  "custom/updates_firmware": {
+    "signal": 2,
+    "interval": 3600, // every hour
+    "format": "{icon}",
+    "format-icons": {
+      "uptodate": "",
+      "outdated": " ", // spacing here is easier
+    },
+    "return-type": "json",
+    "exec": "waybar-updates firmware", // # of updates
+    "on-right-click": "pkill -RTMIN+2 waybar",
     "exec-if": "exit 0" // always run; consider advanced run conditions
   },
   "custom/gammastep": {
-    "signal": 2,
+    "signal": 3,
     "format": "{icon}",
     "format-icons": ["", "", "", ""],
     "interval": 60,
     "exec": "sway-gammastep waybar",
     "exec-if": "exit 0",
     "return-type": "json",
-    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+2 waybar"
+    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+3 waybar"
   },
   "custom/tomate": {
-    "signal": 1,
     "interval": 1,
     "return-type": "json",
     "exec": "tomate get-time",

@@ -119,7 +119,8 @@ button.urgent {
 
 /* make slightly opaque */
 #custom-gammastep,
-#custom-updates,
+#custom-updates_firmware,
+#custom-updates_software,
 #idle_inhibitor,
 #network,
 #pulseaudio {
