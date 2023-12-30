@@ -20,7 +20,7 @@ separator_color = frame
 idle_threshold = 120
 
 ### Text ###
-font = %{{font_sans}} %{{font_size}}px
+font = %{{font_sans}} %{{font_size_xs}}
 markup = full
 format = "<b>%s</b>\n%b"
 show_age_threshold = 60
