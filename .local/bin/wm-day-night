@@ -1,11 +1,16 @@
 #!/bin/bash
 #
+# NOTE:
+# uses lat/long enviornment variable set here:
+#   ~/.config/environment.d/02-gps.conf
+# uses wlsunset as service (w/ env vars)
+# uses gammaset query tool (w/ en vars)
 
 INACTIVE=inactive
 FS=": "
 
 status=$(systemctl --user is-active wlsunset.service)
-modeline=$(gammastep -p 2>&1 | sed 's/Notice: //g')
+modeline=$(gammastep -l "$GPS_LAT":"$GPS_LON" -p 2>&1 | sed 's/Notice: //g')
 
 period=$(echo "$modeline" | awk -F "$FS" '
   /^Period: Transition/{
@@ -60,16 +65,6 @@ status_waybar() {
   echo "{\"percentage\":$percentage,\"tooltip\":\"$tooltip\",\"class\":\"$status\"}"
 }
 
-colorscheme_kak() {
-  if [[ "$period" =~ Night$ ]]; then
-    variant="dark"
-  else
-    variant="light"
-  fi
-
-  echo "gruv-$variant-hard"
-}
-
 case "$1" in
   toggle)
     toggle_service
@@ -77,14 +72,10 @@ case "$1" in
   waybar)
     status_waybar
     ;;
-  kak)
-    colorscheme_kak
-    ;;
   *)
-    echo -e "Usage: $(basename $0) {toogle|waybar|kak}\n"
+    echo -e "Usage: $(basename $0) {toogle|waybar}\n"
     echo -e "toggle\t\t print systemd service"
     echo -e "waybar\t\t print waybar json data"
-    echo -e "kak\t\t theme variant"
     exit 1
     ;;
 esac

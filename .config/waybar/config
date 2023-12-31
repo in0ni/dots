@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
-  "modules-center": ["custom/updates_software", "custom/updates_firmware", "clock", "custom/gammastep"],
+  "modules-center": ["custom/updates_software", "custom/updates_firmware", "clock", "custom/day_night"],
   "modules-right": [
     "custom/tomate",
     "custom/x1profile",
@@ -144,8 +144,8 @@
       "pac_svr": "†",
     },
     "return-type": "json",
-    "exec": "waybar-updates software", // # of updates
-    "on-right-click": "pkill -RTMIN+1 waybar",
+    "exec": "waybar-updates software",
+    "on-right-click": "pkill -SIGRTMIN+1 waybar",
     "exec-if": "exit 0" // always run; consider advanced run conditions
   },
   "custom/updates_firmware": {
@@ -158,18 +158,18 @@
     },
     "return-type": "json",
     "exec": "waybar-updates firmware", // # of updates
-    "on-right-click": "pkill -RTMIN+2 waybar",
+    "on-right-click": "pkill -SIGRTMIN+2 waybar",
     "exec-if": "exit 0" // always run; consider advanced run conditions
   },
-  "custom/gammastep": {
+  "custom/day_night": {
     "signal": 3,
     "format": "{icon}",
     "format-icons": ["", "", "", ""],
     "interval": 60,
-    "exec": "wm-gammastep waybar",
+    "exec": "wm-day-night waybar",
     "exec-if": "exit 0",
     "return-type": "json",
-    "on-click-right": "wm-gammastep toggle; pkill -SIGRTMIN+3 waybar"
+    "on-click-right": "wm-day-night toggle; pkill -SIGRTMIN+3 waybar"
   },
   "custom/tomate": {
     "interval": 1,

@@ -18,7 +18,7 @@
 #waybar.hidden { opacity: 0.2; }
 label:focus { background-color: #%{{theme_dark_0}}; }
 window#waybar.empty #window { background-color: transparent; }
-#custom-gammastep.inactive { opacity: 0.25; }
+#custom-day_night.inactive { opacity: 0.25; }
 
 /*
  * blocks
@@ -118,7 +118,7 @@ button.urgent {
  */
 
 /* make slightly opaque */
-#custom-gammastep,
+#custom-day_night,
 #custom-updates_firmware,
 #custom-updates_software,
 #idle_inhibitor,

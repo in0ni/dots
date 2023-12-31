@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 After=graphical-session.target
 
 [Service]
-ExecStart=/usr/bin/wlsunset -l 20.6 -L -87.0 -t 3200
+ExecStart=/usr/bin/wlsunset -l $GPS_LAT -L $GPS_LON -t 3200
 Restart=on-failure
 
 [Install]
