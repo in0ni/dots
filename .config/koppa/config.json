@@ -2,7 +2,7 @@
   {
     "id": "dunst",
     "path": "$HOME/.config/dunst",
-    "systemctl": ["--user", "restart", "dunst.service"]
+    "restart": ["killall", "dunst"]
   },
   {
     "id": "firefox",
@@ -35,12 +35,12 @@
   {
     "id": "waybar",
     "path": "$HOME/.config/waybar",
-    "systemctl": ["--user", "restart", "waybar.service"]
+    "restart": ["systemctl","--user", "restart", "waybar.service"]
   },
   {
     "id": "xsettingsd",
     "path": "$HOME/.xsettingsd",
-    "systemctl": ["--user", "restart", "xsettingsd.service"]
+    "restart": ["systemctl","--user", "restart", "xsettingsd.service"]
   },
   {
     "id": "xplr",

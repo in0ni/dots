@@ -62,13 +62,13 @@ build_zap() {
     echo "$name [file]: $zap -> ${zap/${koppa_id}/}"
   done
 
-  # support for restarting services
-  if systemd=$(echo "$zap_obj" | jq -e -r 'try .systemctl'); then
-    args_string=$(echo "$systemd" | jq -r '. | join (" ")')
+  # support for restarting a service/process
+  if cmds=$(echo "$zap_obj" | jq -e -r 'try .restart'); then
+    args_string=$(echo "$cmds" | jq -r '. | join (" ")')
     args=("$args_string")
     # shellcheck disable=2068
-    systemctl ${args[@]}
-    echo "$name [service]: systemctl ${args[*]}"
+    ${args[@]}
+    echo "$name [restart cmd]: ${args[*]}"
   fi
 }
 
