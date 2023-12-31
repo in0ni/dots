@@ -1,13 +1,13 @@
 {
   "git_repos_dir": "$HOME/Work/un/repos",
-  "sites": {
-    "acabq": "uw2/uw_acabq:dev-dev",
-    "calendar": "uw2/uw_calendar:dev-dev uw2/calendar_theme:dev-dev",
-    "iseek": "uw2/iseek:dev-dev uw2/iseek_theme:dev-dev uw2/uw_migration:dev-dev",
-    "oaj": "uw2/uw_oaj:dev-dev",
-    "policy": "uw2/uw_policy",
-    "speech_repository": "uw2/uw_speech_repository:dev-dev uw2/speech_repository_theme:dev-dev",
-    "un": "uw2/uw_un:dev-dev uw2/un3_theme:dev-dev",
-    "unsalb": "uw2/unsalb:dev-dev"
-  }
+  "sites": [
+    "acabq",
+    "calendar",
+    "iseek",
+    "oaj",
+    "policy",
+    "speech_repository",
+    "un3",
+    "unsalb"
+  ]
 }
