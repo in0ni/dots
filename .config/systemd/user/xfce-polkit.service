@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/lib/xfce-polkit/xfce-polkit
 
 [Install]
-WantedBy=wm-session.target
+WantedBy=graphical-session.target

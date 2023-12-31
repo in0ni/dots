@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/bin/swaybg -o * -i %h/Pictures/bgs/current -m fill
 
 [Install]
-WantedBy=wm-session.target
+WantedBy=graphical-session.target

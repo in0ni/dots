@@ -166,10 +166,10 @@
     "format": "{icon}",
     "format-icons": ["", "", "", ""],
     "interval": 60,
-    "exec": "sway-gammastep waybar",
+    "exec": "wm-gammastep waybar",
     "exec-if": "exit 0",
     "return-type": "json",
-    "on-click-right": "sway-gammastep toggle; pkill -SIGRTMIN+3 waybar"
+    "on-click-right": "wm-gammastep toggle; pkill -SIGRTMIN+3 waybar"
   },
   "custom/tomate": {
     "interval": 1,

@@ -8,4 +8,4 @@ Type=simple
 ExecStart=/usr/bin/thunar --daemon
 
 [Install]
-WantedBy=wm-session.target
+WantedBy=graphical-session.target
