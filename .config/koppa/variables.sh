@@ -15,7 +15,7 @@ font_mono="Fira Code"
 font_icon="Font Awesome 6 Free"
 font_size=15
 font_size_sm=12
-font_size_xs=10
+font_size_xs=9
 hintstyle=hintnone
 rgba=rgb
 
