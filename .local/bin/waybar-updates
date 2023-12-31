@@ -15,7 +15,7 @@ case "$1" in
     pac_info=$(echo "$pac" | awk "$awk_escape_nl")
 
     # aur
-    if aur repo -d paks > /dev/null; then
+    if aur repo -d paks &> /dev/null; then
       aur=$(aur repo -d paks --list | aur vercmp)
       aur_count=$(echo "$aur" | awk NF | wc -l)
       aur_info=$(echo "$aur" | awk "$awk_escape_nl")
