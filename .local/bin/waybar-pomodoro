@@ -28,7 +28,7 @@ if [ "$host" = "x1" ]; then
 
     get-time)
       if [[ $time_set = "" ]]; then
-        echo "{\"text\": \"00\"}"
+        echo "{\"text\": \"\",\"tooltip\": \"off\",\"class\":\"disabled\"}"
       else
         seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
         echo "{\"text\": \"$(date -d @$seconds_passed +"%M")\",\"tooltip\": \"$(date -d @$seconds_passed +"%M:%S")\"}"
