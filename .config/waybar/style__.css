@@ -15,37 +15,37 @@
   transition-duration: 0.5s;
 }
 
-#waybar.hidden { opacity: 0.2; }
-label:focus { background-color: #%{{theme_dark_0}}; }
+/* avoid background if no items */
 window#waybar.empty #window { background-color: transparent; }
-#custom-day_night.inactive { opacity: 0.25; }
 
-/*
- * blocks
- */
+/* make non-bg icons slightly opaque */
+#custom-updates_software,
+#custom-updates_firmware,
+#custom-day_night,
+#custom-pomodoro,
+#idle_inhibitor,
+#custom-x1profile,
+#network,
+#pulseaudio {
+  opacity: 0.85;
+}
+
+/* disabled/inactive */
+#idle_inhibitor.deactivated,
+#custom-pomodoro.disabled,
+#custom-x1profile.low-power,
+#waybar.hidden,
+#custom-day_night.inactive { opacity: 0.5; }
+
+/* Blocks w/ horizontal spacing */
+#workspaces,
 #submap,
 #clock,
-#window,
-#tray {
-  margin: 0 0.75em;
-}
-
-#workspaces {
-  margin-left: 0.5em;
-}
-
-#custom-x1profile.performance {
-  color: #%{{gruv_dark_orange}};
-}
-#custom-x1profile.low-power{
-  opacity: 0.5;
-}
-
-#clock,
 #window {
-  color: #%{{gruv_light_bg_0}};
+  margin: 0 0.5em;
 }
 
+/* Blocks w/ darker background */
 #workspaces > *,
 #submap,
 #window,
@@ -60,7 +60,16 @@ window#waybar.empty #window { background-color: transparent; }
   padding: 0.35em 0.75em;
 }
 
-#custom-tomate,
+#custom-x1profile.performance {
+  color: #%{{gruv_dark_orange}};
+}
+
+#clock,
+#window {
+  color: #%{{gruv_light_bg_0}};
+}
+
+#custom-pomodoro,
 #idle_inhibitor,
 #custom-x1profile {
   padding: 0.35em 0.5em;
@@ -80,25 +89,32 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * workspaces
  */
+#workspaces { margin-left: 0; }
+label:focus { background-color: #%{{theme_dark_0}}; }
+
+label:disabled,
+button:disabled {
+  color: #%{{gruv_light_bg_1}};
+}
+
 button {
   border-top: 1px solid transparent;
   color: #%{{gruv_light_bg_1}};
   opacity: 0.65;
 }
+
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
   background: rgba(%{{theme_dark_0_rgb}}, 0.35);
   box-shadow: inherit;
 }
-label:disabled,
-button:disabled {
-  color: #%{{gruv_light_bg_1}};
-}
+
 button.active {
   color: #%{{theme_highlight}};
   border-top: 1px solid #%{{theme_highlight}};
   opacity: 1;
 }
+
 button.urgent {
   color: #%{{theme_light_0}};
   background-color: #%{{b16_01_red}};
@@ -108,23 +124,10 @@ button.urgent {
  * modes
  */
 #submap{
+  margin-right: 0;
   font-weight: bold;
   background-color: #%{{gruv_light_bg_0}};
   color: #%{{theme_dark_0}};
-}
-
-/*
- * misc shit
- */
-
-/* make slightly opaque */
-#custom-day_night,
-#custom-updates_firmware,
-#custom-updates_software,
-#idle_inhibitor,
-#network,
-#pulseaudio {
-  opacity: 0.85;
 }
 
 /*
