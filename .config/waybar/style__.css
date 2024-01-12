@@ -72,7 +72,12 @@ window#waybar.empty #window { background-color: transparent; }
 #custom-pomodoro,
 #idle_inhibitor,
 #custom-x1profile {
-  padding: 0.35em 0.5em;
+  padding: 0.35em 0.25em;
+}
+
+/* in case of tray icons 🙄 - TODO: better selector, avoid padding on empty */
+#tray {
+  margin-right: 0.5em;
 }
 
 #workspaces button.active,

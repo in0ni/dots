@@ -3,8 +3,6 @@
 host=$(hostnamectl --static)
 if [ "$host" = "x1" ]; then
   case $1 in
-    toggle-profile) ;;
-
     get-profile)
       profile=$(cat /sys/firmware/acpi/platform_profile)
       percentage=0
@@ -17,7 +15,7 @@ if [ "$host" = "x1" ]; then
         fi
       fi
 
-      echo "{\"tooltip\": \"$profile\", \"class\": \"$profile\", \"percentage\": $percentage}"
+      printf '{"tooltip": "%s", "class": "%s", "percentage": "%s"}' $profile $profile $percentage
       ;;
 
   esac

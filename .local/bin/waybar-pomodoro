@@ -1,46 +1,49 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-host=$(hostnamectl --static)
-if [ "$host" = "x1" ]; then
-  timer=/tmp/tomate
-  pomodoro=1500
-  time_set=$(cat $timer 2> /dev/null)
+xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-pomodoro"
 
-  start() {
-    date +"%s" > $timer
-  }
+# time in seconds (25m)
+pomodoro=1500
+time_set=$(cat $xdg_cache 2> /dev/null)
 
-  stop() {
-    echo "" > $timer
-  }
+start() {
+  date +"%s" > $xdg_cache
+}
 
-  case $1 in
-    toggle)
-      if [[ $time_set = "" ]]; then
-        start
-      else
-        stop
-      fi
-      ;;
-    start)
+stop() {
+  echo "" > $xdg_cache
+}
+
+case $1 in
+  toggle)
+    if [[ $time_set = "" ]]; then
       start
-      ;;
-
-    get-time)
-      if [[ $time_set = "" ]]; then
-        echo "{\"text\": \"\",\"tooltip\": \"off\",\"class\":\"disabled\"}"
-      else
-        seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
-        echo "{\"text\": \"$(date -d @$seconds_passed +"%M")\",\"tooltip\": \"$(date -d @$seconds_passed +"%M:%S")\"}"
-        if [[ $seconds_passed -gt $pomodoro ]]; then
-          notify-send "🍅 Tomate" "      Time is up, take a break!" -u critical
-        fi
-      fi
-      ;;
-
-    stop)
+    else
       stop
-      ;;
+    fi
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  get-time)
+    if [[ $time_set = "" ]]; then
+      printf '{"text": "", "tooltip": "off", "class": "disabled"}'
+    else
+      seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
+      mins=$(date -d @"$seconds_passed" +"%M")
+      mins_secs=$(date -d @"$seconds_passed" +"%M:%S")
+      printf '{"text": "%s", "tooltip": "%s"}' "$mins" "$mins_secs"
 
-  esac
-fi
+      if [[ $seconds_passed -gt $pomodoro ]]; then
+        notify-send "🍅 Tomate" "Time is up, take a break!" -u critical
+      fi
+    fi
+    ;;
+  *)
+    echo >&2 "Usage: $0 <toggle|start|get-time>"
+    exit 1
+    ;;
+esac

@@ -134,31 +134,36 @@
   },
   "custom/updates_software": {
     "signal": 1,
-    "interval": 3600, // every hour
+    "interval": 60, 
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
-      "pac_only": "",
+      "error": "",
+      "pac": "",
       "pac_aur": "°",
-      "pac_aur_svr": "†°",
       "pac_svr": "†",
+      "pac_aur_svr": "†°",
+      "nopac_aur": " °",
+      "nopac_svr": "†",
+      "nopac_aur_svr": "† °",
     },
     "return-type": "json",
-    "exec": "waybar-updates software",
-    "on-right-click": "pkill -SIGRTMIN+1 waybar",
-    "exec-if": "exit 0" // always run; consider advanced run conditions
+    "exec-if": "exit 0",
+    "exec": "waybar-updates display software",
+    "on-click-right": "waybar-updates refresh software; pkill -RTMIN+1 waybar"
   },
   "custom/updates_firmware": {
     "signal": 2,
-    "interval": 3600, // every hour
+    "interval": 60, 
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
+      "error": "?",
       "outdated": " ", // spacing here is easier
     },
     "return-type": "json",
-    "exec": "waybar-updates firmware", // # of updates
-    "on-right-click": "pkill -SIGRTMIN+2 waybar",
+    "exec": "waybar-updates display firmware; pkill -RTMIN+2 waybar", // # of updates
+    "on-click-right": "waybar-updates refresh firmware",
     "exec-if": "exit 0" // always run; consider advanced run conditions
   },
   "custom/day_night": {
@@ -181,13 +186,12 @@
     "on-click-right": "waybar-pomodoro toggle"
   },
   "custom/x1profile": {
-    "interval": 1,
+    "interval": 5,
     "return-type": "json",
     "exec": "waybar-x1profile get-profile",
     "format-icons": ["", "", ""],
     "format": "{icon} {}",
     "exec-if": "exit 0",
-    "on-click-right": "waybar-x1profile toggle-profile"
   }
 }
 
