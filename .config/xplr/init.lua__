@@ -1,14 +1,14 @@
-version = '0.21.0'
+version = '0.21.5'
 
-local home = os.getenv("HOME")
-
-package.path = os.getenv("XDG_CONFIG_HOME") .. "/xplr/?/init.lua"
-require('files').setup()
-
+xplr.config.general.panel_ui.default.border_type = "Thick"
 xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
 
+--
 -- key bindings
+--
 key = xplr.config.modes.builtin.default.key_bindings.on_key
+
+-- manage plugins
 key.m = {
   help = "xpm",
   messages = {
@@ -17,22 +17,19 @@ key.m = {
   },
 }
 
+-- renamer
 key.R = {
   help = "batch rename",
   messages = {
     {
       BashExec = [===[
-       renamer -e helix
-       "$XPLR" -m ExplorePwdAsync
+       SELECTION=$(cat "${XPLR_PIPE_SELECTION_OUT:?}")
+       NODES=${SELECTION:-$(cat "${XPLR_PIPE_DIRECTORY_NODES_OUT:?}")}
+       if [ "$NODES" ]; then
+         echo -e "$NODES" | renamer
+         "$XPLR" -m ExplorePwdAsync
+       fi
      ]===],
-     --  BashExec = [===[
-     --   SELECTION=$(cat "${XPLR_PIPE_SELECTION_OUT:?}")
-     --   NODES=${SELECTION:-$(cat "${XPLR_PIPE_DIRECTORY_NODES_OUT:?}")}
-     --   if [ "$NODES" ]; then
-     --     echo -e "$NODES" | renamer
-     --     "$XPLR" -m ExplorePwdAsync
-     --   fi
-     -- ]===],
     },
   },
 }
@@ -40,7 +37,7 @@ key.R = {
 -- ideally these would be replaced by handle_node
 key.e = xplr.config.modes.builtin.action.key_bindings.on_key.e
 
-key["enter"] = {
+key.enter = {
   help = "Open/Enter",
   messages = {
     { CallLuaSilently = "custom.handle_node" }
@@ -56,22 +53,22 @@ xplr.fn.custom.handle_node = function(app)
     return {
       {
         BashExecSilently0 = [===[
-          xdg-open "${XPLR_FOCUS_PATH:?}" &
-        ]===],
+         NODES=$(cat "${XPLR_PIPE_DIRECTORY_NODES_OUT:?}")
+         if [ "$NODES" ]; then
+           xdg-open "${XPLR_FOCUS_PATH:?}" &
+         fi
+       ]===],
+        -- BashExecSilently0 = [===[
+        --   xdg-open "${XPLR_FOCUS_PATH:?}" &
+        -- ]===],
       }
     }
   end 
 end
 
-local xpm_path = home .. "/.local/share/xplr/dtomvan/xpm.xplr"
+local home = os.getenv("HOME")
+local xpm_path = home .. "/.local/share/xplr"
 local xpm_url = "https://github.com/dtomvan/xpm.xplr"
-
-package.path = package.path
-  .. ";"
-  .. xpm_path
-  .. "/?.lua;"
-  .. xpm_path
-  .. "/?/init.lua"
 
 os.execute(
   string.format(
@@ -82,7 +79,9 @@ os.execute(
   )
 )
 
--- Let xpm manage itself
+package.path = package.path .. ";"
+  .. xpm_path .. "/dtomvan/xpm.xplr/xpm.lua"
+
 require("xpm").setup({
   plugins = {
     'dtomvan/xpm.xplr',
@@ -94,5 +93,3 @@ require("xpm").setup({
   },
   auto_cleanup = true,
 })
-
--- vim: ft=lua
