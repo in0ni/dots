@@ -3,13 +3,14 @@
 software_cache="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-updates.software"
 firmware_cache="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-updates.firmware"
 
-# get update info on one line w/ ''\n'
-awk_escape_nl='{ printf "\t%s\\n", $0 }'
-# preserve newlines in command arguments
+# preserve newlines in command arguments (passing data to get_count)
 IFS=
 
+# get update info on one line w/ ''\n'
+awk_escape_nl='{ printf " %s\\n", $0 }'
+
 get_count() {
-  echo "$1" | wc -l
+  printf "$1" | grep -c '^'
 }
 
 get_details() {
@@ -29,8 +30,89 @@ get_waybar_data() {
 }
 
 print_usage() {
-  echo >&2 "Usage: $0 <refresh|display> <software|firmware>"
+  echo >&2 "Usage (refresh): $0 refresh <software|firmware|all>"
+  echo >&2 "Usage (display): $0 display <software|firmware>"
   exit 1
+}
+
+update_software() {
+  # pacman
+  pac=$(checkupdates)
+  pac_count=$(get_count "$pac")
+  pac_info=$(get_details "$pac")
+
+  # aur
+  if aur repo -d paks &> /dev/null; then
+    aur=$(aur repo -d paks --list | aur vercmp)
+    aur_count=$(get_count "$aur")
+    aur_info=$(get_details "$aur")
+  fi
+
+  # svr
+  if grep svr ~/.ssh/config -q; then
+    svr=$(ssh svr checkupdates)
+    svr_count=$(get_count "$svr")
+    svr_info=$(get_details "$svr")
+  fi
+
+  # set status icons & tooltip
+  if ((svr_count == 0 && pac_count == 0 && aur_count == 0)); then
+    tooltip+="Up to date"
+    alt="uptodate"
+
+  else
+    if ((pac_count > 0)); then
+      alt="pac"
+    else
+      alt="nopac"
+    fi
+
+    if ((aur_count > 0)); then
+      alt+="_aur"
+    fi
+    if ((svr_count > 0)); then
+      alt+="_svr"
+    fi
+
+    # print info for tooltip
+    ((svr_count > 0)) && tooltip+="(${svr_count}) svr:\n${svr_info}\n"
+    ((aur_count > 0)) && tooltip+="(${aur_count}) aur:\n${aur_info}\n"
+    ((pac_count > 0)) && tooltip+="(${pac_count}) pac:\n${pac_info}\n"
+
+    tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
+
+  fi
+
+  # write obj for waybar
+  printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$software_cache"
+}
+
+update_firmware() {
+  fwupdmgr refresh 2> /dev/null
+
+  fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
+  fwupd_jq_unique=".updates[].ver"
+  fwupd_jq_finalout='.count+" "+.dev, (.updates[]|"   - "+.ver+": "+.name)'
+
+  fwupd_raw=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2> /dev/null)
+  fwupd_unique=$(echo "$fwupd_raw" | jq "$fwupd_jq_unique")
+  fwupd_json=$(echo "$fwupd_raw" | jq --raw-output "$fwupd_jq_finalout")
+  fwupd_count=$(get_count "$fwupd_unique")
+  fwupd_info=$(get_count "$fwupd_json")
+
+  # set status icons & tooltip
+  if ((fwupd_count == 0)); then
+    tooltip+="Up to date"
+    alt="uptodate"
+
+  else
+    alt="outdated"
+    tooltip+="(${fwupd_count}) firmware:\n${fwupd_info}\n"
+    tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
+  fi
+
+  # write obj for waybar
+  printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$firmware_cache"
 }
 
 case "$1" in
@@ -50,82 +132,14 @@ case "$1" in
   refresh)
     case "$2" in
       software)
-        # pacman
-        pac=$(checkupdates)
-        pac_count=$(get_count "$pac")
-        pac_info=$(get_details "$pac")
-
-        # aur
-        if aur repo -d paks &> /dev/null; then
-          aur=$(aur repo -d paks --list | aur vercmp)
-          aur_count=$(get_count "$aur")
-          aur_info=$(get_details "$aur")
-        fi
-
-        # svr
-        if grep svr ~/.ssh/config -q; then
-          svr=$(ssh svr checkupdates)
-          svr_count=$(get_count "$svr")
-          svr_info=$(get_details "$svr")
-        fi
-
-        # set status icons & tooltip
-        if ((svr_count == 0 && pac_count == 0 && aur_count == 0)); then
-          tooltip+="Up to date"
-          alt="uptodate"
-
-        else
-          if ((pac_count > 0)); then
-            alt="pac"
-          else
-            alt="nopac"
-          fi
-
-          if ((aur_count > 0)); then
-            alt+="_aur"
-          fi
-          if ((svr_count > 0)); then
-            alt+="_svr"
-          fi
-
-          # print info for tooltip
-          ((svr_count > 0)) && tooltip+="(${svr_count}) svr:\n${svr_info}\n"
-          ((aur_count > 0)) && tooltip+="(${aur_count}) aur:\n${aur_info}\n"
-          ((pac_count > 0)) && tooltip+="(${pac_count}) pac:\n${pac_info}\n"
-
-          tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
-
-        fi
-
-        # write obj for waybar
-        printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$software_cache"
+        update_software
         ;;
       firmware)
-        fwupdmgr refresh 2> /dev/null
-
-        fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
-        fwupd_jq_unique=".updates[].ver"
-        fwupd_jq_finalout='.count+" "+.dev, (.updates[]|"   - "+.ver+": "+.name)'
-
-        fwupd_raw=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2> /dev/null)
-        fwupd_unique=$(echo "$fwupd_raw" | jq "$fwupd_jq_unique")
-        fwupd_json=$(echo "$fwupd_raw" | jq --raw-output "$fwupd_jq_finalout")
-        fwupd_count=$(get_count "$fwupd_unique")
-        fwupd_info=$(get_count "$fwupd_json")
-
-        # set status icons & tooltip
-        if ((fwupd_count == 0)); then
-          tooltip+="Up to date"
-          alt="uptodate"
-
-        else
-          alt="outdated"
-          tooltip+="(${fwupd_count}) firmware:\n${fwupd_info}\n"
-          tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
-        fi
-
-        # write obj for waybar
-        printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$firmware_cache"
+        update_firmware
+        ;;
+      all)
+        update_software
+        update_firmware
         ;;
       *)
         print_usage

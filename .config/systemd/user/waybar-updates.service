@@ -1,0 +1,6 @@
+[Unit]
+Description=Check and cache software/firmware updates.
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/waybar-updates refresh all
