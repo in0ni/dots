@@ -1,14 +1,40 @@
 #!/usr/bin/env bash
 
-icon= 
+icon=
 title=Passwords
 
-if [[ $ROFI_RETV == 0 ]]; then
-  echo -en "\0prompt\x1f$icon $title\n"
-  echo $(gopass list --flat) | tr " " "\n"
-# TODO: use gopass to check validity of selection?
-# 		perhaps redundant as '1' here ensures no custom selection
-elif [[ $ROFI_RETV == 1 ]]; then
-  gopass show -c $@ &> /dev/null &
-  exit 0
-fi
+copy_passwords() {
+  gopass show -C $@ | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary
+  sleep 5 && wl-copy --primary --clear
+}
+
+case "$1" in
+  cp)
+    copy_passwords "$2"
+    ;;
+  *)
+    if [[ $ROFI_RETV == 0 ]]; then
+      echo -en "\0prompt\x1f$icon $title\n"
+      echo -en "  Generate Password\0meta\x1fpwgen\x1finfo\x1fpwgen\n"
+      echo -en "  Generate Password (no symbols)\0meta\x1fpwgenweaker\x1finfo\x1fpwgenweaker\n"
+      echo $(gopass list --flat) | tr " " "\n"
+    # TODO: use gopass to check validity of selection?
+    # 		perhaps redundant as '1' here ensures no custom selection
+    elif [[ $ROFI_RETV == 1 ]]; then
+      case $ROFI_INFO in
+        "pwgen")
+          gopass pwgen -y -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+          exit 0
+          ;;
+        "pwgenweaker")
+          n
+          gopass pwgen -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+          exit 0
+          ;;
+      esac
+
+      eval "$(basename $0) cp $@" &> /dev/null &
+      exit 0
+    fi
+    ;;
+esac
