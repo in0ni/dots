@@ -9,6 +9,9 @@ configuration {
   drun {
     display-name: "  Run";
   }
+  window {
+    display-name: "  Window";
+  }
 }
 
 @theme "theme/default.rasi"
