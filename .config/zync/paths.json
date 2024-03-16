@@ -3,10 +3,9 @@
   "usb_home": "/run/media/$USER/n0s/backups/home",
   "local_music": "/home/$USER/Music",
   "aosp_rsync": {
-    "uri": "rsync://backup@localhost",
-    "port": "5000",
-    "module": "root_all",
-    "path": "/storage/emulated/0/Music"
+    "uri": "rsync://localhost",
+    "port": "8873",
+    "path": "/sdcard/Music"
   },
   "crypt_home_part": "/dev/nvme0n1p3",
   "crypt_usb_part": "/dev/sda1",

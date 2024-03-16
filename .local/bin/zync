@@ -44,7 +44,6 @@ path_usb_os=$(get_conf ".usb_os")
 path_music=$(get_conf ".local_music")
 path_aosp_rsync_uri=$(get_conf ".aosp_rsync.uri")
 path_aosp_rsync_port=$(get_conf ".aosp_rsync.port")
-path_aosp_rsync_module=$(get_conf ".aosp_rsync.module")
 path_aosp_rsync_path=$(get_conf ".aosp_rsync.path")
 path_crypt_home_part=$(get_conf ".crypt_home_part")
 path_crypt_usb_part=$(get_conf ".crypt_usb_part")
@@ -150,33 +149,64 @@ crypt_backup() {
   done
 }
 
-adb_rsync_start() {
-  RSYNCPORT=873
-
-  echo "Waiting for device"
-  adb wait-for-device
-  adb root
-  adb wait-for-device
-  adb shell "umask 077 && test ! -d /storage/emulated/0/rsyncd && mkdir -p /storage/emulated/0/rsyncd"
-  adb shell "umask 077 && printf 'address = 127.0.0.1\npid file = /mnt/secure/rsyncd.pid\nuid = root\ngid = root\n[root_all]\npath = /\nhosts allow = 127.0.0.1\nread only = false\n' > /mnt/secure/rsyncd.conf"
-  adb shell -t -t "umask 077 && rsync --daemon --no-detach --log-file=/storage/emulated/0/rsyncd/rsyncd.log --config=/mnt/secure/rsyncd.conf" &
-
-  # give rsync daemon time to start
-  sleep 2
-
-  adb forward tcp:"$path_aosp_rsync_port" tcp:$RSYNCPORT
+isAdbDeviceConnected() {
+  if [ "$(adb devices | wc -l)" -lt "3" ]; then
+    false
+  else
+    true
+  fi
 }
+# adb_rsync_start() {
+#   RSYNCPORT=873
 
-adb_rsync_end() {
-  # kill rsyncd
-  adb shell "test -f /mnt/secure/rsyncd.pid && kill $(cat /mnt/secure/rsyncd.pid)"
+#   echo "Waiting for device"
+#   adb wait-for-device
+#   adb root
+#   adb wait-for-device
+#   adb shell "umask 077 && test ! -d /storage/emulated/0/rsyncd && mkdir -p /storage/emulated/0/rsyncd"
+#   adb shell "umask 077 && printf 'address = 127.0.0.1\npid file = /mnt/secure/rsyncd.pid\nuid = root\ngid = root\n[root_all]\npath = /\nhosts allow = 127.0.0.1\nread only = false\n' > /mnt/secure/rsyncd.conf"
+#   adb shell -t -t "umask 077 && rsync --daemon --no-detach --log-file=/storage/emulated/0/rsyncd/rsyncd.log --config=/mnt/secure/rsyncd.conf" &
 
-  # remove temporary files
-  adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid
-  # adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid /mnt/secure/rsyncd.secrets
-}
+#   # give rsync daemon time to start
+#   sleep 2
+
+#   adb forward tcp:"$path_aosp_rsync_port" tcp:$RSYNCPORT
+# }
+
+# adb_rsync_end() {
+#   # kill rsyncd
+#   adb shell "test -f /mnt/secure/rsyncd.pid && kill $(cat /mnt/secure/rsyncd.pid)"
+
+#   # remove temporary files
+#   adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid
+#   # adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid /mnt/secure/rsyncd.secrets
+# }
 
 music_sync() {
+  remote_server="$path_aosp_rsync_uri:$path_aosp_rsync_port"
+  remote_path="$remote_server$path_aosp_rsync_path"
+  set -e
+  if ! isAdbDeviceConnected; then
+    echo "There are no ADB devices connected. If that seems wrong, try 'adb kill-server'"
+    exit 1
+  fi
+  # Launch Termux activity (If it fails, terminate script execution
+  termux=com.termux/com.termux.app.TermuxActivity
+  adb shell << EOF
+  if am start -n $termux 2>&1 | grep Error >/dev/null ; then
+      echo "Termux doesn't seem to be installed.."
+      exit 1
+  fi
+EOF
+
+  adb forward tcp:8873 tcp:8873
+  read -p "$info Run: \"rsync --daemon; exit\""
+
+  if ! rsync -nq "$remote_server"; then
+    echo "$err Rsync not running, try again."
+    exit 1
+  fi
+
   # reserved characters in fat32
   # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
   # ? [%3F]
@@ -217,19 +247,17 @@ music_sync() {
     done
   fi
 
-  adb_rsync_start
-
   echo "$info synchronizing music..."
-  # here -s solves 'mkstemp' error (-s, --protect-args          no space-splitting; wildcard chars only)
+  # here -s solves 'mkstemp' error (-s, no space-splitting; wildcard chars only)
   # here -O should remove timestamp errors
-  # rsync -rlDuvsO --modify-window=1 --stats --files-from=$cfg_music_incl "$path_music/" "$path_android_internal" 2>> $path_log
-  remote_path="$path_aosp_rsync_uri:$path_aosp_rsync_port/$path_aosp_rsync_module$path_aosp_rsync_path"
-  rsync -rltDszv --modify-window=1 --stats --files-from="$cfg_music_incl" "$path_music/" "$remote_path" 2>> $path_log
+  # rsync -rltDszv --modify-window=1 --stats --files-from="$cfg_music_incl" "$path_music/" "$remote_path" 2>> $path_log
+  rsync -ravPh --info=progress2 --files-from="$cfg_music_incl" "$path_music/" "$remote_path" --delete 2>> $path_log
   echo "$info synchronizing music done."
   # maybe --8 is required?
   # rsync -aruv -8 --modify-window=1 --stats --files-from=$cfg_music_incl $path_music $remote_music
+  # echo "hi" >> $path_log
 
-  adb_rsync_end
+  # adb_rsync_end
 }
 
 home_backup() {
