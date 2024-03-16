@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
-  "modules-center": ["custom/updates_software", "custom/updates_firmware", "clock", "custom/day_night"],
+  "modules-center": ["custom/updates_software","clock", "custom/day_night"],
   "modules-right": [
     "custom/pomodoro",
     "idle_inhibitor",
