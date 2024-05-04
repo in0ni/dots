@@ -9,12 +9,13 @@ cursorline=true
 
 [editor.statusline]
 left = ["mode", "spinner", "version-control", "file-name", "file-modification-indicator"]
-right = ["diagnostics", "selections", "position", "file-encoding", "file-type", "total-line-numbers"]
+right = ["diagnostics", "selections", "position", "position-percentage", "file-encoding", "file-type", "total-line-numbers"]
 
 [editor.lsp]
 display-messages=true 
 
 [editor.file-picker]
+hidden=false
 git-ignore=false
 
 [editor.cursor-shape]

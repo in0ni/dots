@@ -159,6 +159,19 @@ language-servers = [
  { name = "efm-langserver", only-features = ["diagnostics", "format"] },
 ]
 
+# [language.debugger]
+# name = "vscode-php-debug"
+# transport = "stdio"
+# command = "node"
+# args = [ "/usr/lib/node_modules/php-debug/out/phpDebug.js" ]
+
+# [[language.debugger.templates]]
+# name = "Listen for Xdebug"
+# request = "launch"
+# completion = [ "ignored" ]
+# args = { }
+# args = { serverSourceRoot="/app/", localSourceRoot="/home/in0ni/Work/un/repos/UW2ISEEK-619/" }
+
 [[language]]
 name="python"
 auto-format=true
