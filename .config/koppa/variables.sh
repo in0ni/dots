@@ -2,8 +2,8 @@
 # THEME
 #
 theme=Arc-Dark
-theme_icon=Tela-orange-dark
-theme_icon_variant=Tela-orange
+theme_icon=Tela-circle-orange-dark
+theme_icon_variant=Tela-circle-orange
 theme_cursor=Adwaita
 theme_cursor_size=0
 
