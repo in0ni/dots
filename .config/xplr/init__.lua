@@ -1,4 +1,4 @@
-version = '0.21.5'
+version = '0.21.7'
 
 xplr.config.general.panel_ui.default.border_type = "Thick"
 xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
@@ -9,13 +9,13 @@ xplr.config.general.focus_ui.style.fg = { Rgb = {%{{theme_highlight_rgb}}} }
 key = xplr.config.modes.builtin.default.key_bindings.on_key
 
 -- manage plugins
-key.m = {
-  help = "xpm",
-  messages = {
-    "PopMode",
-    { SwitchModeCustom = "xpm" },
-  },
-}
+-- key.m = {
+--   help = "xpm",
+--   messages = {
+--     "PopMode",
+--     { SwitchModeCustom = "xpm" },
+--   },
+-- }
 
 -- renamer
 key.R = {
@@ -67,8 +67,15 @@ xplr.fn.custom.handle_node = function(app)
 end
 
 local home = os.getenv("HOME")
-local xpm_path = home .. "/.local/share/xplr"
+local xpm_path = home .. "/.local/share/xplr/dtomvan/xpm.xplr"
 local xpm_url = "https://github.com/dtomvan/xpm.xplr"
+
+package.path = package.path
+  .. ";"
+  .. xpm_path
+  .. "/?.lua;"
+  .. xpm_path
+  .. "/?/init.lua"
 
 os.execute(
   string.format(
@@ -79,9 +86,6 @@ os.execute(
   )
 )
 
-package.path = package.path .. ";"
-  .. xpm_path .. "/dtomvan/xpm.xplr/xpm.lua"
-
 require("xpm").setup({
   plugins = {
     'dtomvan/xpm.xplr',
@@ -91,5 +95,6 @@ require("xpm").setup({
     'igorepst/context-switch.xplr',
     'sayanarijit/type-to-nav.xplr',
   },
+  auto_install = true,
   auto_cleanup = true,
 })
