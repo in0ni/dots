@@ -1,7 +1,5 @@
-/* vim: ft=css */
-
 configuration {
-  font: "%{{font_sans}}, %{{font_icon}} %{{font_size}}px";
+  font: "%{font_sans}%, %{font_icon}% %{font_size}%px";
   show-icons: false;
   terminal: "kitty";
   sort: false;
@@ -9,6 +7,7 @@ configuration {
   drun {
     display-name: "  Run";
   }
+
   window {
     display-name: "  Window";
   }

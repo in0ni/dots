@@ -1,27 +1,25 @@
-/* vim: ft=css */
-
 * {
-    scrollbar: true;
+  scrollbar: true;
 
-    /* Flat Remix Dark Green colors */
-    black:		#%{{theme_dark_0}};
-    darkest:	#%{{theme_dark_1}};
-    dark:		#%{{theme_dark_2}};
-    mid:		#%{{theme_dark_3}};
-    light:		#%{{theme_light_0}};
-    accent:		#%{{theme_highlight}};
-    urgent:     #%{{b16_01_red}};
-    urgent-selected: #%{{b16_01_red}};
+  /* Flat Remix Dark Green colors */
+  black: #"!{theme_dark_0}!";
+  darkest: #"!{theme_dark_1}!";
+  dark: #"!{theme_dark_2}!";
+  mid: #"!{theme_dark_3}!";
+  light: #"!{theme_light_0}!";
+  accent: #"!{theme_highlight}!";
+  urgent: #"!{b16_01_red}!";
+  urgent-selected: #"!{b16_01_red}!";
 
-    /* generic names */
-    base-bg:	@black;
-    base-fg:	@light;
-    input-bg:	@mid;
-    message-bg:	@light;
-    message-fg:	@darkest;
-    listview-bg:@darkest;
-    scroll-fg:	@mid;
-    accent-fg: @light;
+  /* generic names */
+  base-bg: @black;
+  base-fg: @light;
+  input-bg: @mid;
+  message-bg: @light;
+  message-fg: @darkest;
+  listview-bg: @darkest;
+  scroll-fg: @mid;
+  accent-fg: @light;
 }
 
 @import "base.rasi"

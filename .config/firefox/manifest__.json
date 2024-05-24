@@ -6,18 +6,18 @@
     "images": {},
     "properties": {},
     "colors": {
-      "bookmark_text": "rgb(%{{theme_light_0_rgb}})",
-      "frame": "rgba(%{{theme_dark_0_rgb}}, 1)",
-      "popup_highlight": "rgb(%{{theme_highlight_rgb}})",
-      "popup": "rgba(%{{theme_dark_0_rgb}}, 1)",
-      "popup_text": "rgb(%{{theme_light_0_rgb}})",
-      "tab_background_separator": "rgba(%{{theme_dark_3_rgb}}, 1)",
-      "tab_background_text": "rgba(%{{theme_light_0_rgb}}, 1)",
-      "tab_line": "rgb(%{{theme_highlight_rgb}})",
-      "tab_loading": "rgb(%{{theme_highlight_rgb}})",
-      "toolbar_field": "rgba(%{{theme_dark_3_rgb}}, 1)",
-      "toolbar_field_text": "rgb(%{{theme_light_0_rgb}})",
-      "toolbar": "rgba(%{{theme_dark_0_rgb}}, 1)"
+      "bookmark_text": "rgb(%{theme_light_0_rgb}%)",
+      "frame": "rgba(%{theme_dark_0_rgb}%, 1)",
+      "popup_highlight": "rgb(%{theme_highlight_rgb}%)",
+      "popup": "rgba(%{theme_dark_0_rgb}%, 1)",
+      "popup_text": "rgb(%{theme_light_0_rgb}%)",
+      "tab_background_separator": "rgba(%{theme_dark_3_rgb}%, 1)",
+      "tab_background_text": "rgba(%{theme_light_0_rgb}%, 1)",
+      "tab_line": "rgb(%{theme_highlight_rgb}%)",
+      "tab_loading": "rgb(%{theme_highlight_rgb}%)",
+      "toolbar_field": "rgba(%{theme_dark_3_rgb}%, 1)",
+      "toolbar_field_text": "rgb(%{theme_light_0_rgb}%)",
+      "toolbar": "rgba(%{theme_dark_0_rgb}%, 1)"
     }
   }
 }

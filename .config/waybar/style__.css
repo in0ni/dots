@@ -1,16 +1,16 @@
 * {
   border: none;
   border-radius: 0;
-  font-family: "%{{font_sans}}, %{{font_icon}}";
-  font-size: %{{font_size}}px;
+  font-family: "%{font_sans}%, %{font_icon}%";
+  font-size: "!{font_size}!"px;
   min-height: 0;
   margin: 0;
   padding: 0;
 }
 
 #waybar {
-  background-color: rgba(%{{gruv_dark_0_rgb}}, 0.6);
-  color: #%{{gruv_light_bg_1}};
+  background-color: rgba("!{gruv_dark_0_rgb}!", 0.6);
+  color: #"!{gruv_light_bg_1}!";
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -61,12 +61,12 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 #custom-x1profile.performance {
-  color: #%{{gruv_dark_orange}};
+  color: #"!{gruv_dark_orange}!";
 }
 
 #clock,
 #window {
-  color: #%{{gruv_light_bg_0}};
+  color: #"!{gruv_light_bg_0}!";
 }
 
 #custom-pomodoro,
@@ -88,41 +88,41 @@ window#waybar.empty #window { background-color: transparent; }
 #window,
 #temperature,
 #battery {
-  background-color: rgba(%{{gruv_dark_0_rgb}}, 0.7);
+  background-color: rgba("!{gruv_dark_0_rgb}!", 0.7);
 }
 
 /*
  * workspaces
  */
 #workspaces { margin-left: 0; }
-label:focus { background-color: #%{{theme_dark_0}}; }
+label:focus { background-color: #"!{theme_dark_0}!"; }
 
 label:disabled,
 button:disabled {
-  color: #%{{gruv_light_bg_1}};
+  color: #"!{gruv_light_bg_1}!";
 }
 
 button {
   border-top: 1px solid transparent;
-  color: #%{{gruv_light_bg_1}};
+  color: #"!{gruv_light_bg_1}!";
   opacity: 0.65;
 }
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
-  background: rgba(%{{theme_dark_0_rgb}}, 0.35);
+  background: rgba("!{theme_dark_0_rgb}!", 0.35);
   box-shadow: inherit;
 }
 
 button.active {
-  color: #%{{theme_highlight}};
-  border-top: 1px solid #%{{theme_highlight}};
+  color: #"!{theme_highlight}!";
+  border-top: 1px solid #"!{theme_highlight}!";
   opacity: 1;
 }
 
 button.urgent {
-  color: #%{{theme_light_0}};
-  background-color: #%{{b16_01_red}};
+  color: #"!{theme_light_0}!";
+  background-color: #"!{b16_01_red}!";
 }
 
 /*
@@ -131,8 +131,8 @@ button.urgent {
 #submap{
   margin-right: 0;
   font-weight: bold;
-  background-color: #%{{gruv_light_bg_0}};
-  color: #%{{theme_dark_0}};
+  background-color: #"!{gruv_light_bg_0}!";
+  color: #%{theme_dark_0}%;
 }
 
 /*
@@ -143,19 +143,20 @@ button.urgent {
 #disk,
 #temperature,
 #battery {
-  color: #%{{gruv_light_bg_0}};
+  color: #%{gruv_light_bg_0}%;
   opacity: 0.75;
 }
-#cpu { border-top: 1px solid #%{{b16_04_blue}}; }
-#memory { border-top: 1px solid #%{{b16_05_purple}}; }
-#disk { border-top: 1px solid #%{{b16_06_aqua}}; }
-#temperature { border-top: 1px solid #%{{gruv_dark_orange}}; }
-#temperature.critical { background-color: #%{{b16_01_red}}; }
-#battery.great { border-top: 1px solid #%{{b16_02_green}}; }
-#battery.good { border-top: 1px solid #%{{b16_10_green}}; }
-#battery.fair { border-top: 1px solid #%{{b16_11_yellow}}; }
+
+#cpu { border-top: 1px solid #"!{b16_04_blue}!"; }
+#memory { border-top: 1px solid #"!{b16_05_purple}!"; }
+#disk { border-top: 1px solid #"!{b16_06_aqua}!"; }
+#temperature { border-top: 1px solid #"!{gruv_dark_orange}!"; }
+#temperature.critical { background-color: #"!{b16_01_red}!"; }
+#battery.great { border-top: 1px solid #"!{b16_02_green}!"; }
+#battery.good { border-top: 1px solid #"!{b16_10_green}!"; }
+#battery.fair { border-top: 1px solid #"!{b16_11_yellow}!"; }
 /* #battery.low is found below w/ network & pulse */
-#battery.charging { border-top: 1px solid #%{{b16_14_aqua}}; }
+#battery.charging { border-top: 1px solid #"!{b16_14_aqua}!"; }
 
 /*
  * warnings
@@ -163,18 +164,18 @@ button.urgent {
 #battery.low:not(.charging),
 #network.disconnected,
 #pulseaudio.muted {
-  background-color: #%{{theme_dark_0}};
-  border-top: 1px solid #%{{b16_01_red}};
-  color: #%{{b16_01_red}};
+  background-color: #"!{theme_dark_0}!";
+  border-top: 1px solid #"!{b16_01_red}!";
+  color: #"!{b16_01_red}!";
 }
 
 #battery.critical:not(.charging),
 #cpu.critical,
 #disk.critical,
 #temperature.critical {
-  background-color: #%{{b16_01_red}};
-  border-top: 1px solid #%{{gruv_light_bg_0}};
-  color: #%{{gruv_light_bg_0}};
+  background-color: #"!{b16_01_red}!";
+  border-top: 1px solid #"!{gruv_light_bg_0}!";
+  color: #"!{gruv_light_bg_0}!";
   animation-name: blinking;
   animation-duration: 1s;
   animation-timing-function: linear;
@@ -183,6 +184,6 @@ button.urgent {
 }
 
 @keyframes blinking {
-  to { background-color: #%{{theme_dark_0}}; }
+  to { background-color: #"!{theme_dark_0}!"; }
 }
 

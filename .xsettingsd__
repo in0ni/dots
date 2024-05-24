@@ -1,6 +1,6 @@
-Net/ThemeName "%{{theme}}"
-Net/IconThemeName "%{{theme_icon}}"
+Net/ThemeName "%{theme}%"
+Net/IconThemeName "%{theme_icon}%"
 Xft/Antialias 1
 Xft/Hinting 1
-Xft/HintStyle "%{{hintstyle}}"
-Xft/RGBA "%{{rgba}}"
+Xft/HintStyle "%{hintstyle}%"
+Xft/RGBA "%{rgba}%"

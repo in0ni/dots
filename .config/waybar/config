@@ -194,5 +194,3 @@
     "exec-if": "exit 0",
   }
 }
-
-// vim: ft=json

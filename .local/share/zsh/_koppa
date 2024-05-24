@@ -39,5 +39,3 @@ _koppa() {
 
   return 1
 }
-
-# vim: ft=sh

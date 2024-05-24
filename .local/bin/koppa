@@ -57,8 +57,8 @@ build_zap() {
 
   # iterate and parse through files
   for zap in $zaps; do
-    perl -p -e 's/%\{\{(\w+)\}\}/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' \
-      < "$zap" > "${zap/${koppa_id}/}"
+    perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' < "$zap" \
+      | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' > "${zap/${koppa_id}/}"
     echo "$name [file]: $zap -> ${zap/${koppa_id}/}"
   done
 

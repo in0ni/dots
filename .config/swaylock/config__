@@ -7,40 +7,38 @@ clock
 indicator
 datestr=%a %b %d
 
-font=%{{font_sans}}
+font=%{font_sans}%
 indicator-thickness=15
 indicator-caps-lock
 indicator-radius=100
 
-bs-hl-color=%{{b16_01_red}}%{{trnz_10}}
-caps-lock-bs-hl-color=%{{b16_01_red}}%{{trnz_10}}
+bs-hl-color=%{b16_01_red}%%{trnz_10}%
+caps-lock-bs-hl-color=%{b16_01_red}%%{trnz_10}%
 
-key-hl-color=%{{theme_highlight}}%{{trnz_10}}
-caps-lock-key-hl-color=%{{theme_highlight}}%{{trnz_10}}
+key-hl-color=%{theme_highlight}%%{trnz_10}%
+caps-lock-key-hl-color=%{theme_highlight}%%{trnz_10}%
 
-inside-color=%{{theme_dark_1}}%{{trnz_20}}
-inside-clear-color=%{{theme_dark_1}}%{{trnz_20}}
-inside-caps-lock-color=%{{theme_dark_1}}%{{trnz_20}}
-inside-ver-color=%{{theme_dark_1}}%{{trnz_20}}
-inside-wrong-color=%{{theme_dark_1}}%{{trnz_20}}
+inside-color=%{theme_dark_1}%%{trnz_20}%
+inside-clear-color=%{theme_dark_1}%%{trnz_20}%
+inside-caps-lock-color=%{theme_dark_1}%%{trnz_20}%
+inside-ver-color=%{theme_dark_1}%%{trnz_20}%
+inside-wrong-color=%{theme_dark_1}%%{trnz_20}%
 
-text-color=%{{theme_light_0}}%{{trnz_20}}
-text-clear-color=%{{theme_light_0}}%{{trnz_20}}
-text-caps-lock-color=%{{theme_light_0}}%{{trnz_20}}
-text-ver-color=%{{theme_light_0}}%{{trnz_20}}
-text-wrong-color=%{{theme_light_0}}%{{trnz_20}}
+text-color=%{theme_light_0}%%{trnz_20}%
+text-clear-color=%{theme_light_0}%%{trnz_20}%
+text-caps-lock-color=%{theme_light_0}%%{trnz_20}%
+text-ver-color=%{theme_light_0}%%{trnz_20}%
+text-wrong-color=%{theme_light_0}%%{trnz_20}%
 
-line-color=%{{theme_light_0}}%{{trnz_100}}
-line-clear-color=%{{theme_light_0}}%{{trnz_100}}
-line-caps-lock-color=%{{theme_light_0}}%{{trnz_100}}
-line-ver-color=%{{theme_light_0}}%{{trnz_100}}
-line-wrong-color=%{{theme_light_0}}%{{trnz_100}}
+line-color=%{theme_light_0}%%{trnz_100}%
+line-clear-color=%{theme_light_0}%%{trnz_100}%
+line-caps-lock-color=%{theme_light_0}%%{trnz_100}%
+line-ver-color=%{theme_light_0}%%{trnz_100}%
+line-wrong-color=%{theme_light_0}%%{trnz_100}%
 
-separator-color=%{{theme_dark_1}}%{{trnz_80}}
-ring-color=%{{theme_dark_1}}%{{trnz_80}}
-ring-clear-color=%{{theme_dark_1}}%{{trnz_80}}
-ring-caps-lock-color=%{{theme_dark_1}}%{{trnz_80}}
-ring-ver-color=%{{theme_dark_1}}%{{trnz_80}}
-ring-wrong-color=%{{theme_dark_1}}%{{trnz_80}}
-
-# vim: ft=ini
+separator-color=%{theme_dark_1}%%{trnz_80}%
+ring-color=%{theme_dark_1}%%{trnz_80}%
+ring-clear-color=%{theme_dark_1}%%{trnz_80}%
+ring-caps-lock-color=%{theme_dark_1}%%{trnz_80}%
+ring-ver-color=%{theme_dark_1}%%{trnz_80}%
+ring-wrong-color=%{theme_dark_1}%%{trnz_80}%
