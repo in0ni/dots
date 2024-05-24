@@ -92,6 +92,15 @@ language-servers = [
 ]
 
 [[language]]
+name="json"
+auto-format=true
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "json"] }
+# language-servers = [
+#   # eslint
+#   { name = "efm-langserver", only-features = ["diagnostics"] },
+# ]
+
+[[language]]
 name="css"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "css"] }
@@ -107,9 +116,9 @@ name="scss"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "scss"] }
 language-servers = [
-  { name = "vscode-css-language-server", except-features=["format"] },
+  { name = "vscode-css-language-server", except-features = ["format"] },
   # stylelint
-  { name = "efm-langserver", only-features = ["diagnostics"] },
+  { name = "efm-langserver", except-features = ["format"] },
   { name = "emmet-ls", only-features = ["completion"] },
 ]
 
