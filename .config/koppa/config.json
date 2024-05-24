@@ -9,6 +9,10 @@
     "path": "$HOME/.config/firefox"
   },
   {
+    "id": "gtk-2.0",
+    "path": "$HOME/.gtkrc-2.0"
+  },
+  {
     "id": "gtk-3.0",
     "path": "$HOME/.config/gtk-3.0"
   },
@@ -35,12 +39,12 @@
   {
     "id": "waybar",
     "path": "$HOME/.config/waybar",
-    "restart": ["systemctl","--user", "restart", "waybar.service"]
+    "restart": ["systemctl", "--user", "restart", "waybar.service"]
   },
   {
     "id": "xsettingsd",
     "path": "$HOME/.xsettingsd",
-    "restart": ["systemctl","--user", "restart", "xsettingsd.service"]
+    "restart": ["systemctl", "--user", "restart", "xsettingsd.service"]
   },
   {
     "id": "xplr",
