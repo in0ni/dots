@@ -48,10 +48,10 @@ theme_dark_2=353945
 theme_dark_3=404552
 theme_dark_4=647386
 theme_light_0=f0f3ff
-theme_light_1=cfd7e7
-theme_light_2=bbc2d8
-theme_light_3=a5adc5
-theme_light_4=8992a9
+theme_light_1=d3dae3
+theme_light_2=bac3cf
+theme_light_3=afb8c6
+theme_light_4=8a919e
 
 # highlight for menus
 # theme_highlight=06a284
@@ -145,3 +145,12 @@ theme_light_2_rgb=$(hex_to_rgb $theme_light_2)
 theme_light_3_rgb=$(hex_to_rgb $theme_light_3)
 theme_light_4_rgb=$(hex_to_rgb $theme_light_4)
 gruv_dark_0_rgb=$(hex_to_rgb $gruv_dark_bg_0)
+gruv_dark_1_rgb=$(hex_to_rgb $gruv_dark_bg_1)
+gruv_dark_3_rgb=$(hex_to_rgb $gruv_dark_bg_3)
+gruv_dark_4_rgb=$(hex_to_rgb $gruv_dark_bg_4)
+gruv_light_0_rgb=$(hex_to_rgb $gruv_light_bg_0)
+gruv_light_0_h_rgb=$(hex_to_rgb $gruv_light_bg_0_h)
+gruv_light_1_rgb=$(hex_to_rgb $gruv_light_bg_1)
+gruv_light_2_rgb=$(hex_to_rgb $gruv_light_bg_2)
+gruv_light_3_rgb=$(hex_to_rgb $gruv_light_bg_3)
+gruv_light_4_rgb=$(hex_to_rgb $gruv_light_bg_4)
