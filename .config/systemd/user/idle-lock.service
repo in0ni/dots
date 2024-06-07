@@ -1,11 +1,11 @@
 [Unit]
-Description=Idle manager
+Description=Idle manager (locked state)
 Documentation=https://wiki.hyprland.org/Hypr-Ecosystem/hypridle/
 PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/hypridle
+ExecStart=/usr/bin/hypridle -c %h/.config/hypr/hypridle-lock.conf 
 
 [Install]
 WantedBy=graphical-session.target

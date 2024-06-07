@@ -1,11 +1,11 @@
 [Unit]
 Description=Wallpaper utility
-Documentation=https://github.com/swaywm/swaybg
+Documentation=https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/
 PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/swaybg -o * -i %h/Pictures/bgs/current -m fill
+ExecStart=/usr/bin/hyprpaper
 
 [Install]
 WantedBy=graphical-session.target
