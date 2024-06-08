@@ -1,7 +1,12 @@
 {
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
-  "modules-center": ["custom/updates_software","clock", "custom/day_night"],
+  "modules-center": [
+    "custom/updates_software",
+    "custom/updates_firmware",
+    "clock",
+    "custom/day_night"
+  ],
   "modules-right": [
     "custom/pomodoro",
     "idle_inhibitor",
@@ -134,7 +139,7 @@
   },
   "custom/updates_software": {
     "signal": 1,
-    "interval": 60, 
+    "interval": 60,
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
@@ -145,26 +150,24 @@
       "pac_aur_svr": "†°",
       "nopac_aur": " °",
       "nopac_svr": "†",
-      "nopac_aur_svr": "† °",
+      "nopac_aur_svr": "† °"
     },
     "return-type": "json",
-    "exec-if": "exit 0",
     "exec": "waybar-updates display software",
     "on-click-right": "waybar-updates refresh software; pkill -RTMIN+1 waybar"
   },
   "custom/updates_firmware": {
     "signal": 2,
-    "interval": 60, 
+    "interval": 60,
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
-      "error": "?",
-      "outdated": " ", // spacing here is easier
+      "error": "",
+      "outdated": " " // spacing here is easier
     },
     "return-type": "json",
-    "exec": "waybar-updates display firmware; pkill -RTMIN+2 waybar", // # of updates
-    "on-click-right": "waybar-updates refresh firmware",
-    "exec-if": "exit 0" // always run; consider advanced run conditions
+    "exec": "waybar-updates display firmware",
+    "on-click-right": "waybar-updates refresh firmware; pkill -RTMIN+1 waybar"
   },
   "custom/day_night": {
     "signal": 3,
@@ -191,6 +194,6 @@
     "exec": "waybar-x1profile get-profile",
     "format-icons": ["", "", ""],
     "format": "{icon} {}",
-    "exec-if": "exit 0",
+    "exec-if": "exit 0"
   }
 }

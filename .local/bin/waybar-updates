@@ -92,13 +92,14 @@ update_firmware() {
 
   fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
   fwupd_jq_unique=".updates[].ver"
-  fwupd_jq_finalout='.count+" "+.dev, (.updates[]|"   - "+.ver+": "+.name)'
+  fwupd_jq_finalout='.dev, (.updates[]|"   - "+.ver+": "+.name)'
 
-  fwupd_raw=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2> /dev/null)
-  fwupd_unique=$(echo "$fwupd_raw" | jq "$fwupd_jq_unique")
-  fwupd_json=$(echo "$fwupd_raw" | jq --raw-output "$fwupd_jq_finalout")
+  # -y assume yes
+  fwupd_simple=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2> /dev/null)
+  fwupd_unique=$(echo "$fwupd_simple" | jq "$fwupd_jq_unique")
+  fwupd_json=$(echo "$fwupd_simple" | jq --raw-output "$fwupd_jq_finalout")
   fwupd_count=$(get_count "$fwupd_unique")
-  fwupd_info=$(get_count "$fwupd_json")
+  fwupd_info=$(get_details "$fwupd_json")
 
   # set status icons & tooltip
   if ((fwupd_count == 0)); then

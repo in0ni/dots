@@ -1,6 +1,7 @@
 [Unit]
 Description=Check and cache software/firmware updates.
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-Type=oneshot
 ExecStart=%h/.local/bin/waybar-updates refresh all
