@@ -132,6 +132,11 @@ language-servers = [
 ]
 
 [[language]]
+name="xml"
+auto-format=true
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "html"] }
+
+[[language]]
 name="twig"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "melody"] }
