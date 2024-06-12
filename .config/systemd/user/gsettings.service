@@ -1,0 +1,11 @@
+[Unit]
+Description=Set GSettings
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+type=oneshot
+ExecStart=%h/.local/bin/wm-gsettings
+
+[Install]
+WantedBy=graphical-session.target
