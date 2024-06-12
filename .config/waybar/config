@@ -67,16 +67,16 @@
     "states": {
       "critical": 90
     },
-    "format": "{usage}⁺ ", // brain
+    "format": "{usage}⁺ ", // brain
     "tooltip": false
   },
   "memory": {
     "interval": 10,
-    "format": "{}⁺ " // microchip
+    "format": "{}⁺ " // microchip
   },
   "disk": {
     "interval": 10,
-    "format": "{percentage_free}⁻ ", // microchip
+    "format": "{percentage_free}⁻ ", // microchip
     "path": "/",
     "states": {
       "critical": 96
@@ -89,7 +89,7 @@
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C {icon}",
     "format": "{temperatureC}° {icon}",
-    "format-icons": [""]
+    "format-icons": [""]
   },
   "battery": {
     "states": {
@@ -105,7 +105,7 @@
     "format-alt": "{time} {icon}",
     // "format-good": "", // An empty format will hide the module
     // "format-full": "",
-    "format-icons": [""] // bolt
+    "format-icons": [""] // bolt
     // "format-icons": ["", "", "", "", ""]
   },
   "network": {
@@ -183,17 +183,17 @@
     "interval": 1,
     "return-type": "json",
     "exec": "waybar-pomodoro get-time",
+    "exec-if": "exit 0",
     "format-icons": [""],
     "format": "{} {icon}",
-    "exec-if": "exit 0",
     "on-click-right": "waybar-pomodoro toggle"
   },
   "custom/x1profile": {
-    "interval": 5,
+    "interval": 2,
     "return-type": "json",
     "exec": "waybar-x1profile get-profile",
-    "format-icons": ["", "", ""],
-    "format": "{icon} {}",
-    "exec-if": "exit 0"
+    "exec-if": "exit 0",
+    "format-icons": ["", "", ""],
+    "format": "{icon}",
   }
 }

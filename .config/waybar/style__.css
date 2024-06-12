@@ -33,7 +33,6 @@ window#waybar.empty #window { background-color: transparent; }
 /* disabled/inactive */
 #idle_inhibitor.deactivated,
 #custom-pomodoro.disabled,
-#custom-x1profile.low-power,
 #waybar.hidden,
 #custom-day_night.inactive { opacity: 0.5; }
 
@@ -61,7 +60,7 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 #custom-x1profile.performance {
-  color: #"!{gruv_dark_orange}!";
+  color: #"!{gruv_dark_red}!";
 }
 
 #clock,
@@ -72,7 +71,11 @@ window#waybar.empty #window { background-color: transparent; }
 #custom-pomodoro,
 #idle_inhibitor,
 #custom-x1profile {
-  padding: 0.35em 0.25em;
+  padding: 0.35em 0.35em;
+}
+
+#custom-x1profile {
+  padding-right: 0.7rem
 }
 
 /* in case of tray icons 🙄 - TODO: better selector, avoid padding on empty */
