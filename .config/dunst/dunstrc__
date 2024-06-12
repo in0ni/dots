@@ -34,7 +34,7 @@ icon_path = /usr/share/icons/%{theme_icon}%/24/panel
 ### Misc/Advanced ###
 # dmenu = /usr/bin/rofi -dmenu -p dunst:
 browser = /usr/bin/firefox -new-tab
-corner_radius = 3
+corner_radius = 2
 
 ### mouse
 
@@ -77,6 +77,6 @@ timeout = 0
 appname = "sway_hotkeys"
 background = "#%{gruv_dark_bg_0}%%{trnz_20}%"
 foreground = "#%{theme_light_1}%"
-highlight = "#%{gruv_light_orange}%"
+highlight = "#%{theme_highlight}%"
 frame_color = "#%{gruv_dark_bg_0}%"
 timeout = 2
