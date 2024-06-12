@@ -16,21 +16,6 @@ set -a
 . "${vars}"
 set +a
 
-toggle_name() {
-  input=$1
-
-  # XXX: should match with same regex below (not chars not unique like Ϟ)
-  if [[ "$input" =~ $koppa_id ]]; then
-    # shellcheck disable=2005
-    echo "$(echo "$input" | sed -E 's/'"$koppa_id"'//')"
-  else
-    # TODO: best if we split the path/filename and only work on filename,
-    # instead of the regex below which ensures /home/h/.xsettingsd works
-    # shellcheck disable=2005
-    echo "$(echo "$input" | sed -E 's/([^./])(\.[^.]+)?$/\1'"$koppa_id"'\2/')"
-  fi
-}
-
 build_zap() {
   # ensure zap is in config
   name=$1
@@ -52,14 +37,14 @@ build_zap() {
 
   else
     # in this case, a single file is passed TODO: allow multiple files
-    zaps=$(toggle_name "$expanded_path")
+    zaps=("$expanded_path")
   fi
 
   # iterate and parse through files
   for zap in $zaps; do
     perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' < "$zap" \
       | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' > "${zap/${koppa_id}/}"
-    echo "$name [file]: $zap -> ${zap/${koppa_id}/}"
+    echo "[file]     $zap -> ${zap/${koppa_id}/}"
   done
 
   # support for restarting a service/process
@@ -68,7 +53,7 @@ build_zap() {
     args=("$args_string")
     # shellcheck disable=2068
     ${args[@]}
-    echo "$name [restart cmd]: ${args[*]}"
+    echo "[restart] ${args[*]}"
   fi
 }
 
@@ -96,15 +81,10 @@ case $1 in
       build_zap "$2"
     fi
     ;;
-  mv)
-    echo "$2 -> $(toggle_name "$2")"
-    # XXX: should check for overwriting and warn
-    mv "$2" "$(toggle_name "$2")"
-    ;;
   *)
-    echo -e "Usage: $(basename "$0") <ls|mk|mv> [args]\n"
+    echo -e "Usage: $(basename "$0") <ls|mk> [args]\n"
     echo -e "Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
-    echo -e " \t mv FILE\t rename FILE by toggling \"$koppa_id\" in filename (before extension)."
+    # echo -e " \t mv FILE\t rename FILE by toggling \"$koppa_id\" in filename (before extension)."
     echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
     ;;
 esac

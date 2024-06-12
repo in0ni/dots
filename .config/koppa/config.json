@@ -10,7 +10,7 @@
   },
   {
     "id": "gtk-2.0",
-    "path": "$HOME/.gtkrc-2.0"
+    "path": "$HOME/.gtkrc-2.0__"
   },
   {
     "id": "gtk-3.0",
@@ -44,7 +44,7 @@
   },
   {
     "id": "xsettingsd",
-    "path": "$HOME/.xsettingsd",
+    "path": "$HOME/.xsettingsd__",
     "restart": ["systemctl", "--user", "restart", "xsettingsd.service"]
   },
   {
