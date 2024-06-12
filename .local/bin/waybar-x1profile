@@ -15,7 +15,7 @@ if [ "$host" = "x1" ]; then
         fi
       fi
 
-      printf '{"tooltip": "%s", "class": "%s", "percentage": "%s"}' $profile $profile $percentage
+      printf '{"tooltip": "%s", "class": "%s", "percentage": %s}' "$profile" "$profile" "$percentage"
       ;;
 
   esac
