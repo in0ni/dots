@@ -4,8 +4,8 @@ xplr.config.general.panel_ui.default.border_type = "Thick"
 xplr.config.general.panel_ui.default.border_style.fg = { Rgb = {"!{gruv_dark_1_rgb}!"} }
 
 -- main pane titles
-xplr.config.general.panel_ui.table.title.style.fg = { Rgb = {"!{gruv_light_0_h_rgb}!"} }
-xplr.config.general.panel_ui.selection.title.style.fg = { Rgb = {"!{gruv_light_0_h_rgb}!"} }
+xplr.config.general.panel_ui.table.title.style.fg = { Rgb = {"!{gruv_light_h_rgb}!"} }
+xplr.config.general.panel_ui.selection.title.style.fg = { Rgb = {"!{gruv_light_h_rgb}!"} }
 
 -- secondary pane titles
 xplr.config.general.panel_ui.sort_and_filter.title.style.fg = { Rgb = {"!{gruv_light_2_rgb}!"} }
@@ -18,8 +18,8 @@ xplr.config.general.panel_ui.sort_and_filter.style.fg = { Rgb = {"!{gruv_light_4
 xplr.config.general.panel_ui.help_menu.style.fg = { Rgb = {"!{gruv_light_4_rgb}!"} }
 
 -- active/selected items
-xplr.config.general.focus_ui.style.fg = { Rgb = {"!{theme_highlight_rgb}!"} }
-xplr.config.general.selection_ui.style.fg = { Rgb = {"!{theme_highlight_rgb}!"} }
+xplr.config.general.focus_ui.style.fg = { Rgb = {"!{shell_highlight_rgb}!"} }
+xplr.config.general.selection_ui.style.fg = { Rgb = {"!{shell_highlight_rgb}!"} }
 
 --
 -- key bindings

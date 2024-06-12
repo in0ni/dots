@@ -3,11 +3,11 @@
   scrollbar: false;
 
   /* Gruvbox dark colors */
-  black: #"!{gruv_dark_bg_0}!";
-  darkest: #"!{gruv_dark_bg_1}!";
-  dark: #"!{gruv_dark_bg_2}!";
-  mid: #"!{gruv_dark_bg_3}!";
-  light: #"!{gruv_light_bg_3}!";
+  black: #"!{gruv_dark}!";
+  darkest: #"!{gruv_dark_1}!";
+  dark: #"!{gruv_dark_2}!";
+  mid: #"!{gruv_dark_3}!";
+  light: #"!{gruv_light_3}!";
   accent: #"!{gruv_dark_orange}!";
   urgent: #"!{b16_01_red}!";
   urgent-selected: #"!{b16_09_red}!";
