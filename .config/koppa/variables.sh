@@ -56,16 +56,16 @@ a100=00
 # cool tones, based on Arc-Dark
 shell_highlight=e7610b
 
-shell_dark=2b2d30
-shell_dark_1=2f343f
-shell_dark_2=353945
-shell_dark_3=404552
-shell_dark_4=647386
-shell_light=f0f3ff
-shell_light_1=d3dae3
-shell_light_2=bac3cf
-shell_light_3=afb8c6
-shell_light_4=8a919e
+shell_dark=272729
+shell_dark_1=33343f
+shell_dark_2=373a48
+shell_dark_3=454854
+shell_dark_4=687183
+shell_light=f1f8fd
+shell_light_1=d6e0eb
+shell_light_2=bac2ce
+shell_light_3=adb3c2
+shell_light_4=8b92a2
 
 # https://github.com/morhetz/gruvbox
 # warm tones (with matching colors)
@@ -117,12 +117,12 @@ gruv_light_orange_mute=e7610b
 
 # custom base16 colors (in the works)
 b16_00_black=$gruv_dark_h
-b16_01_red=ff0077
-b16_02_green=02d200
-b16_03_yellow=ffe800
+b16_01_red=f50072
+b16_02_green=23d222
+b16_03_yellow=ffe90a
 b16_04_blue=14a4ff
-b16_05_purple=f459d0
-b16_06_aqua=00d1bb
+b16_05_purple=e95eca
+b16_06_aqua=00d6c0
 b16_07_white=$gruv_light_h
 b16_08_black=$gruv_dark_4
 b16_09_red=ff5764

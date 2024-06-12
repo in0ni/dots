@@ -90,6 +90,7 @@ window#waybar.empty #window { background-color: transparent; }
 #clock,
 #window,
 #temperature,
+#network,
 #battery {
   background-color: rgba("!{gruv_dark_rgb}!", 0.7);
 }
@@ -145,21 +146,23 @@ button.urgent {
 #memory,
 #disk,
 #temperature,
+#network,
 #battery {
   color: #%{gruv_light}%;
   opacity: 0.75;
 }
 
-#cpu { border-top: 1px solid #"!{b16_04_blue}!"; }
+#cpu { border-top: 1px solid #"!{b16_06_aqua}!"; }
 #memory { border-top: 1px solid #"!{b16_05_purple}!"; }
-#disk { border-top: 1px solid #"!{b16_06_aqua}!"; }
+#disk { border-top: 1px solid #"!{b16_04_blue}!"; }
 #temperature { border-top: 1px solid #"!{gruv_dark_orange}!"; }
 #temperature.critical { background-color: #"!{b16_01_red}!"; }
 #battery.great { border-top: 1px solid #"!{b16_02_green}!"; }
 #battery.good { border-top: 1px solid #"!{b16_10_green}!"; }
 #battery.fair { border-top: 1px solid #"!{b16_11_yellow}!"; }
 /* #battery.low is found below w/ network & pulse */
-#battery.charging { border-top: 1px solid #"!{b16_14_aqua}!"; }
+#battery.charging { border-top: 1px solid #"!{b16_00_black}!"; }
+#network { border-top: 1px solid #"!{gruv_dark_green}!"; }
 
 /*
  * warnings
