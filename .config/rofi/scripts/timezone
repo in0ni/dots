@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+icon=
+title=Timezone
+
+# LISTS
+list_timezones() {
+  output=$(
+    timedatectl list-timezones |
+      awk '{
+        tz=$1
+        printf "%s\\0info\x1fchange-timezone:%s\n", tz, tz
+      }'
+  )
+  echo -en "$output"
+}
+
+# MISC
+set_message() {
+  echo -en "\0message\x1f$1\n"
+}
+
+set_title() {
+  echo -en "\0prompt\x1f$icon  $1\n"
+}
+
+set_subtitle() {
+  set_title "→  $1  $2"
+}
+
+print_divider() {
+  echo -en " \0nonselectable\x1ftrue\n"
+}
+
+notify() {
+  desc=$1
+  status=$2
+
+  [[ $status == 0 ]] && urgency=normal || urgency=critical
+  notify-send "$title" "$desc" -i network-wireless-connected -u "$urgency"
+}
+
+# DEFAULT TITLE
+set_title $title
+set_message ""
+
+# FIRST RUN
+if [[ $ROFI_RETV == 0 ]]; then
+  list_timezones
+fi
+
+# ENTRY MADE
+if [[ $ROFI_RETV == 1 ]]; then
+
+  case $ROFI_INFO in
+  list-networks)
+    list_timezones
+    ;;
+  change-timezone:*)
+    IFS=":" read -r -a data <<<"$ROFI_INFO"
+    tz="${data[1]}"
+    coproc timedatectl set-timezone "$tz" >/dev/null 2>&1
+    ;;
+  esac
+fi
