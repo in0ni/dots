@@ -161,7 +161,7 @@ button.urgent {
 #battery.good { border-top: 1px solid #"!{b16_10_green}!"; }
 #battery.fair { border-top: 1px solid #"!{b16_11_yellow}!"; }
 /* #battery.low is found below w/ network & pulse */
-#battery.charging { border-top: 1px solid #"!{b16_00_black}!"; }
+#battery.charging { border-top: 1px solid #"!{b16_07_white}!"; }
 #network { border-top: 1px solid #"!{gruv_dark_green}!"; }
 
 /*

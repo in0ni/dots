@@ -28,8 +28,8 @@ font_mono="Fira Code"
 font_sans="Rubik"
 font_icon="Font Awesome 6 Free"
 font_size=15
-font_size_sm=12
-font_size_xs=9
+font_size_sm=11
+font_size_xs=8
 hintstyle=hintnone
 rgba=rgb
 

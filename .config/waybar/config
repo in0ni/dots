@@ -63,7 +63,7 @@
     //"format-alt": "{:%T}"
   },
   "cpu": {
-    "interval": 5,
+    "interval": 1,
     "states": {
       "critical": 90
     },
@@ -71,11 +71,11 @@
     "tooltip": false
   },
   "memory": {
-    "interval": 10,
+    "interval": 1,
     "format": "{} " // microchip
   },
   "disk": {
-    "interval": 10,
+    "interval": 5,
     "format": "⁻{percentage_free} ", // microchip
     "path": "/",
     "states": {
@@ -85,7 +85,7 @@
   "temperature": {
     // "thermal-zone": 2,
     // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
-    "interval": 5,
+    "interval": 1,
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C {icon}",
     "format": "{temperatureC}° {icon}",
@@ -102,13 +102,12 @@
     "format": "{capacity} {icon}",
     "format-charging": "{capacity} ",
     "format-plugged": "{capacity} ",
+    "format-full": "{capacity} ",
     "format-alt": "{time} {icon}",
-    // "format-good": "", // An empty format will hide the module
-    // "format-full": "",
     "format-icons": [""] // bolt
-    // "format-icons": ["", "", "", "", ""]
   },
   "network": {
+    "interval": 2,
     // "interface": "wlp2*", // (Optional) To force the use of this interface
     "format-wifi": "{signalStrength}% ",
     "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
@@ -189,11 +188,11 @@
     "on-click-right": "waybar-pomodoro toggle"
   },
   "custom/x1profile": {
-    "interval": 2,
+    "interval": 1,
     "return-type": "json",
     "exec": "waybar-x1profile get-profile",
     "exec-if": "exit 0",
     "format-icons": ["", "", ""],
-    "format": "{icon}",
+    "format": "{icon}"
   }
 }
