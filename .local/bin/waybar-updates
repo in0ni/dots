@@ -37,12 +37,12 @@ print_usage() {
 
 update_software() {
   # pacman
-  pac=$(checkupdates)
+  pac=$(checkupdates --nocolor)
   pac_count=$(get_count "$pac")
   pac_info=$(get_details "$pac")
 
   # aur
-  if aur repo -d paks &> /dev/null; then
+  if aur repo -d paks &>/dev/null; then
     aur=$(aur repo -d paks --list | aur vercmp)
     aur_count=$(get_count "$aur")
     aur_info=$(get_details "$aur")
@@ -57,45 +57,45 @@ update_software() {
 
   # set status icons & tooltip
   if ((svr_count == 0 && pac_count == 0 && aur_count == 0)); then
-    tooltip+="Up to date"
-    alt="uptodate"
+    software_tooltip+="Up to date"
+    software_alt="uptodate"
 
   else
     if ((pac_count > 0)); then
-      alt="pac"
+      software_alt="pac"
     else
-      alt="nopac"
+      software_alt="nopac"
     fi
 
     if ((aur_count > 0)); then
-      alt+="_aur"
+      software_alt+="_aur"
     fi
     if ((svr_count > 0)); then
-      alt+="_svr"
+      software_alt+="_svr"
     fi
 
-    # print info for tooltip
-    ((svr_count > 0)) && tooltip+="(${svr_count}) svr:\n${svr_info}\n"
-    ((aur_count > 0)) && tooltip+="(${aur_count}) aur:\n${aur_info}\n"
-    ((pac_count > 0)) && tooltip+="(${pac_count}) pac:\n${pac_info}\n"
+    # print info for software_tooltip
+    ((svr_count > 0)) && software_tooltip+="(${svr_count}) svr:\n${svr_info}\n"
+    ((aur_count > 0)) && software_tooltip+="(${aur_count}) aur:\n${aur_info}\n"
+    ((pac_count > 0)) && software_tooltip+="(${pac_count}) pac:\n${pac_info}\n"
 
-    tooltip=$(echo -n "$tooltip" | sed 's/\\n\\n$/\\n/')
+    software_tooltip=$(echo -n "$software_tooltip" | sed 's/\\n\\n$/\\n/')
 
   fi
 
   # write obj for waybar
-  printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$software_cache"
+  printf '{"tooltip": "%s", "alt": "%s"}' "$software_tooltip" "$software_alt" >"$software_cache"
 }
 
 update_firmware() {
-  fwupdmgr refresh 2> /dev/null
+  fwupdmgr refresh 2>/dev/null
 
   fwupd_jq_simplify=".Devices[] | { dev: .Name, count: (.Releases|length|tostring), updates: [.Releases[] | {name: .Summary, ver: .Version, desc: .Description}] }"
   fwupd_jq_unique=".updates[].ver"
   fwupd_jq_finalout='.dev, (.updates[]|"   - "+.ver+": "+.name)'
 
   # -y assume yes
-  fwupd_simple=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2> /dev/null)
+  fwupd_simple=$(fwupdmgr get-updates -y --json | jq "$fwupd_jq_simplify" 2>/dev/null)
   fwupd_unique=$(echo "$fwupd_simple" | jq "$fwupd_jq_unique")
   fwupd_json=$(echo "$fwupd_simple" | jq --raw-output "$fwupd_jq_finalout")
   fwupd_count=$(get_count "$fwupd_unique")
@@ -103,8 +103,8 @@ update_firmware() {
 
   # set status icons & tooltip
   if ((fwupd_count == 0)); then
-    tooltip+="Up to date"
-    alt="uptodate"
+    local tooltip+="Up to date"
+    local alt="uptodate"
 
   else
     alt="outdated"
@@ -113,41 +113,41 @@ update_firmware() {
   fi
 
   # write obj for waybar
-  printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" > "$firmware_cache"
+  printf '{"tooltip": "%s", "alt": "%s"}' "$tooltip" "$alt" >"$firmware_cache"
 }
 
 case "$1" in
-  display)
-    case "$2" in
-      software)
-        get_waybar_data "$software_cache"
-        ;;
-      firmware)
-        get_waybar_data "$firmware_cache"
-        ;;
-      *)
-        print_usage
-        ;;
-    esac
+display)
+  case "$2" in
+  software)
+    get_waybar_data "$software_cache"
     ;;
-  refresh)
-    case "$2" in
-      software)
-        update_software
-        ;;
-      firmware)
-        update_firmware
-        ;;
-      all)
-        update_software
-        update_firmware
-        ;;
-      *)
-        print_usage
-        ;;
-    esac
+  firmware)
+    get_waybar_data "$firmware_cache"
     ;;
   *)
     print_usage
     ;;
+  esac
+  ;;
+refresh)
+  case "$2" in
+  software)
+    update_software
+    ;;
+  firmware)
+    update_firmware
+    ;;
+  all)
+    update_software
+    update_firmware
+    ;;
+  *)
+    print_usage
+    ;;
+  esac
+  ;;
+*)
+  print_usage
+  ;;
 esac
