@@ -15,6 +15,8 @@
 
 icon=
 title=Bluetooth
+icon_notify=blueman
+source "$(dirname "$0")/utils" "$icon" "$title" "$icon_notify"
 
 # Controller states
 declare -A ctrl
@@ -30,10 +32,10 @@ dev[pair]=Paired
 dev[trust]=Trusted
 
 # Fontawesome, some currently unused
-declare -A ico
-ico[toggle_on]=
-ico[toggle_off]=
-ico[back]=
+declare -A icons_rofi
+icons_rofi[toggle_on]=
+icons_rofi[toggle_off]=
+icons_rofi[back]=
 
 back=back
 
@@ -92,7 +94,7 @@ toggle_scan() {
     notify "Stop scanning..." $?
     sleep 1
   else
-    cmd=$(bluetoothctl scan on &> /dev/null &)
+    cmd=$(bluetoothctl scan on &>/dev/null &)
     notify "Scanning..." $?
     sleep 1
   fi
@@ -125,6 +127,7 @@ toggle_discoverable() {
 }
 
 # Toggles device connection
+# TODO: use coproc
 toggle_connection() {
   if is_dev_state_on "$1" "${dev[connect]}"; then
     cmd=$(bluetoothctl disconnect "$1")
@@ -174,35 +177,10 @@ list_devices() {
   echo -e "$output"
 }
 
-# MISC
-set_message() {
-  echo -en "\0message\x1f$1\n"
-}
-
-set_title() {
-  echo -en "\0prompt\x1f$icon  $1\n"
-}
-
-set_subtitle() {
-  set_title "→   $1 $2"
-}
-
-print_divider() {
-  echo -en " \0nonselectable\x1ftrue\n"
-}
-
 toggle() {
-  [[ $2 == 0 ]] && icon=${ico[toggle_on]} || icon=${ico[toggle_off]}
+  [[ $2 == 0 ]] && icon=${icons_rofi[toggle_on]} || icon=${icons_rofi[toggle_off]}
   [[ -n $3 ]] && info="$1":"$3" || info="$1"
   echo -en "$icon  $1\0info\x1f$info\n"
-}
-
-notify() {
-  desc=$(echo "$1" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/[\x01\x02]//g')
-  status=$2
-
-  [[ $status == 0 ]] && urgency=normal || urgency=critical
-  notify-send "$title" "$desc" -i blueman -u "$urgency"
 }
 
 show_menu() {
@@ -239,59 +217,59 @@ device_menu() {
 
   set_subtitle "$name"
 
-  is_dev_state_on "$mac" ""${dev[connect]}""
-  toggle ""${dev[connect]}"" $? "$mac"
+  is_dev_state_on "$mac" \""${dev[connect]}"\"
+  toggle \""${dev[connect]}"\" $? "$mac"
 
-  is_dev_state_on "$mac" ""${dev[pair]}""
-  toggle ""${dev[pair]}"" $? "$mac"
+  is_dev_state_on "$mac" \""${dev[pair]}"\"
+  toggle \""${dev[pair]}"\" $? "$mac"
 
-  is_dev_state_on "$mac" ""${dev[trust]}""
-  toggle ""${dev[trust]}"" $? "$mac"
+  is_dev_state_on "$mac" \""${dev[trust]}"\"
+  toggle \""${dev[trust]}"\" $? "$mac"
 
   print_divider
-  echo -en "${ico[back]}  Back\0info\x1f$back\n"
+  echo -en "${icons_rofi[back]}  Back\0info\x1f$back\n"
 }
 
 if [[ $ROFI_RETV == 0 ]]; then
   show_menu
 elif [[ $ROFI_RETV == 1 ]]; then
   case "$ROFI_INFO" in
-    "$back")
-      show_menu
-      ;;
-    "${ctrl[power]}")
-      toggle_power
-      show_menu
-      ;;
-    "${ctrl[scan]}")
-      toggle_scan
-      show_menu
-      ;;
-    "${ctrl[pair]}")
-      toggle_pairable
-      show_menu
-      ;;
-    "${ctrl[discover]}")
-      toggle_discoverable
-      show_menu
-      ;;
-    "${dev[connect]}":*)
-      mac=${ROFI_INFO#*"${dev[connect]}":}
-      toggle_connection "$mac"
-      device_menu "$mac"
-      ;;
-    "${dev[pair]}":*)
-      mac=${ROFI_INFO#*"${dev[pair]}":}
-      toggle_paired "$mac"
-      device_menu "$mac"
-      ;;
-    "${dev[trust]}":*)
-      mac=${ROFI_INFO#*"${dev[trust]}":}
-      toggle_trust "$mac"
-      device_menu "$mac"
-      ;;
-    *)
-      device_menu "$ROFI_INFO"
-      ;;
+  "$back")
+    show_menu
+    ;;
+  "${ctrl[power]}")
+    toggle_power
+    show_menu
+    ;;
+  "${ctrl[scan]}")
+    toggle_scan
+    show_menu
+    ;;
+  "${ctrl[pair]}")
+    toggle_pairable
+    show_menu
+    ;;
+  "${ctrl[discover]}")
+    toggle_discoverable
+    show_menu
+    ;;
+  "${dev[connect]}":*)
+    mac=${ROFI_INFO#*"${dev[connect]}":}
+    toggle_connection "$mac"
+    device_menu "$mac"
+    ;;
+  "${dev[pair]}":*)
+    mac=${ROFI_INFO#*"${dev[pair]}":}
+    toggle_paired "$mac"
+    device_menu "$mac"
+    ;;
+  "${dev[trust]}":*)
+    mac=${ROFI_INFO#*"${dev[trust]}":}
+    toggle_trust "$mac"
+    device_menu "$mac"
+    ;;
+  *)
+    device_menu "$ROFI_INFO"
+    ;;
   esac
 fi

@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
-icon= 
+icon=
 title="HDMI Output"
 
-# TODO: rename to rofi-sway-output
 # TODO: don't hardcode
 # TODO: support for multipe outputs
 output=HDMI-A-1
 
 get_output() {
-  echo $(swaymsg -t get_outputs | \
+  echo $(swaymsg -t get_outputs |
     jq '.[] | select(type == "object" and .name == "'"$output"'")')
 }
 
@@ -30,8 +29,8 @@ list_resolutions_only() {
   echo -en "  List all detected modes...\0info\x1fmodes\n"
   print_divider
 
-  echo -en $(echo $(get_output) | \
-  jq -rj '.modes | unique_by(.width) | .[] |
+  echo -en $(echo $(get_output) |
+    jq -rj '.modes | unique_by(.width) | .[] |
   .width, "x", .height, "\\0info\\x1f", .width, ":", .height, "\\n"')
 }
 
@@ -40,8 +39,8 @@ list_modes() {
   echo -en "  Back to resoultions only...\0info\x1fresolutions\n"
   print_divider
 
-  echo -en $(echo $(get_output) | \
-  jq -rj '.modes | .[] |
+  echo -en $(echo $(get_output) |
+    jq -rj '.modes | .[] |
   .width, "x", .height, " @ ", .refresh / 1000, "Hz
   \\0info\\x1f", .width, ":", .height, ":", .refresh / 1000, "\\n"')
 }
@@ -60,29 +59,29 @@ if [[ $ROFI_RETV == 0 ]]; then
 
 elif [[ $ROFI_RETV == 1 ]]; then
   case $ROFI_INFO in
-    modes)
-      list_modes
-      ;;
-    resolutions)
-      list_resolutions_only
-      ;;
-    *)
-      # // means global replace
-      # we replace ':' with ' '
-      # space delimited string interpreted as array
-      mode=(${ROFI_INFO//:/ })
-      if [[ ${mode[2]} ]]; then
-        cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]}@${mode[2]}Hz)
-      else
-        cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]})
-      fi
+  modes)
+    list_modes
+    ;;
+  resolutions)
+    list_resolutions_only
+    ;;
+  *)
+    # // means global replace
+    # we replace ':' with ' '
+    # space delimited string interpreted as array
+    mode=(${ROFI_INFO//:/ })
+    if [[ ${mode[2]} ]]; then
+      cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]}@${mode[2]}Hz)
+    else
+      cmd=$(swaymsg output $output mode ${mode[0]}x${mode[1]})
+    fi
 
-      # catch error and display via dunst
-      has_error=$(echo $cmd | jq '.[] | .success == false')
-      if [[ "$has_error" == 'true' ]]; then
-        error_msg=$(echo $cmd | jq '.[] | .error')
-        dunstify "Sway output error ${mode[2]}" "$error_msg" -u critical
-      fi
-      ;;
+    # catch error and display via dunst
+    has_error=$(echo $cmd | jq '.[] | .success == false')
+    if [[ "$has_error" == 'true' ]]; then
+      error_msg=$(echo $cmd | jq '.[] | .error')
+      dunstify "Sway output error ${mode[2]}" "$error_msg" -u critical
+    fi
+    ;;
   esac
 fi

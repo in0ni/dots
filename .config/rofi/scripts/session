@@ -1,56 +1,68 @@
 #!/usr/bin/env bash
+
 icon=
 title=Session
 
-if [[ $ROFI_RETV == 1 ]]; then
-  echo -en "\0prompt\x1f$@\n"
+declare -A cmd
+cmd[shutdown]=Shudown
+cmd[suspend]=Suspend
+cmd[hibernate]=Hibernate
+cmd[reboot]=Reboot
+cmd[logout]=Logout
+cmd[quit]=Quit
+
+# initial menu
+if [[ $ROFI_RETV == 0 ]]; then
+  echo -en "\0prompt\x1f$icon $title\n"
+  echo -en "   ${cmd[shutdown]}\0meta\x1fpower off\x1finfo\x1f${cmd[shutdown]}\n"
+  echo -en "   ${cmd[suspend]}\0info\x1f${cmd[suspend]}\n"
+  echo -en "   ${cmd[hibernate]}\0info\x1f${cmd[hibernate]}\n"
+  echo -en "   ${cmd[reboot]}\0meta\x1frestart\x1finfo\x1f${cmd[reboot]}\n"
+  echo -en "   ${cmd[logout]}\0info\x1f${cmd[logout]}\n"
+
+# selection made slafkjd
+else
+  echo -en "\0prompt\x1f$*\n"
 
   case $ROFI_INFO in
-    "quit")
-      exit 0
-      ;;
-    "power_off_confirm")
-      systemctl poweroff
-      exit 0
-      ;;
-    "suspend_confirm")
-      systemctl suspend
-      exit 0
-      ;;
-    "hibernate_confirm")
-      systemctl hibernate
-      exit 0
-      ;;
-    "reboot_confirm")
-      systemctl reboot
-      exit 0
-      ;;
-    "logout_confirm")
-      hyprctl dispatch exit
-      systemctl --user stop sway-session.target
-      exit 0
-      ;;
+  "${cmd[quit]}")
+    exit 0
+    ;;
+  "${cmd[shutdown]}"_confirm)
+    systemctl poweroff
+    exit 0
+    ;;
+  "${cmd[suspend]}"_confirm)
+    systemctl suspend
+    exit 0
+    ;;
+  "${cmd[hibernate]}"_confirm)
+    systemctl hibernate
+    exit 0
+    ;;
+  "${cmd[reboot]}"_confirm)
+    systemctl reboot
+    exit 0
+    ;;
+  "${cmd[logout]}"_confirm)
+    hyprctl dispatch exit
+    # TODO: perhaps rename to wm-session.target
+    systemctl --user stop hyprland-session.target
+    logout
+    exit 0
+    ;;
   esac
 
-  nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .nodes[] | .id' | wc -l)
-  floating_nodes=$(swaymsg -t get_tree | jq '.nodes[] | .nodes[] | .floating_nodes[] | .id' | wc -l)
+  nodes=$(hyprctl -j clients | jq '.|length')
 
   if [[ $ROFI_INFO != "suspend" && $ROFI_INFO != "hibernate" ]]; then
-    if [[ $nodes -gt 0 || $floating_nodes -gt 0 ]]; then
-      echo -en "\0message\x1f  Are you sure? There are <b>open windows</b> ($nodes tiled, $floating_nodes floating)\n"
+    if [[ $nodes -gt 0 ]]; then
+      echo -en "\0message\x1f  Are you sure? There are <b>$nodes open windows</b>\n"
       echo -en "\0urgent\x1f1\n"
       echo -en "Plese confirm.\0nonselectable\x1ftrue\n"
     fi
   fi
 
   echo -en "Yes\0info\x1f${ROFI_INFO}_confirm\n"
-  echo -en "No\0info\x1fquit\n"
-  # echo -en "$ROFI_INFO"
-else
-  echo -en "\0prompt\x1f$icon $title\n"
-  echo -en "   Power Off\0meta\x1fshutdown\x1finfo\x1fpower_off\n"
-  echo -en "   Suspend\0meta\x1fsuspend\x1finfo\x1fsuspend\n"
-  echo -en "   Hibernate\0meta\x1fhibernate\x1finfo\x1fhibernate\n"
-  echo -en "   Reboot\0meta\x1frestart\x1finfo\x1freboot\n"
-  echo -en "   Logout\0info\x1flogout\n"
+  echo -en "No\0info\x1f${cmd[quit]}\n"
 fi

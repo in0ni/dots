@@ -2,39 +2,48 @@
 
 icon=
 title=Passwords
+icon_notify=dialog-password-panel
+source "$(dirname "$0")/utils" "$icon" "$title" "$icon_notify"
+
+clear_timeout=10
+
+declare -A cmd
+cmd[gen]=pwgen
+cmd[genweak]=pwgenweak
+cmd[copy]=pwcopy
+
+set_title "$title"
 
 copy_passwords() {
-  gopass show -C $@ | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary
-  sleep 5 && wl-copy --primary --clear
+  coproc (gopass show -C "$1" | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary && sleep "$clear_timeout" && wl-copy --primary --clear && notify "Password Cleared")
 }
 
-case "$1" in
-  cp)
-    copy_passwords "$2"
-    ;;
-  *)
-    if [[ $ROFI_RETV == 0 ]]; then
-      echo -en "\0prompt\x1f$icon $title\n"
-      echo -en "  Generate Password\0meta\x1fpwgen\x1finfo\x1fpwgen\n"
-      echo -en "  Generate Password (no symbols)\0meta\x1fpwgenweaker\x1finfo\x1fpwgenweaker\n"
-      echo $(gopass list --flat) | tr " " "\n"
-    # TODO: use gopass to check validity of selection?
-    # 		perhaps redundant as '1' here ensures no custom selection
-    elif [[ $ROFI_RETV == 1 ]]; then
-      case $ROFI_INFO in
-        "pwgen")
-          gopass pwgen -y -1 24 | head -1 | tr -d "[:space:]" | wl-copy
-          exit 0
-          ;;
-        "pwgenweaker")
-          n
-          gopass pwgen -1 24 | head -1 | tr -d "[:space:]" | wl-copy
-          exit 0
-          ;;
-      esac
+# initial list
+if [[ $ROFI_RETV == 0 ]]; then
+  echo -en "  Generate Password\0info\x1f${cmd[gen]}\n"
+  echo -en "  Generate Password (no symbols)\0info\x1f${cmd[genweak]}\n"
+  output=$(gopass list --flat | awk -v opt="${cmd[copy]}" '{
+    name=$1
+    printf "%s\\0info\x1f%s:%s\n", name, opt, name
+  }')
+  echo -e "$output"
 
-      eval "$(basename $0) cp $@" &> /dev/null &
-      exit 0
-    fi
+# TODO: use gopass to check validity of selection?
+# 		perhaps redundant as '1' here ensures no custom selection
+elif [[ $ROFI_RETV == 1 ]]; then
+  case $ROFI_INFO in
+  "${cmd[gen]}")
+    gopass pwgen -y -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+    exit 0
     ;;
-esac
+  "${cmd[genweak]}")
+    gopass pwgen -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+    exit 0
+    ;;
+  "${cmd[copy]}":*)
+    key=${ROFI_INFO#*"${cmd[copy]}":}
+    copy_passwords "$key"
+    exit 0
+    ;;
+  esac
+fi
