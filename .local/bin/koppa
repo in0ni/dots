@@ -40,11 +40,17 @@ build_zap() {
     zaps=("$expanded_path")
   fi
 
+  echo "==> $expanded_path"
+
   # iterate and parse through files
   for zap in $zaps; do
     perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' < "$zap" \
       | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' > "${zap/${koppa_id}/}"
-    echo "[file]     $zap -> ${zap/${koppa_id}/}"
+    if grep 'ERR' "${zap/${koppa_id}/}"; then
+      echo "[ERROR]    $zap -> ${zap/${koppa_id}/}"
+    else
+      echo "[write]    $zap -> ${zap/${koppa_id}/}"
+    fi
   done
 
   # support for restarting a service/process
