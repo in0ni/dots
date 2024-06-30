@@ -4,8 +4,8 @@
 [language-server.efm-langserver]
 command = "efm-langserver"
 
-# currently just for php & phpcbf
 [language-server.efm-langserver.config]
+# only for phpcbf, unable to get working w/o this
 documentFormatting = true
 
 [language-server.efm-langserver.config.languages]
@@ -39,6 +39,7 @@ lintFormats = [
 
 
 # eslint
+# TODO: consider vscode-eslint-language-server
 [[language-server.efm-langserver.config.languages.javascript]]
 lintCommand = "npx --no-install eslint --format visualstudio --stdin --stdin-filename ${INPUT}"
 lintStdin = true
@@ -47,29 +48,17 @@ lintFormats = [
   "%f(%l,%c): %tarning %m",
 ]
 
-# TWIG
-# [[language-server.efm-langserver.config.languages.twig]]
-# lintCommand = "twigcs -r emacs ${INPUT}"
-# lintStdin = true
-
 # phpcs/phpcbf
 [[language-server.efm-langserver.config.languages.php]]
 # issues using helix default "format" command
 formatCommand = "phpcbf -q --stdin-path=${INPUT} - || true"
 formatStdin = true
-
 lintCommand = "phpcs --report=\"emacs\" --stdin-path=${INPUT} -"
 lintStdin = true
 lintFormats = [
   "%f:%l:%c: %rror - %m",
   "%f:%l:%c: %tarning - %m"
 ]
-
-# shellcheck
-[[language-server.efm-langserver.config.languages.bash]]
-lintCommand = "shellcheck -x -fgcc -Cnever"
-lintStdin = true
-
 
 #
 # Emmet
@@ -79,6 +68,13 @@ args = ["--stdio"]
 command="emmet-ls"
 
 #
+# Emmet
+#
+[language-server.cspell]
+command="cspell-lsp"
+args = ["--stdio"]
+
+#
 # Language configuration
 #
 [[language]]
@@ -86,25 +82,23 @@ name="javascript"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "typescript"] }
 language-servers = [
+  "cspell",
   { name = "typescript-language-server", except-features = ["format"] },
   # eslint
-  { name = "efm-langserver", only-features = ["diagnostics"] },
+  { name = "efm-langserver", except-features = ["format"] },
 ]
 
 [[language]]
 name="json"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "json"] }
-# language-servers = [
-#   # eslint
-#   { name = "efm-langserver", only-features = ["diagnostics"] },
-# ]
 
 [[language]]
 name="css"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "css"] }
 language-servers = [
+  "cspell",
   { name = "vscode-css-language-server", except-features=["format"] },
   # stylelint
   { name = "efm-langserver", only-features = ["diagnostics"] },
@@ -116,6 +110,7 @@ name="scss"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "scss"] }
 language-servers = [
+  "cspell",
   { name = "vscode-css-language-server", except-features = ["format"] },
   # stylelint
   { name = "efm-langserver", except-features = ["format"] },
@@ -127,6 +122,7 @@ name="html"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "html"] }
 language-servers = [
+  "cspell",
   { name = "vscode-html-language-server", except-features = ["format"] },
   { name = "emmet-ls", only-features = ["completion"] },
 ]
@@ -141,7 +137,7 @@ name="twig"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "melody"] }
 language-servers = [
-  # { name = "efm-langserver", only-features = ["diagnostics"] },
+  "cspell",
   { name = "emmet-ls", only-features = ["completion"] },
 ]
 
@@ -155,6 +151,7 @@ name="svelte"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "svelte"] }
 language-servers = [
+  "cspell",
   { name = "svelteserver", except-features=["format"] },
   { name = "emmet-ls", only-features = ["completion"] },
 ]
@@ -164,33 +161,21 @@ name="php"
 auto-format=true
 # add drupal types
 file-types = ["php", "inc", "theme", "module", "profile"]
-indent = { tab-width = 2, unit = "  " }
 # issues using helix default "format" command
-# formatter = { command = "phpcbf", args = ["-qv", "--stdin-path=${INPUT}", "-", "||", "true"] }
+# formatter = { command = "phpcbf", args = ["-q", "--stdin-path=${INPUT}", "-"] }
 language-servers = [
+  "cspell",
  { name = "intelephense", except-features = ["format"] },
  # phpcs & phpcbf
  { name = "efm-langserver", only-features = ["diagnostics", "format"] },
 ]
-
-# [language.debugger]
-# name = "vscode-php-debug"
-# transport = "stdio"
-# command = "node"
-# args = [ "/usr/lib/node_modules/php-debug/out/phpDebug.js" ]
-
-# [[language.debugger.templates]]
-# name = "Listen for Xdebug"
-# request = "launch"
-# completion = [ "ignored" ]
-# args = { }
-# args = { serverSourceRoot="/app/", localSourceRoot="/home/in0ni/Work/un/repos/UW2ISEEK-619/" }
 
 [[language]]
 name="python"
 auto-format=true
 formatter = { command = "black", args = ["-"] }
 language-servers = [
+  "cspell",
  { name = "pylsp", except-features = ["format"] },
  { name = "efm-langserver", only-features = ["diagnostics"] },
 ]
@@ -198,13 +183,38 @@ language-servers = [
 [[language]]
 name = "bash"
 auto-format = true
-formatter = { command = "shfmt", args = ["-i", "2", "-ci", "-bn", "-sr"] }
 language-servers = [
-  { name="bash-language-server", except-features = ["format"] },
-  { name="efm-langserver", only-features = ["diagnostics"] },
+  "cspell",
+  "bash-language-server"
 ]
 
 [[language]]
 name = "yaml"
 auto-format = true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "yaml"] } 
+
+[[language]]
+name = "markdown"
+auto-format = true
+language-servers = [
+  "cspell",
+]
+
+# [[language]]
+# name = "text"
+# auto-format = true
+# language-servers = [
+#   "cspell",
+# ]
+
+#
+# shebangs
+# helps with filetype detection for dotfiles & other configs
+#
+[[language]]
+name = "ini"
+shebangs = ["ini"]
+
+[[language]]
+name = "hocon"
+shebangs = ["hocon"]

@@ -1,3 +1,5 @@
+#!fmt/ini
+
 [global]
 # on wayland there is no difference between mouse/keyboard
 follow = mouse

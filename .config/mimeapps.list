@@ -1,3 +1,5 @@
+#!fmt/ini
+
 [Default Applications]
 application/epub+zip=calibre-gui.desktop;
 application/javascript=terminal-editor.desktop;
@@ -27,6 +29,7 @@ text/mml=firefox.desktop;
 text/plain=terminal-editor.desktop;
 text/xml=firefox.desktop;
 text/x-python=terminal-editor.desktop;
+video/mp4=mpv.desktop;
 video/x-msvideo=mpv.desktop;
 x-scheme-handler/http=firefox.desktop;
 x-scheme-handler/https=firefox.desktop;
