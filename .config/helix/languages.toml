@@ -67,6 +67,11 @@ lintFormats = [
 args = ["--stdio"]
 command="emmet-ls"
 
+[language-server.vuels]
+command = "vue-language-server"
+args = ["--stdio"]
+config = { typescript = { tsdk = "/usr/lib/node_modules/typescript/lib/" } }
+
 #
 # Emmet
 #
@@ -141,10 +146,26 @@ language-servers = [
   { name = "emmet-ls", only-features = ["completion"] },
 ]
 
+[language.auto-pairs]
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+"'" = "'"
+"<" = ">"
+"%" = "%"
+"#" = "#"
+
 [[language]]
 name="vue"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "vue"] }
+language-servers = [
+  "cspell",
+  "vuels",
+  { name = "typescript-language-server", except-features = ["format"] },
+  { name = "emmet-ls", only-features = ["completion"] },
+]
 
 [[language]]
 name="svelte"
