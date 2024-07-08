@@ -3,7 +3,7 @@
 icon=
 title=Passwords
 icon_notify=dialog-password-panel
-source "$(dirname "$0")/utils" "$icon" "$title" "$icon_notify"
+source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
 
 clear_timeout=10
 

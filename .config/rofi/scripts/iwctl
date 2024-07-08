@@ -25,7 +25,7 @@ icons_rofi[scan]=
 icons_rofi[secure]=
 icons_rofi[show]=
 icons_rofi[warn]=
-source "$(dirname "$0")/utils" "$icon" "$title" "${icons_rofi[@]}"
+source "$(dirname "$0")/common/utils" "$icon" "$title" "${icons_rofi[@]}"
 
 # XXX: remove this hardcoded reference
 iwctl_station=wlan0
@@ -54,7 +54,7 @@ cmd[scan]=scan
 
 declare -A opt
 opt[refresh_network]="${icons_rofi[refresh]}  Refresh networks list...\0info\x1f${cmd[list_avail]}\n"
-opt[scan_networks]="i${icons_rofi[scan]}  Scan for networks...\0info\x1f${cmd[scan]}\n"
+opt[scan_networks]="${icons_rofi[scan]}  Scan for networks...\0info\x1f${cmd[scan]}\n"
 opt[known_networks]="${icons_rofi[saved]}  Known networks...\0info\x1f${cmd[list_known]}\n"
 opt[back_available_networks]="${icons_rofi[back]}  Back to networks list...\0info\x1f${cmd[list_avail]}\n"
 opt[back_known_networks]="${icons_rofi[back]}  Back to known networks list...\0info\x1f${cmd[list_known]}\n"

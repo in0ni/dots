@@ -5,7 +5,7 @@
 icon=
 title=Timezone
 icon_notify=state-ok
-source "$(dirname "$0")/utils" "$icon" "$title" "$icon_notify"
+source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
 
 declare -A cmd
 cmd[list_timezones]=list-timezones

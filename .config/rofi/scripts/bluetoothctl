@@ -16,7 +16,7 @@
 icon=
 title=Bluetooth
 icon_notify=blueman
-source "$(dirname "$0")/utils" "$icon" "$title" "$icon_notify"
+source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
 
 # Controller states
 declare -A ctrl
@@ -217,14 +217,20 @@ device_menu() {
 
   set_subtitle "$name"
 
-  is_dev_state_on "$mac" \""${dev[connect]}"\"
-  toggle \""${dev[connect]}"\" $? "$mac"
+  # shellcheck disable=SC2086,SC2027
+  is_dev_state_on "$mac" ""${dev[connect]}""
+  # shellcheck disable=SC2086,SC2027
+  toggle ""${dev[connect]}"" $? "$mac"
 
-  is_dev_state_on "$mac" \""${dev[pair]}"\"
-  toggle \""${dev[pair]}"\" $? "$mac"
+  # shellcheck disable=SC2086,SC2027
+  is_dev_state_on "$mac" ""${dev[pair]}""
+  # shellcheck disable=SC2086,SC2027
+  toggle ""${dev[pair]}"" $? "$mac"
 
-  is_dev_state_on "$mac" \""${dev[trust]}"\"
-  toggle \""${dev[trust]}"\" $? "$mac"
+  # shellcheck disable=SC2086,SC2027
+  is_dev_state_on "$mac" ""${dev[trust]}""
+  # shellcheck disable=SC2086,SC2027
+  toggle ""${dev[trust]}"" $? "$mac"
 
   print_divider
   echo -en "${icons_rofi[back]}  Back\0info\x1f$back\n"
