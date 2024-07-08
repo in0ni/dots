@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+icon=
+title="Helix Projects"
+# icon_notify=dialog-password-panel
+source "$(dirname "$0")/common/utils" "$icon" "$title"
+
+set_title "$title"
+
+# manually managed projects
+projs=~/.config/hxi.projs
+
+# automatically scanned directory
+uw2=~/Work/un/repos
+
+helix_cd() {
+  kitten="dispatch exec kitty -d='$1'"
+  hx="$kitten -T '[$2] - hx' helix"
+  term1="$kitten -T '[$2] - t1'"
+  term2="$kitten -T '[$2] - t2'"
+  tggl="dispatch togglesplit"
+  size="dispatch resizeactive 100% 60%"
+
+  # create 3 pane window layout
+  coproc {
+    hyprctl "$hx"
+    sleep 0.1s
+    hyprctl "$term1"
+    sleep 0.2s
+    hyprctl "$tggl"
+    sleep 0.1s
+    hyprctl "$term2"
+    sleep 0.1s
+    hyprctl "$size"
+  }
+}
+
+# initial list
+if [[ $ROFI_RETV == 0 ]]; then
+  projs_file=$(awk -F':' '{
+    printf "%s (%s)\\0info\x1f%s:%s\n", $2, $1, $1, $2
+  }' <"$projs")
+
+  projs_uw2=$(fd 'UW2' "$uw2" -d 1 |
+    awk -F'/' '{
+    printf "%s\\0info\x1f%s:%s\n", $(NF-1), $0, $(NF-1)
+  }')
+
+  echo -en "$projs_file"
+  echo -en "$projs_uw2"
+fi
+
+if [[ $ROFI_RETV == 1 ]]; then
+  IFS=":" read -r -a data <<<"$ROFI_INFO"
+  helix_cd "${data[0]}" "${data[1]}"
+fi
