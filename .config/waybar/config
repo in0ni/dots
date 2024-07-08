@@ -76,7 +76,7 @@
   },
   "disk": {
     "interval": 5,
-    "format": "⁻{percentage_free} ", // microchip
+    "format": "{percentage_free} ", // microchip
     "path": "/",
     "states": {
       "critical": 96
@@ -109,7 +109,7 @@
   "network": {
     "interval": 2,
     // "interface": "wlp2*", // (Optional) To force the use of this interface
-    "format-wifi": "{signalStrength}% ",
+    "format-wifi": "{signalStrength} ",
     "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
     "format-linked": "{ifname} (No IP) ",
     "format-disconnected": "Disconnected ⚠",
