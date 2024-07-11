@@ -15,7 +15,12 @@ cmd[copy]=pwcopy
 set_title "$title"
 
 copy_passwords() {
-  coproc (gopass show -C "$1" | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary && sleep "$clear_timeout" && wl-copy --primary --clear && notify "Password Cleared")
+  coproc {
+    gopass show -C "$1" | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary
+    sleep "$clear_timeout"
+    wl-copy --primary --clear
+    notify "Password Cleared"
+  }
 }
 
 # initial list

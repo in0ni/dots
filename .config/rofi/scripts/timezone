@@ -37,7 +37,10 @@ if [[ $ROFI_RETV == 1 ]]; then
     ;;
   "${cmd[change_timezone]}":*)
     tz=${ROFI_INFO#*"${cmd[copy]}":}
-    coproc (timedatectl set-timezone "$tz" && notify "Timezone Changed")
+    coproc {
+      timedatectl set-timezone "$tz"
+      notify "Timezone Changed"
+    }
     ;;
   esac
 fi
