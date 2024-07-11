@@ -20,17 +20,18 @@ helix_cd() {
   term2="$kitten -T '[$2] - t2'"
 
   # create 3 pane window layout
+  # NOTE: 0.2s is appropriate wait for dispatches to trigger once previous command completes
   coproc {
     hyprctl "$hx"
-    sleep 0.1s
+    sleep 0.2s
     hyprctl "$term1"
-    sleep 0.1s
-    hyprctl dispatch togglesplit
-    sleep 0.1s
+    sleep 0.2s
+    hyprctl "dispatch togglesplit"
+    sleep 0.2s
     hyprctl "$term2"
-    sleep 0.1s
-    hyprctl dispatch resizeactive 0 60%
-    hyprctl dispatch movefocus u
+    sleep 0.2s
+    hyprctl "dispatch resizeactive 0 60%"
+    hyprctl "dispatch movefocus u"
   }
 }
 
