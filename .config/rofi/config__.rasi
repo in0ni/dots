@@ -3,6 +3,7 @@ configuration {
   show-icons: false;
   terminal: "kitty";
   sort: false;
+  kb-cancel: "XF86Back,XF86HomePage,XF86Sleep,Menu,XF86Search,Escape";
 
   drun {
     display-name: "  Run";
