@@ -15,7 +15,7 @@ uw2=~/Work/un/repos
 
 helix_cd() {
   kitten="dispatch exec kitty -d='$1'"
-  hx="$kitten -T '[$2] - hx' helix"
+  hx="$kitten -T '[$2] - hx' --hold helix"
   term1="$kitten -T '[$2] - t1'"
   term2="$kitten -T '[$2] - t2'"
 
