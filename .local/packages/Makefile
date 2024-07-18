@@ -20,22 +20,22 @@ refresh: ## Refresh the backup lists
 
 .PHONY: publish
 publish: ## Publish the meta-package in the local repo
-	for type in "sys-base" "sys-ettal" "sys-x1" "usr-minimal" "usr-base" "usr-desktop" "usr-mediacenter"; do \
-  		pkg=paks-$$type-*.pkg.tar.zst; \
+	for split in paks-{sys,usr,gui}*.zst; do \
+		pkg=paks-$$split-*.pkg.tar.zst; \
 		gpg --detach-sign --yes $$pkg; \
 		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
 		cp $$pkg* /var/cache/pacman/paks/; \
 	done
 	rsync -avh /var/cache/pacman/paks/. svr:/var/www/html/paks --delete; \
 
-.PHONY: aurs
-aurs: ## Publish the meta-package in the local repo
-	for pkg in aurs/*.zst; do \
-		# echo $$pkg; \
-		# gpg --detach-sign --yes $$pkg; \
-		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
-		cp $$pkg* /var/cache/pacman/paks/; \
-	done
+# .PHONY: aurs
+# aurs: ## Publish the meta-package in the local repo
+# 	for pkg in aurs/*.zst; do \
+# 		# echo $$pkg; \
+# 		# gpg --detach-sign --yes $$pkg; \
+# 		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
+# 		cp $$pkg* /var/cache/pacman/paks/; \
+# 	done
 
 .PHONY: clean
 clean: ## Cleanup
