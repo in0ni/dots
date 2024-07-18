@@ -114,7 +114,7 @@
     "format-linked": "{ifname} (No IP) ",
     "format-disconnected": "Disconnected ⚠",
     "format-alt": "{ifname}: {ipaddr}/{cidr}",
-    "on-click-right": "kitty iwctl",
+    "on-click-right": "iwgtk",
     "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
   },
   "pulseaudio": {
