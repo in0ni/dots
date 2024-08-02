@@ -54,5 +54,9 @@
   {
     "id": "vimiv",
     "path": "$HOME/.config/vimiv"
+  },
+  {
+    "id": "vivid",
+    "path": "$HOME/.config/vivid"
   }
 ]

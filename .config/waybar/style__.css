@@ -60,7 +60,7 @@ window#waybar.empty #window { background-color: transparent; }
 }
 
 #custom-x1profile.performance {
-  color: #"!{gruv_dark_red}!";
+  color: #"!{shell_light}!";
 }
 
 #clock,

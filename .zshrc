@@ -1,16 +1,18 @@
 ### Pimpin' aint easy
 #
-# dircolors & exa
-eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
+# dircolors & eza
+export LS_COLORS=$(vivid generate vibra16)
+# eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
 rbit="38;5;11"
-wbit="38;5;10"
-xbit="32"
+wbit=$rbit
+xbit="38;5;10"
 warnbit="38;5;15;41;1"
 sbit="36;1"
 rwx_str="ur=${rbit}:gr=${rbit}:tr=${rbit}:uw=${wbit}:gw=${wbit}:tw=${warnbit}:ue=37:ux=${xbit}:gx=${xbit}:tx=${xbit}"
-owner="uu=37:gu=37:un=38;5;8:gn=38;5;8"
-EXA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=36:sb=1;36"
-export EXA_COLORS
+owner="uu=38;5;8:gu=38;5;8:un=38;5;8:gn=38;5;8"
+# da - date, sn - size number
+EZA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=38;5;14;5;12:sb=1;36"
+export EZA_COLORS
 
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
@@ -19,7 +21,7 @@ ssh=""
 if [[ ${SSH_TTY} ]]; then
   ssh="%F{8}%n%f%F{yellow}@%m%f "
 fi
-PROMPT='%K{232}$ssh%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{0} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{0}$ssh%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{234} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -46,10 +48,10 @@ command -v fd        &> /dev/null    && alias fd='fd --hidden --follow'         
 command -v rg        &> /dev/null    && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
 
 # ls
-command -v exa       &> /dev/null    && alias ls='exa -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
-command -v exa       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
-command -v exa       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
-command -v exa       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
+command -v eza       &> /dev/null    && alias ls='eza -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
+command -v eza       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
+command -v eza       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
+command -v eza       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
 
 # editor
 command -v helix     &> /dev/null    && alias vi='helix'                                           || alias vi='vim'
@@ -123,27 +125,6 @@ bindkey '^H'       backward-word
 bindkey '^L'       forward-word
 bindkey '^[[Z'     reverse-menu-complete
 
-### Titles
-#
-case $TERM in
-  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term)
-    precmd () {
-      print -Pn "\e]0;%~\a"
-    } 
-    preexec () { print -Pn "\e]0;%~ ($1)\a" }
-    ;;
-  screen|screen-256color)
-    precmd () { 
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# %~\a" 
-    }
-    preexec () { 
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# %~ ($1)\a" 
-    }
-    ;; 
-esac
-
 ### Sourced
 # NOTE: recommended by zsh-syntax-highlighting that this be at the end,
 #       so moving both here
@@ -154,7 +135,7 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
-base16_view_colors() {
+b16_print_colors() {
   x=`tput op`
   y=`printf %5s`
   for i in {0..15}; do
@@ -167,6 +148,3 @@ base16_view_colors() {
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
-
-# Load Angular CLI autocompletion.
-command -v ng      &> /dev/null    &&  source <(ng completion script)

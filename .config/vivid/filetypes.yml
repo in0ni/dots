@@ -1,0 +1,577 @@
+core:
+  # comment as defined in dir_colors
+  normal_text: [$no] # NORMAL
+  regular_file: [$fi] # FILE
+  directory: [$di] # DIR
+  symlink: [$ln] # LINK
+  broken_symlink: [$or] # ORPHAN
+  missing_symlink_target: [$mi] # MISSING
+  fifo: [$pi]
+  socket: [$so]
+  door: [$do]
+  block_device: [$bd] # BLK
+  character_device: [$cd] # CHR
+  executable_file: [$ex] # EXEC
+  setuid: [$su] # SUID
+  setgid: [$sg] # SGID
+  sticky: [$st] # STICKY
+  sticky_other_writable: [$tw] # STICKY_OTHER_WRITABLE
+  other_writable: [$ow] # OTHER_WRITABLE
+  # not defined in dir_colors(5)
+  file_with_capability: [$ca] # CAPABILITY
+  multi_hard_link: [$mh] # MULTIHARDLINK
+  reset_to_normal: [$rs]
+
+text:
+  special:
+    - CHANGELOG
+    - CHANGELOG.md
+    - CHANGELOG.txt
+    - CODE_OF_CONDUCT
+    - CODE_OF_CONDUCT.md
+    - CODE_OF_CONDUCT.txt
+    - CONTRIBUTING
+    - CONTRIBUTING.md
+    - CONTRIBUTING.txt
+    - CONTRIBUTORS
+    - CONTRIBUTORS.md
+    - CONTRIBUTORS.txt
+    - COPYING
+    - COPYRIGHT
+    - FAQ
+    - INSTALL
+    - INSTALL.md
+    - INSTALL.txt
+    - LEGACY
+    - LICENCE
+    - LICENSE
+    - LICENSE-APACHE
+    - LICENSE-MIT
+    - NOTICE
+    - README
+    - README.md
+    - README.txt
+    - TODO
+    - TODO.md
+    - TODO.txt
+    - VERSION
+  plain:
+    - .txt
+    - .nfo
+    - .info
+  markup:
+    - .markdown
+    - .md
+    - .mdown
+    - .org
+    - .rst
+    - .typ
+    - .htm
+    - .html
+    - .shtml
+    - .xhtml
+    - .xml
+  subtitles:
+    - .ass
+    - .srt
+    - .ssa
+    - .sub
+    - .sup
+    - .vtt
+  metadata:
+    - .cue
+    - .m3u
+    - .torrent
+    - .md5
+    - .xmp
+    - .ics
+  key-value:
+    - .json
+    - .csv
+    - .tsv
+    - .xsd
+    - .dtd
+  conf:
+    - Dockerfile
+    - .cfg
+    - .conf
+    - .config
+    - .ini
+    - .desktop
+    - .tml
+    - .toml
+    - .webmanifest
+    - .yaml
+    - .yml
+    - .nix
+    - .vim
+  conf-security:
+    - .allow
+    - .deny
+
+general:
+  mute:
+    - "~"
+    - .DS_Store
+    - .backup
+    - .bak
+    - .bup
+    - .ctags
+    - .dockerignore
+    - .editorconfig
+    - .git # only works for '.git' files (submodules)
+    - .gitattributes
+    - .gitignore
+    - .gitmodules
+    - .ignore
+    - .log
+    - .old
+    - .orig
+    - .pacnew
+    - .part
+    - .pid
+    - .swp
+    - .temp
+    - .timestamp
+    - .tmp
+    - go.sum
+    - stderr
+    - stdin
+    - stdout
+  build_artifacts:
+    cxx:
+      - .o
+      - .la
+      - .lo
+    cmake:
+      - CMakeCache.txt
+    automake:
+      - Makefile.in
+    rust:
+      - .rlib
+      - .rmeta
+    python:
+      - .pyc
+      - .pyd
+      - .pyo
+    haskell:
+      - .dyn_hi
+      - .dyn_o
+      - .cache
+      - .hi
+    java:
+      - .class
+    scons:
+      - .scons_opt
+      - .sconsign.dblite
+    latex:
+      - .aux
+      - .bbl
+      - .bcf
+      - .blg
+      - .fdb_latexmk
+      - .fls
+      - .idx
+      - .ilg
+      - .ind
+      - .out
+      - .sty
+      - .synctex.gz
+      - .toc
+    llvm:
+      - .bc
+  lock:
+    - bun.lockb
+    - package-lock.json
+    - .lock
+    - .lockfile
+  error:
+    - .err
+    - .error
+    - .stderr
+
+programming:
+  source:
+    actionscript: [.as]
+    ada: [.adb, .ads]
+    applescript: [.applescript]
+    asp: [.asa]
+    assembly: [.asm]
+    awk: [.awk]
+    basic: [.vb]
+    cabal: [.cabal]
+    clojure: [.clj]
+    crystal: [.cr]
+    csharp: [.cs, .csx]
+    stylesheets: [.css, .sass, .scss, .less]
+    cxx:
+      [
+        .c,
+        .cpp,
+        .cc,
+        .cp,
+        .cxx,
+        .c++,
+        .h,
+        .hh,
+        .hpp,
+        .hxx,
+        .h++,
+        .ino,
+        .inc,
+        .inl,
+        .ipp,
+        .def,
+      ]
+    d: [.d, .di]
+    dart: [.dart]
+    diff: [.diff, .patch]
+    elixir: [.ex, .exs]
+    emacs: [.elc]
+    elm: [.elm]
+    erlang: [.erl]
+    fsharp: [.fs, .fsi, .fsx]
+    gcode: [.gcode]
+    go: [.go]
+    graphviz: [.dot, .gv]
+    groovy: [.groovy, .gvy, .gradle]
+    hack: [.hack]
+    hare: [.ha]
+    haskell: [.hs]
+    ipython: [.ipynb]
+    java: [.java, .bsh]
+    javascript: [.js, .jsx, .mjs, .cjs]
+    julia: [.jl]
+    kotlin: [.kt, .kts]
+    latex: [.tex, .ltx]
+    llvm: [.ll, .mir]
+    lisp: [.lisp, .el]
+    lua: [.lua]
+    mathematica: [.nb]
+    matlab: [.matlab, .m, .mn]
+    mojo: [.mojo]
+    nim: [.nim, .nims, .nimble]
+    ocaml: [.ml, .mli]
+    openscad: [.scad]
+    pascal: [.pas, .p, .dpr]
+    perl: [.pl, .pm, .pod, .t, .cgi]
+    php: [.php]
+    powershell: [.ps1, .psm1, .psd1]
+    prql: [.prql]
+    puppet: [.pp, .epp]
+    purescript: [.purs]
+    python: [.py]
+    r: [.r]
+    raku: [.raku]
+    ruby: [.rb]
+    rust: [.rs]
+    scala: [.scala, .sbt]
+    swift: [.swift]
+    tablegen: [.td]
+    tcl: [.tcl]
+    typescript: [.ts, .tsx]
+    v: [.v, .vsh]
+    zig: [.zig]
+  build:
+    - .cmake
+    - CMakeLists.txt
+    - .cmake.in
+    - Makefile
+    - .make
+    - .mk
+    - Makefile.am
+    - configure
+    - configure.ac
+  database:
+    - .db
+    - .sql
+    - .msql
+    - .mysql
+    - .pgsql
+    - .sqlite
+    - .mdb
+    - .mde
+
+design:
+  raster:
+    - .kra # Krita
+    - .psd # Photoshop
+    - .xcf # GIMP
+  3d:
+    - .blend # Blender scene file
+    - .hda # Houdini Digital Assets
+    - .hip # Houdini scene file
+    - .ma # Maya scene file
+    - .mb # Maya scene file
+    - .otl # Houdini Operator Type Library
+    # mesh
+    - .3ds
+    - .3mf # 3D manufacturing format
+    - .alembic
+    - .amf # Additive Manifacturing File
+    - .dae # Collada
+    - .fbx
+    - .iges
+    - .igs
+    - .mtl # material for .obj
+    - .obj
+    - .step
+    - .stl
+    - .stp
+    - .usd # Universal Scene Description (stores many things)
+    - .usda # .usd ASCII-format
+    - .usdc # .usd binary-format
+    - .usdz # .usd package
+    - .wrl # VRML
+    - .x3d
+  raw: # https://en.wikipedia.org/wiki/Raw_image_format
+    - .3fr
+    - .ari
+    - .arw
+    - .bay
+    - .braw
+    - .cap
+    - .cr2
+    - .cr3
+    - .crw
+    - .data
+    - .dcr
+    - .dcs
+    - .dng
+    - .drf
+    - .eip
+    - .erf
+    - .fff
+    - .gpr
+    - .iiq
+    - .k25
+    - .kdc
+    - .mdc
+    - .mef
+    - .mos
+    - .mrw
+    - .nef
+    - .nrw
+    - .obm
+    - .orf
+    - .pef
+    - .ptx
+    - .pxn
+    - .r3d
+    - .raf
+    - .raw
+    - .rw2
+    - .rwl
+    - .rwz
+    - .sr2
+    - .srf
+    - .srw
+    - .x3f
+  vector:
+    - .ai
+    - .dxf
+    - .eps
+    - .svg
+
+media:
+  image:
+    - .avif
+    - .bmp
+    - .exr # OpenEXR
+    - .gif
+    - .heif
+    - .ico
+    - .jpeg
+    - .jpg
+    - .jxl
+    - .pbm
+    - .pcx
+    - .pgm
+    - .ppm
+    - .qoi
+    - .tga
+    - .webp
+    - .xpm
+  image-lossless:
+    - .png
+    - .tif
+    - .tiff
+  audio:
+    - .m4a
+    - .mp3
+    - .ogg
+    - .opus
+    - .wma
+  audio-lossless:
+    - .aif
+    - .aiff
+    - .cda
+    - .ape
+    - .flac
+    - .mid
+    - .midi
+    - .pcm
+    - .wav
+    - .wv
+    - .wvc
+  video:
+    - .avi
+    - .flv
+    - .h264
+    - .m4v
+    - .mkv
+    - .mov
+    - .mp4
+    - .mpeg
+    - .mpg
+    - .ogv
+    - .rm
+    - .swf
+    - .webm
+    - .wmv
+  video-lossless:
+    - .vob
+
+encrypted:
+  - .asc
+  - .bfe
+  - .enc
+  - .gpg
+  - .signature
+  - .sig
+  - .p12
+  - .pem
+  - .pgp
+  - .p7s
+  - .id_dsa
+  - .id_rsa
+  - .id_ecdsa
+  - .id_ed25519
+
+emulators:
+  - .32x
+  - .cdi
+  - .fm2
+  - .rom
+  - .sav
+  - .st
+  # atari
+  - .a00
+  - .a52
+  - .A64
+  - .a64
+  - .a78
+  - .adf
+  - .atr
+  # nintendo
+  - .gb
+  - .gba
+  - .gbc
+  - .gel
+  - .gg
+  - .ggl
+  - .ipk
+  - .j64
+  - .nds
+  - .nes
+  # Sega
+  - .sms
+
+fonts:
+  - .fnt
+  - .fon
+  - .otf
+  - .ttf
+  - .woff
+  - .woff2
+
+office:
+  document:
+    - .cbr
+    - .cbz
+    - .mobi
+    - .doc
+    - .docx
+    - .epub
+    - .odt
+    - .pdf
+    - .ps
+    - .rtf
+  spreadsheet:
+    - .xls
+    - .xlsx
+    - .ods
+    - .xlr
+  presentation:
+    - .ppt
+    - .pptx
+    - .odp
+    - .sxi
+    - .kex
+    - .pps
+
+archives:
+  packages:
+    - .apk
+    - .deb
+    - .msi
+    - .rpm
+    - .pkg.tar.zst
+    - .xbps
+    - .crx
+    - .xpi
+  images:
+    - .bin
+    - .dmg
+    - .img
+    - .iso
+    - .toast
+    - .vcd
+  other:
+    - .7z
+    - .arj
+    - .bz
+    - .bz2
+    - .gz
+    - .jar
+    - .pkg
+    - .rar
+    - .tar
+    - .tbz
+    - .tbz2
+    - .tgz
+    - .xz
+    - .z
+    - .zip
+    - .zst
+
+system:
+  library:
+    - .so
+    - .a
+    - .dll
+    - .dylib
+  executable:
+    windows: [.bat, .com, .exe]
+    linux: [.sh, .bash, .nu, .zsh, .fish]
+  systemd:
+    - .service
+    - .socket
+    - .swap
+    - .device
+    - .mount
+    - .automount
+    - .target
+    - .path
+    - .timer
+    - .snapshot
+  conf:
+    - known_hosts
+    - authorized_keys
+    - passwd
+    - shadow
+    - .bashrc
+    - .bash_profile
+    - .zshrc
+    - .zsh_profile
+    - .zshenv

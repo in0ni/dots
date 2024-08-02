@@ -115,23 +115,65 @@ gruv_light_aqua_mute=689d6a
 gruv_light_orange=af3a03
 gruv_light_orange_mute=e7610b
 
-# custom base16 colors (in the works)
-b16_00_black=$gruv_dark_h
-b16_01_red=f50072
-b16_02_green=23d222
-b16_03_yellow=ffe90a
-b16_04_blue=14a4ff
-b16_05_purple=e95eca
-b16_06_aqua=00d6c0
-b16_07_white=$gruv_light_h
-b16_08_black=$gruv_dark_4
-b16_09_red=ff5764
-b16_10_green=ade525
-b16_11_yellow=f7fe2c
-b16_12_blue=4acdf8
-b16_13_purple=f479f6
-b16_14_aqua=06f6c9
-b16_15_white=$shell_light
+# vibra16.1
+# b16_fg=fafafa
+# b16_bg=1a1817
+# b16_00_black=090b0a  # 30
+# b16_01_red=f50072    # 31
+# b16_02_green=47cf00  # 32
+# b16_03_yellow=f4cd00 # 33
+# b16_04_blue=009cec   # 34
+# b16_05_purple=e349ed # 35
+# b16_06_aqua=00d2d9   # 36
+# b16_07_white=fff5dc  # 37
+# b16_08_black=7c7364  # 38;5;8
+# b16_09_red=f46e99    # 38;5;9
+# b16_10_green=6ed563  # 38;5;10
+# b16_11_yellow=fff48c # 38;5;11
+# b16_12_blue=6bcdff   # 38;5;12
+# b16_13_purple=db76f0 # 38;5;13
+# b16_14_aqua=8bf2ff   # 38;5;14
+# b16_15_white=ebfbff  # 38;5;15
+
+# vibra16.2
+# b16_fg=fffaed
+# b16_bg=1a1817
+# b16_00_black=090b0a  # 30
+# b16_01_red=f50072    # 31
+# b16_02_green=47d100  # 32
+# b16_03_yellow=f4cd00 # 33
+# b16_04_blue=009cec   # 34
+# b16_05_purple=ed59e1 # 35
+# b16_06_aqua=00d2d9   # 36
+# b16_07_white=fff5dc  # 37
+# b16_08_black=7c7364  # 38;5;8
+# b16_09_red=ff7565    # 38;5;9
+# b16_10_green=73f35d  # 38;5;10
+# b16_11_yellow=fff671 # 38;5;11
+# b16_12_blue=73dfff   # 38;5;12
+# b16_13_purple=dda2ff # 38;5;13
+# b16_14_aqua=9efdff   # 38;5;14
+# b16_15_white=ebfbff  # 38;5;15
+
+# vibra16.3
+b16_fg=f7fffe
+b16_bg=1a1817
+b16_00_black=090b0a  # 30
+b16_01_red=f50072    # 31
+b16_02_green=3bd700  # 32
+b16_03_yellow=f4da00 # 33
+b16_04_blue=009cec   # 34
+b16_05_purple=ed59e1 # 35
+b16_06_aqua=00d1d9   # 36
+b16_07_white=fff1cf  # 37
+b16_08_black=7c7364  # 38;5;8
+b16_09_red=f17c73    # 38;5;9
+b16_10_green=56ff53  # 38;5;10
+b16_11_yellow=faff65 # 38;5;11
+b16_12_blue=73dfff   # 38;5;12
+b16_13_purple=aaa6ff # 38;5;13
+b16_14_orange=ffad4a # 38;5;14
+b16_15_white=c6e2ff  # 38;5;15
 
 hex_to_rgb() {
   printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
