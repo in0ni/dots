@@ -11,7 +11,8 @@ set_title "$title"
 projs=~/.config/hxi.projs
 
 # automatically scanned directory
-uw2=~/Work/un/repos
+uw2_tickets=~/Work/un/tickets
+uw2_repos=~/Work/un/repos
 
 helix_cd() {
   kitten="dispatch exec kitty -d='$1'"
@@ -35,29 +36,35 @@ helix_cd() {
   }
 }
 
-# initial list
 if [[ $ROFI_RETV == 0 ]]; then
+  # initial list
   projs_file=$(awk -F':' '{
     printf "%s (%s)\\0info\x1f%s:%s\n", $2, $1, $1, $2
   }' <"$projs")
 
-  projs_uw2=$(fd 'UW2' "$uw2" -d1 -td |
+  projs_uw_tickets=$(fd -d1 -td 'UW2' "$uw2_tickets" |
     awk -F'/' '{
-    printf "%s\\0info\x1f%s:%s\n", $(NF-1), $0, $(NF-1)
+    printf "ticket: %s\\0info\x1f%s:%s\n", $(NF-1), $0, $(NF-1)
   }')
 
-  projs_base=$(fd -H --regex '^.uw-.+-git$' "$uw2" -d1 -td |
+  projs_uw_base=$(fd -d1 -td -H --regex '^.uw-.+-git$' "$uw2_tickets" |
     awk -F'/' '{
     name=$(NF-1)
     name=gensub(/\.uw-/, "", "g", name)
     name=gensub(/-git/, "", "g", name)
-    printf "%s\\0info\x1f%s:%s\n", name, $0, name
+    printf "base: %s\\0info\x1f%s:%s\n", name, $0, name
   }')
 
-  echo -en "$projs_file"
+  projs_uw_repos=$(fd -d1 -td "." "$uw2_repos" |
+    awk -F'/' '{
+    printf "repo: %s\\0info\x1f%s:%s\n", $(NF-1), $0, $(NF-1)
+  }')
+
+  echo -en "$projs_file\n"
   print_divider
-  echo -en "$projs_uw2"
-  echo -en "$projs_base"
+  echo -en "$projs_uw_tickets\n"
+  echo -en "$projs_uw_base\n"
+  echo -en "$projs_uw_repos\n"
 fi
 
 if [[ $ROFI_RETV == 1 ]]; then
