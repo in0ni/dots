@@ -3,10 +3,22 @@
 # 0.1. basic functionality for ls|mk|mv
 # @TODO: throw error when processing file if variable does not exist
 
-koppa_id="__"
 xdg_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
 cfg="${xdg_cfg}/koppa/config.json"
 vars="${xdg_cfg}/koppa/variables.sh"
+
+# used for filename matching
+koppa_id="__"
+ext_regex="(\.[a-zA-Z0-9\-_]{1,20})?"
+# commented code that will change a hidden koppa file to unhidden
+# .file__.ext > file.ext
+unhide_cmd="koppa:unhide"
+
+# colored output
+tput_green="$(tput setaf 2)"
+tput_blue="$(tput setaf 12)"
+tput_red="$(tput setaf 1)"
+tput_reset="$(tput sgr0)"
 
 # TODO: check files before proceeding
 
@@ -16,81 +28,115 @@ set -a
 . "${vars}"
 set +a
 
-build_zap() {
-  # ensure zap is in config
+# @args
+# $1 in file
+write_file() {
+  if [ -f "$1" ]; then
+    # parse %{}% syntax
+    parsed=$(perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' <"$1")
+
+    # parse "!{}!" syntax
+    parsed=$(echo "$parsed" | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg')
+
+    if grep 'ERR' <<<"$parsed"; then
+      echo "${tput_red}[ERROR]    $1${tput_reset}"
+      exit 1
+    fi
+
+    # shellcheck disable=2001
+    file_name=$(sed -E "s/(.*)($koppa_id)$ext_regex?$/\1\3/" <<<"$(basename "$1")")
+    if tail "$1" 2>/dev/null | grep -q "$unhide_cmd"; then
+      # shellcheck disable=2001
+      file_name=$(sed 's/^\.//' <<<"$file_name")
+    fi
+    file_out="$(dirname "$1")/$file_name"
+
+    # file needs to be deleted since it's write protected
+    if [ -f "$file_out" ]; then
+      rm -f "$file_out"
+    fi
+
+    echo "$parsed" >>"$file_out"
+    chmod 444 "$file_out"
+    echo "${tput_green}[write]${tput_reset}    $1 -> $file_out"
+  fi
+}
+
+parse_files() {
+  # ensure koppa_file is in config
   name=$1
-  if ! zap_obj=$(jq -e -r ".[] | select(.id==\"${name}\")" "$cfg"); then
+  if ! obj_id=$(jq -e -r ".[] | select(.id==\"${name}\")" "$cfg"); then
     echo "\"${name}\" is not a key in: ${cfg}"
     exit
   fi
 
   # cd into directory and find files
-  path=$(echo "$zap_obj" | jq -e -r ".path")
+  path=$(echo "$obj_id" | jq -e -r ".path")
   expanded_path=$(eval echo "$path")
   if [[ -d "$expanded_path" ]]; then
     # TODO: report error if can't cd
     cd "$expanded_path" || exit
 
-    # TODO: allow depth setting for find... hardcoding depth for now
-    # find zap files within directory
-    zaps=$(find . -maxdepth 2 -regextype posix-extended -regex ".*${koppa_id}(\.[a-zA-Z0-9\-_]{1,20})?$")
+    # TODO: allow depth setting in config... hardcoding depth for now
+    # find files within directory
+    koppa_files=$(find . -maxdepth 2 -regextype posix-extended -regex ".*${koppa_id}${ext_regex}$")
 
   else
     # in this case, a single file is passed TODO: allow multiple files
-    zaps=("$expanded_path")
+    koppa_files=("$expanded_path")
   fi
 
-  echo "==> $expanded_path"
+  echo "${tput_blue}==> $expanded_path${tput_reset}"
 
   # iterate and parse through files
-  for zap in $zaps; do
-    perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' < "$zap" \
-      | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' > "${zap/${koppa_id}/}"
-    if grep 'ERR' "${zap/${koppa_id}/}"; then
-      echo "[ERROR]    $zap -> ${zap/${koppa_id}/}"
-    else
-      echo "[write]    $zap -> ${zap/${koppa_id}/}"
-    fi
+  for koppa_file in $koppa_files; do
+    write_file "$koppa_file"
   done
 
   # support for restarting a service/process
-  if cmds=$(echo "$zap_obj" | jq -e -r 'try .restart'); then
+  if cmds=$(echo "$obj_id" | jq -e -r 'try .restart'); then
     args_string=$(echo "$cmds" | jq -r '. | join (" ")')
     args=("$args_string")
     # shellcheck disable=2068
     ${args[@]}
-    echo "[restart] ${args[*]}"
+    ret=$?
+
+    if [ $ret -eq 0 ]; then
+      echo "${tput_green}[restart]${tput_reset} ${args[*]}"
+    else
+      echo "${tput_red}[failed] ${args[*]} ${tput_reset}"
+    fi
   fi
 }
 
 case $1 in
-  ls)
-    if [[ -z "$2" ]]; then
-      jq -r '.[] | .id' "$cfg"
+ls)
+  if [[ -z "$2" ]]; then
+    jq -r '.[] | .id' "$cfg"
 
+  else
+    if jq -e ".[] | select(.id==\"$2\")" "$cfg" >/dev/null; then
+      # XXX: using echo seems to excape color output
+      jq -e ".[] | select(.id==\"$2\")" "$cfg"
     else
-      if jq -e ".[] | select(.id==\"$2\")" "$cfg" > /dev/null; then
-        # XXX: using echo seems to excape color output
-        jq -e ".[] | select(.id==\"$2\")" "$cfg"
-      else
-        echo "\"$2\" is not a key in: $cfg"
-      fi
+      echo "\"$2\" is not a key in: $cfg"
     fi
-    ;;
-  mk)
-    if [[ "$2" == "all" ]]; then
-      all_keys=$(jq -r '.[].id' "$cfg")
-      for key in $all_keys; do
-        build_zap "$key"
-      done
-    else
-      build_zap "$2"
-    fi
-    ;;
-  *)
-    echo -e "Usage: $(basename "$0") <ls|mk> [args]\n"
-    echo -e "Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
-    # echo -e " \t mv FILE\t rename FILE by toggling \"$koppa_id\" in filename (before extension)."
-    echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
-    ;;
+  fi
+  ;;
+mk)
+  if [[ "$2" == "all" ]]; then
+    all_keys=$(jq -r '.[].id' "$cfg")
+    for key in $all_keys; do
+      parse_files "$key"
+    done
+  else
+    parse_files "$2"
+  fi
+  ;;
+*)
+  echo -e "Usage: $(basename "$0") <ls|mk> [args]\n"
+  echo -e "Commands:\n\t ls [KEY]\t without arguments, list all KEYS. Show configuration for KEY."
+  # echo -e " \t mv FILE\t rename FILE by toggling \"$koppa_id\" in filename (before extension)."
+  echo -e " \t mk KEY|all\t builds all files for KEY, or for *all* KEYS."
+  ;;
 esac

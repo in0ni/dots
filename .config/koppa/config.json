@@ -5,6 +5,10 @@
     "restart": ["killall", "dunst"]
   },
   {
+    "id": "environment.d",
+    "path": "$HOME/.config/environment.d"
+  },
+  {
     "id": "firefox",
     "path": "$HOME/.config/firefox"
   },
