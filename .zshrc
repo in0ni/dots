@@ -1,12 +1,15 @@
 ### Pimpin' aint easy
 #
-# dircolors & eza
-export LS_COLORS=$(vivid generate vibra16)
-# eval $(dircolors $XDG_CONFIG_HOME/LS_COLORS)
+LS_COLORS=$(vivid generate vibra16)
+export LS_COLORS
+
+# eza
+# https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+# man eza_colors
 rbit="38;5;11"
 wbit=$rbit
 xbit="38;5;10"
-warnbit="38;5;15;41;1"
+warnbit="38;5;232;41;1"
 sbit="36;1"
 rwx_str="ur=${rbit}:gr=${rbit}:tr=${rbit}:uw=${wbit}:gw=${wbit}:tw=${warnbit}:ue=37:ux=${xbit}:gx=${xbit}:tx=${xbit}"
 owner="uu=38;5;8:gu=38;5;8:un=38;5;8:gn=38;5;8"
@@ -14,14 +17,26 @@ owner="uu=38;5;8:gu=38;5;8:un=38;5;8:gn=38;5;8"
 EZA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=38;5;14;5;12:sb=1;36"
 export EZA_COLORS
 
+# fzf
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+  --color=fg:8,fg+:7,bg:-1,bg+:0
+  --color=hl:14,hl+:14,info:8,marker:10
+  --color=prompt:6,spinner:14,pointer:1,header:#87afaf
+  --color=border:8,query:-1
+  --border="none" --preview-window="border-rounded" --prompt="> "
+  --marker="▹" --separator="─" --scrollbar="│" --layout=reverse'
+
 # git prompt
 source /usr/share/zsh/scripts/git-prompt.zsh
+ZSH_THEME_GIT_PROMPT_BRANCH="%{$fg[magenta]%}"
 # http://www.unicode-symbol.com/u/E0B0.html 
+
+# zsh prompt
 ssh=""
 if [[ ${SSH_TTY} ]]; then
   ssh="%F{8}%n%f%F{yellow}@%m%f "
 fi
-PROMPT='%K{0}$ssh%F{8}%?.%f%F{12}%T%f%F{7} %~%f%F{234} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{0}$ssh%F{8}%?|%f%F{12}%T%f%F{7} %~%f%F{232} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
@@ -36,31 +51,30 @@ setopt hist_verify        # Don't auto-execute selected history entry.
 
 ### Aliases
 #
-# this section is mostly from: https://github.com/maximbaz/dotfiles/blob/master/.zsh-aliases
 
 # disks
-command -v dfrs      &> /dev/null    && alias df='dfrs'
-command -v dua       &> /dev/null    && alias du='dua'
-command -v dua       &> /dev/null    && alias dui='dua interactive'
+command -v dfrs      &> /dev/null && alias df='dfrs'
+command -v dua       &> /dev/null && alias du='dua'
+command -v dua       &> /dev/null && alias dui='dua interactive'
 
 # search
-command -v fd        &> /dev/null    && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
-command -v rg        &> /dev/null    && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
+command -v fd        &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
+command -v rg        &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
 
 # ls
-command -v eza       &> /dev/null    && alias ls='eza -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
-command -v eza       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
-command -v eza       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
-command -v eza       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
+command -v eza       &> /dev/null && alias ls='eza -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
+command -v eza       &> /dev/null && alias la='ll -a'                                           || alias la='ll -A'
+command -v eza       &> /dev/null && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
+command -v eza       &> /dev/null && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
 
 # editor
-command -v helix     &> /dev/null    && alias vi='helix'                                           || alias vi='vim'
-command -v helix     &> /dev/null    && alias hx='helix'
+command -v helix     &> /dev/null && alias vi='helix'                                           || alias vi='vim'
+command -v helix     &> /dev/null && alias hx='helix'
 
 # misc
-command -v batman    &> /dev/null    && alias man='batman'
-command -v trash-put &> /dev/null    && alias rm='trash-put'
-command -v gitui     &> /dev/null    && alias gu='gitui'
+command -v batman    &> /dev/null && alias man='batman'
+command -v trash-put &> /dev/null && alias rm='trash-put'
+command -v gitui     &> /dev/null && alias gu='gitui'
 # command -v xplr      &> /dev/null    && alias cdx='cd "$(xplr --print-pwd-as-result)"'
 
 alias o="xdg-open"
@@ -135,14 +149,18 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
+# simple fn to print current base16 colors
 b16_print_colors() {
-  x=`tput op`
-  y=`printf %5s`
-  for i in {0..15}; do
-    o=00$i
-    echo -e "# "`tput setaf $i`${o:${#o}-3:3}\
-    "The $(tput bold)quick brown $(tput sgr0)$(tput setaf $i)fox jumped over the lazy fox 0123456789 () [ ] { } < >"\
-    `tput setaf $i;tput setab $i`${y// /=}$x
+  bold=$(tput bold)
+  reset=$(tput sgr0)
+  numbers=({0..15} 231 232)
+  for num in "${numbers[@]}"; do
+    o=00$num
+    setaf=$(tput setaf "$num")
+    setab=$(tput setab "$num")
+    echo -e "#${o:${#o}-3:3} $setaf"\
+    "The ${bold}quick brown ${reset}${setaf}fox jumped over the lazy fox 0123456789 () [ ] { } < >"\
+    "$setab     $reset"
   done
 }
 
