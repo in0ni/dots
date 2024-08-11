@@ -167,12 +167,12 @@ b16_05_purple=ed59e1 # 35
 b16_06_aqua=00d1d9   # 36
 b16_07_white=fff1cf  # 37
 b16_08_black=7c7364  # 38;5;8
-b16_09_red=f17c73    # 38;5;9
-b16_10_green=56ff53  # 38;5;10
+b16_09_red=f8636d    # 38;5;9
+b16_10_green=86d04b  # 38;5;10
 b16_11_yellow=faff65 # 38;5;11
 b16_12_blue=73dfff   # 38;5;12
 b16_13_purple=aaa6ff # 38;5;13
-b16_14_orange=ffad4a # 38;5;14
+b16_14_orange=ff9d4a # 38;5;14
 b16_15_white=c6e2ff  # 38;5;15
 
 hex_to_rgb() {
