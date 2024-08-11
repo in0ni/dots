@@ -71,6 +71,7 @@ text:
     - .shtml
     - .xhtml
     - .xml
+    - .twig
   subtitles:
     - .ass
     - .srt
@@ -204,8 +205,7 @@ programming:
     crystal: [.cr]
     csharp: [.cs, .csx]
     stylesheets: [.css, .sass, .scss, .less]
-    cxx:
-      [
+    cxx: [
         .c,
         .cpp,
         .cc,
@@ -218,7 +218,7 @@ programming:
         .hxx,
         .h++,
         .ino,
-        .inc,
+        # .inc,
         .inl,
         .ipp,
         .def,
@@ -255,7 +255,8 @@ programming:
     openscad: [.scad]
     pascal: [.pas, .p, .dpr]
     perl: [.pl, .pm, .pod, .t, .cgi]
-    php: [.php]
+    # includes drupal exts
+    php: [.php, .inc, .theme, .module, .profile, .install]
     powershell: [.ps1, .psm1, .psd1]
     prql: [.prql]
     puppet: [.pp, .epp]
@@ -372,6 +373,9 @@ design:
     - .dxf
     - .eps
     - .svg
+    - .sla
+  other:
+    - .xopp
 
 media:
   image:
