@@ -138,6 +138,11 @@ auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "html"] }
 
 [[language]]
+name="yaml"
+auto-format=true
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "yaml"] }
+
+[[language]]
 name="twig"
 auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "melody"] }
@@ -181,7 +186,7 @@ language-servers = [
 name="php"
 auto-format=true
 # add drupal types
-file-types = ["php", "inc", "theme", "module", "profile"]
+file-types = ["php", "inc", "theme", "module", "profile", "install"]
 # issues using helix default "format" command
 # formatter = { command = "phpcbf", args = ["-q", "--stdin-path=${INPUT}", "-"] }
 language-servers = [
