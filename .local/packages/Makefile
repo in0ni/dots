@@ -20,7 +20,7 @@ refresh: ## Refresh the backup lists
 
 .PHONY: publish
 publish: ## Publish the meta-package in the local repo
-	for split in paks-{sys,usr,gui}*.zst; do \
+	for split in {sys,usr,gui}; do \
 		pkg=paks-$$split-*.pkg.tar.zst; \
 		gpg --detach-sign --yes $$pkg; \
 		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
