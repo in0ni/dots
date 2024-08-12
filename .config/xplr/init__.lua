@@ -18,8 +18,8 @@ xplr.config.general.panel_ui.sort_and_filter.style.fg = { Rgb = {"!{gruv_light_4
 xplr.config.general.panel_ui.help_menu.style.fg = { Rgb = {"!{gruv_light_4--rgb}!"} }
 
 -- active/selected items
-xplr.config.general.focus_ui.style.fg = { Rgb = {"!{shell_highlight--rgb}!"} }
-xplr.config.general.selection_ui.style.fg = { Rgb = {"!{shell_highlight--rgb}!"} }
+xplr.config.general.focus_ui.style.fg = { Rgb = {"!{v16_accent--rgb}!"} }
+xplr.config.general.selection_ui.style.fg = { Rgb = {"!{v16_accent--rgb}!"} }
 
 --
 -- key bindings

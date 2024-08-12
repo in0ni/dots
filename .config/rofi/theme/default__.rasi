@@ -7,9 +7,9 @@
   dark: #"!{shell_dark_2}!";
   mid: #"!{shell_dark_3}!";
   light: #"!{shell_light}!";
-  accent: #"!{shell_highlight}!";
-  urgent: #"!{b16_01_red}!";
-  urgent-selected: #"!{b16_01_red}!";
+  accent: #"!{v16_accent}!";
+  urgent: #"!{v16_01_red}!";
+  urgent-selected: #"!{v16_01_red}!";
 
   /* generic names */
   base-bg: @black;

@@ -119,14 +119,14 @@ button:hover {
 }
 
 button.active {
-  color: #"!{shell_highlight}!";
-  border-top: 1px solid #"!{shell_highlight}!";
+  color: #"!{v16_accent}!";
+  border-top: 1px solid #"!{v16_accent}!";
   opacity: 1;
 }
 
 button.urgent {
   color: #"!{shell_light}!";
-  background-color: #"!{b16_01_red}!";
+  background-color: #"!{v16_01_red}!";
 }
 
 /*
@@ -152,16 +152,16 @@ button.urgent {
   opacity: 0.75;
 }
 
-#cpu { border-top: 1px solid #"!{b16_06_aqua}!"; }
-#memory { border-top: 1px solid #"!{b16_05_purple}!"; }
-#disk { border-top: 1px solid #"!{b16_04_blue}!"; }
+#cpu { border-top: 1px solid #"!{v16_06_aqua}!"; }
+#memory { border-top: 1px solid #"!{v16_05_purple}!"; }
+#disk { border-top: 1px solid #"!{v16_04_blue}!"; }
 #temperature { border-top: 1px solid #"!{gruv_dark_orange}!"; }
-#temperature.critical { background-color: #"!{b16_01_red}!"; }
-#battery.great { border-top: 1px solid #"!{b16_02_green}!"; }
-#battery.good { border-top: 1px solid #"!{b16_10_green}!"; }
-#battery.fair { border-top: 1px solid #"!{b16_11_yellow}!"; }
+#temperature.critical { background-color: #"!{v16_01_red}!"; }
+#battery.great { border-top: 1px solid #"!{v16_02_green}!"; }
+#battery.good { border-top: 1px solid #"!{v16_10_green}!"; }
+#battery.fair { border-top: 1px solid #"!{v16_11_yellow}!"; }
 /* #battery.low is found below w/ network & pulse */
-#battery.charging { border-top: 1px solid #"!{b16_07_white}!"; }
+#battery.charging { border-top: 1px solid #"!{v16_07_white}!"; }
 #network { border-top: 1px solid #"!{gruv_dark_green}!"; }
 
 /*
@@ -171,15 +171,15 @@ button.urgent {
 #network.disconnected,
 #pulseaudio.muted {
   background-color: #"!{shell_dark}!";
-  border-top: 1px solid #"!{b16_01_red}!";
-  color: #"!{b16_01_red}!";
+  border-top: 1px solid #"!{v16_01_red}!";
+  color: #"!{v16_01_red}!";
 }
 
 #battery.critical:not(.charging),
 #cpu.critical,
 #disk.critical,
 #temperature.critical {
-  background-color: #"!{b16_01_red}!";
+  background-color: #"!{v16_01_red}!";
   border-top: 1px solid #"!{gruv_light}!";
   color: #"!{gruv_light}!";
   animation-name: blinking;

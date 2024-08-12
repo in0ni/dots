@@ -56,14 +56,14 @@ mouse_right_click = close_all
 [urgency_low]
 background = "#%{gruv_dark}%%{a50}%"
 foreground = "#%{gruv_light}%"
-highlight = "#%{shell_highlight}%"
+highlight = "#%{v16_accent}%"
 frame_color = "#%{gruv_dark_4}%"
 timeout = 2
 
 [urgency_normal]
 background = "#%{gruv_dark}%%{a20}%"
 foreground = "#%{gruv_light_h}%"
-highlight = "#%{shell_highlight}%"
+highlight = "#%{v16_accent}%"
 frame_color = "#%{gruv_dark_3}%"
 timeout = 4
 
@@ -79,6 +79,6 @@ timeout = 0
 appname = "sway_hotkeys"
 background = "#%{gruv_dark}%%{a20}%"
 foreground = "#%{shell_light_1}%"
-highlight = "#%{shell_highlight}%"
+highlight = "#%{v16_accent}%"
 frame_color = "#%{gruv_dark}%"
 timeout = 2

@@ -116,24 +116,25 @@ gruv_light_orange=af3a03
 gruv_light_orange_mute=e7610b
 
 # vibra16.3
-b16_fg=f7fffe
-b16_bg=1a1817
-b16_00_black=090b0a  # 30
-b16_01_red=f50072    # 31
-b16_02_green=3bd700  # 32
-b16_03_yellow=f4da00 # 33
-b16_04_blue=009cec   # 34
-b16_05_purple=ed59e1 # 35
-b16_06_aqua=00d1d9   # 36
-b16_07_white=fff1cf  # 37
-b16_08_black=7c7364  # 38;5;8
-b16_09_red=f8636d    # 38;5;9
-b16_10_green=86d04b  # 38;5;10
-b16_11_yellow=faff65 # 38;5;11
-b16_12_blue=73dfff   # 38;5;12
-b16_13_purple=aaa6ff # 38;5;13
-b16_14_orange=ff9d4a # 38;5;14
-b16_15_white=c6e2ff  # 38;5;15
+v16_fg=f7fffe
+v16_bg=1a1817
+v16_accent=e7610b
+v16_00_black=090b0a  # 30
+v16_01_red=f50072    # 31
+v16_02_green=3bd700  # 32
+v16_03_yellow=f4da00 # 33
+v16_04_blue=009cec   # 34
+v16_05_purple=ed59e1 # 35
+v16_06_aqua=00d1d9   # 36
+v16_07_white=fff1cf  # 37
+v16_08_black=7c7364  # 38;5;8
+v16_09_red=f8636d    # 38;5;9
+v16_10_green=86d04b  # 38;5;10
+v16_11_yellow=faff65 # 38;5;11
+v16_12_blue=73dfff   # 38;5;12
+v16_13_purple=aaa6ff # 38;5;13
+v16_14_orange=ff9d4a # 38;5;14
+v16_15_white=c6e2ff  # 38;5;15
 
 hex_to_rgb() {
   printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
