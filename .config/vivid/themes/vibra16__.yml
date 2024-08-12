@@ -1,24 +1,24 @@
 colors: # vibra16
-  bg: "%{b16_bg}%"
-  fg: "%{b16_fg}%"
-  accent: "%{shell_highlight}%"
+  bg: "%{v16_bg}%"
+  fg: "%{v16_fg}%"
+  accent: "%{v16_accent}%"
   # base16 colors
-  black: "%{b16_00_black}%"
-  red: "%{b16_01_red}%"
-  green: "%{b16_02_green}%"
-  yellow: "%{b16_03_yellow}%"
-  blue: "%{b16_04_blue}%"
-  purple: "%{b16_05_purple}%"
-  aqua: "%{b16_06_aqua}%"
-  white: "%{b16_07_white}%"
-  alt_black: "%{b16_08_black}%"
-  alt_red: "%{b16_09_red}%"
-  alt_green: "%{b16_10_green}%"
-  alt_yellow: "%{b16_11_yellow}%"
-  alt_blue: "%{b16_12_blue}%"
-  alt_purple: "%{b16_13_purple}%"
-  alt_orange: "%{b16_14_orange}%"
-  alt_white: "%{b16_15_white}%"
+  black: "%{v16_00_black}%"
+  red: "%{v16_01_red}%"
+  green: "%{v16_02_green}%"
+  yellow: "%{v16_03_yellow}%"
+  blue: "%{v16_04_blue}%"
+  purple: "%{v16_05_purple}%"
+  aqua: "%{v16_06_aqua}%"
+  white: "%{v16_07_white}%"
+  alt_black: "%{v16_08_black}%"
+  alt_red: "%{v16_09_red}%"
+  alt_green: "%{v16_10_green}%"
+  alt_yellow: "%{v16_11_yellow}%"
+  alt_blue: "%{v16_12_blue}%"
+  alt_purple: "%{v16_13_purple}%"
+  alt_orange: "%{v16_14_orange}%"
+  alt_white: "%{v16_15_white}%"
 
 core:
   normal_text:
@@ -123,6 +123,8 @@ design:
   3d:
     foreground: alt_orange
     font-style: italic
+  other:
+    foreground: alt_orange
 
 emulators:
   foreground: alt_white
