@@ -9,7 +9,7 @@
 }
 
 #waybar {
-  background-color: rgba("!{gruv_dark_rgb}!", 0.6);
+  background-color: rgba("!{gruv_dark--rgb}!", 0.6);
   color: #"!{gruv_light_1}!";
   transition-property: background-color;
   transition-duration: 0.5s;
@@ -92,7 +92,7 @@ window#waybar.empty #window { background-color: transparent; }
 #temperature,
 #network,
 #battery {
-  background-color: rgba("!{gruv_dark_rgb}!", 0.7);
+  background-color: rgba("!{gruv_dark--rgb}!", 0.7);
 }
 
 /*
@@ -114,7 +114,7 @@ button {
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
-  background: rgba("!{shell_dark_rgb}!", 0.35);
+  background: rgba("!{shell_dark--rgb}!", 0.35);
   box-shadow: inherit;
 }
 

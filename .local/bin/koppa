@@ -24,21 +24,36 @@ tput_reset="$(tput sgr0)"
 
 # set shellcheck to avoid these errors
 set -a
-# shellcheck disable=1090
-. "${vars}"
+source "$vars"
 set +a
 
 # @args
-# $1 in file
+# $1 input file path
 write_file() {
   if [ -f "$1" ]; then
+    # shellcheck disable=2016
+    str_matching='$ENV{$1}'
+    # shellcheck disable=2016
+    str_err='"{ERR~$1}"'
+    # shellcheck disable=2016
+    str_hex='`bash -c "hex_to_rgb $ENV{$1}"`'
+    str_syntax='%\{(\w+)\}%'
+    str_rgb="--rgb"
+    str_syntax_rgb="%\{(\w+)$str_rgb\}%"
+    str_syntax_quoted='"!\{(\w+)\}!"'
+    str_syntax_quoted_rgb="\"!\{(\w+)$str_rgb\}!\""
+    str_code=$(cat "$1")
+
     # parse %{}% syntax
-    parsed=$(perl -p -e 's/%\{(\w+)\}%/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg' <"$1")
+    str_code=$(echo "$str_code" | perl -p -e "s/$str_syntax_rgb/(exists $str_matching?$str_hex:$str_err)/eg")
+    str_code=$(echo "$str_code" | perl -p -e "s/$str_syntax/(exists $str_matching?$str_matching:$str_err)/eg")
 
     # parse "!{}!" syntax
-    parsed=$(echo "$parsed" | perl -p -e 's/"!\{(\w+)\}!"/(exists $ENV{$1}?$ENV{$1}:"{{ERR~$1}}")/eg')
+    str_code=$(echo "$str_code" | perl -p -e "s/$str_syntax_quoted_rgb/(exists $str_matching?$str_hex:$str_err)/eg")
+    str_code=$(echo "$str_code" | perl -p -e "s/$str_syntax_quoted/(exists $str_matching?$str_matching:$str_err)/eg")
 
-    if grep 'ERR' <<<"$parsed"; then
+    # this both tests for existence of error, and prints
+    if grep 'ERR' <<<"$str_code"; then
       echo "${tput_red}[ERROR]    $1${tput_reset}"
       exit 1
     fi
@@ -56,7 +71,7 @@ write_file() {
       rm -f "$file_out"
     fi
 
-    echo "$parsed" >>"$file_out"
+    echo "$str_code" >>"$file_out"
     chmod 444 "$file_out"
     echo "${tput_green}[write]${tput_reset}    $1 -> $file_out"
   fi

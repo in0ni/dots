@@ -115,46 +115,6 @@ gruv_light_aqua_mute=689d6a
 gruv_light_orange=af3a03
 gruv_light_orange_mute=e7610b
 
-# vibra16.1
-# b16_fg=fafafa
-# b16_bg=1a1817
-# b16_00_black=090b0a  # 30
-# b16_01_red=f50072    # 31
-# b16_02_green=47cf00  # 32
-# b16_03_yellow=f4cd00 # 33
-# b16_04_blue=009cec   # 34
-# b16_05_purple=e349ed # 35
-# b16_06_aqua=00d2d9   # 36
-# b16_07_white=fff5dc  # 37
-# b16_08_black=7c7364  # 38;5;8
-# b16_09_red=f46e99    # 38;5;9
-# b16_10_green=6ed563  # 38;5;10
-# b16_11_yellow=fff48c # 38;5;11
-# b16_12_blue=6bcdff   # 38;5;12
-# b16_13_purple=db76f0 # 38;5;13
-# b16_14_aqua=8bf2ff   # 38;5;14
-# b16_15_white=ebfbff  # 38;5;15
-
-# vibra16.2
-# b16_fg=fffaed
-# b16_bg=1a1817
-# b16_00_black=090b0a  # 30
-# b16_01_red=f50072    # 31
-# b16_02_green=47d100  # 32
-# b16_03_yellow=f4cd00 # 33
-# b16_04_blue=009cec   # 34
-# b16_05_purple=ed59e1 # 35
-# b16_06_aqua=00d2d9   # 36
-# b16_07_white=fff5dc  # 37
-# b16_08_black=7c7364  # 38;5;8
-# b16_09_red=ff7565    # 38;5;9
-# b16_10_green=73f35d  # 38;5;10
-# b16_11_yellow=fff671 # 38;5;11
-# b16_12_blue=73dfff   # 38;5;12
-# b16_13_purple=dda2ff # 38;5;13
-# b16_14_aqua=9efdff   # 38;5;14
-# b16_15_white=ebfbff  # 38;5;15
-
 # vibra16.3
 b16_fg=f7fffe
 b16_bg=1a1817
@@ -178,25 +138,3 @@ b16_15_white=c6e2ff  # 38;5;15
 hex_to_rgb() {
   printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
 }
-
-shell_highlight_rgb=$(hex_to_rgb $shell_highlight)
-shell_dark_rgb=$(hex_to_rgb $shell_dark)
-shell_dark_1_rgb=$(hex_to_rgb $shell_dark_1)
-shell_dark_2_rgb=$(hex_to_rgb $shell_dark_2)
-shell_dark_3_rgb=$(hex_to_rgb $shell_dark_3)
-shell_dark_4_rgb=$(hex_to_rgb $shell_dark_4)
-shell_light_rgb=$(hex_to_rgb $shell_light)
-shell_light_1_rgb=$(hex_to_rgb $shell_light_1)
-shell_light_2_rgb=$(hex_to_rgb $shell_light_2)
-shell_light_3_rgb=$(hex_to_rgb $shell_light_3)
-shell_light_4_rgb=$(hex_to_rgb $shell_light_4)
-gruv_dark_rgb=$(hex_to_rgb $gruv_dark)
-gruv_dark_1_rgb=$(hex_to_rgb $gruv_dark_1)
-gruv_dark_3_rgb=$(hex_to_rgb $gruv_dark_3)
-gruv_dark_4_rgb=$(hex_to_rgb $gruv_dark_4)
-gruv_light_rgb=$(hex_to_rgb $gruv_light)
-gruv_light_h_rgb=$(hex_to_rgb $gruv_light_h)
-gruv_light_1_rgb=$(hex_to_rgb $gruv_light_1)
-gruv_light_2_rgb=$(hex_to_rgb $gruv_light_2)
-gruv_light_3_rgb=$(hex_to_rgb $gruv_light_3)
-gruv_light_4_rgb=$(hex_to_rgb $gruv_light_4)
