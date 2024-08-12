@@ -36,7 +36,7 @@ ssh=""
 if [[ ${SSH_TTY} ]]; then
   ssh="%F{8}%n%f%F{yellow}@%m%f "
 fi
-PROMPT='%K{0}$ssh%F{8}%?|%f%F{12}%T%f%F{7} %~%f%F{232} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
+PROMPT='%K{0}$ssh%F{8}%?|%f%F{12}%T%f%F{7} %~%f%F{234} %f%k$(gitprompt)%F{yellow}%(!.%F{red}‼%f.§)%f '
 
 ### History
 #
