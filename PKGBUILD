@@ -23,7 +23,7 @@ pkgver=24
 pkgrel=08.7
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
-url='https://gitlab.com/gonzalez.af/dots'
+url='https://github.com/in0ni/dots'
 license=('ISC')
 pkgbase='paks'
 
