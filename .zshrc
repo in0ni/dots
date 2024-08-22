@@ -20,7 +20,7 @@ export EZA_COLORS
 # fzf
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --color=fg:8,fg+:7,bg:-1,bg+:0
-  --color=hl:3,hl+:14,info:8,marker:10
+  --color=hl:7,hl+:14,info:8,marker:10
   --color=prompt:6,spinner:14,pointer:1,header:#87afaf
   --color=border:8,query:-1
   --border="none" --preview-window="border-rounded" --prompt="> "
