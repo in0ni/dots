@@ -12,7 +12,7 @@ separator_height = 1
 padding = 10
 horizontal_padding = 10
 frame_width = 1
-frame_color = "#%{shell_light_4}%"
+frame_color = "#%{shell_dark_3}%"
 separator_color = frame
 # Don't remove messages, if the user is idle (no mouse or keyboard input)
 # for longer than idle_threshold seconds.
@@ -54,31 +54,31 @@ mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 
 [urgency_low]
-background = "#%{gruv_dark}%%{a50}%"
-foreground = "#%{gruv_light}%"
+background = "#%{shell_dark}%%{a20}%"
+foreground = "#%{v16_07_white}%"
 highlight = "#%{v16_accent}%"
-frame_color = "#%{gruv_dark_4}%"
+frame_color = "#%{shell_dark_3}%"
 timeout = 2
 
 [urgency_normal]
-background = "#%{gruv_dark}%%{a20}%"
-foreground = "#%{gruv_light_h}%"
+background = "#%{shell_dark}%%{a15}%"
+foreground = "#%{v16_07_white}%"
 highlight = "#%{v16_accent}%"
-frame_color = "#%{gruv_dark_3}%"
+frame_color = "#%{shell_dark_3}%"
 timeout = 4
 
 [urgency_critical]
-background = "#%{gruv_light_red}%%{a20}%"
-foreground = "#%{gruv_light_h}%"
-highlight = "#%{gruv_light}%"
-frame_color = "#%{gruv_dark}%"
+background = "#%{v16_01_red}%%{a20}%"
+foreground = "#%{v16_07_white}%"
+highlight = "#%{v16_07_white}%"
+frame_color = "#%{shell_dark}%"
 default_icon = /usr/share/icons/%{theme_icon_variant}%/24/panel
 timeout = 0
 
 [sway_hotkeys]
 appname = "sway_hotkeys"
-background = "#%{gruv_dark}%%{a20}%"
-foreground = "#%{shell_light_1}%"
+background = "#%{shell_dark}%%{a15}%"
+foreground = "#%{v16_07_white}%"
 highlight = "#%{v16_accent}%"
-frame_color = "#%{gruv_dark}%"
+frame_color = "#%{shell_dark_3}%"
 timeout = 2

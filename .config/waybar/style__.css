@@ -9,8 +9,8 @@
 }
 
 #waybar {
-  background-color: rgba("!{gruv_dark--rgb}!", 0.6);
-  color: #"!{gruv_light_1}!";
+  background-color: rgba("!{v16_bg--rgb}!", 0.6);
+  color: #"!{v16_07_white}!";
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -65,7 +65,7 @@ window#waybar.empty #window { background-color: transparent; }
 
 #clock,
 #window {
-  color: #"!{gruv_light}!";
+  color: #"!{v16_07_white}!";
 }
 
 #custom-pomodoro,
@@ -92,29 +92,29 @@ window#waybar.empty #window { background-color: transparent; }
 #temperature,
 #network,
 #battery {
-  background-color: rgba("!{gruv_dark--rgb}!", 0.7);
+  background-color: rgba("!{v16_bg--rgb}!", 0.6);
 }
 
 /*
  * workspaces
  */
 #workspaces { margin-left: 0; }
-label:focus { background-color: #"!{shell_dark}!"; }
+label:focus { background-color: #"!{v16_bg}!"; }
 
 label:disabled,
 button:disabled {
-  color: #"!{gruv_light_1}!";
+  color: #"!{v16_07_white}!";
 }
 
 button {
   border-top: 1px solid transparent;
-  color: #"!{gruv_light_1}!";
+  color: #"!{v16_07_white}!";
   opacity: 0.65;
 }
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
-  background: rgba("!{shell_dark--rgb}!", 0.35);
+  background: rgba("!{v16_bg--rgb}!", 0.35);
   box-shadow: inherit;
 }
 
@@ -125,7 +125,7 @@ button.active {
 }
 
 button.urgent {
-  color: #"!{shell_light}!";
+  color: #"!{v16_07_white}!";
   background-color: #"!{v16_01_red}!";
 }
 
@@ -135,8 +135,8 @@ button.urgent {
 #submap{
   margin-right: 0;
   font-weight: bold;
-  background-color: #"!{gruv_light}!";
-  color: #%{shell_dark}%;
+  background-color: #"!{v16_07_white}!";
+  color: #"!{v16_bg}!";
 }
 
 /*
@@ -148,21 +148,21 @@ button.urgent {
 #temperature,
 #network,
 #battery {
-  color: #%{gruv_light}%;
+  color: #"!{v16_07_white}!";
   opacity: 0.75;
 }
 
 #cpu { border-top: 1px solid #"!{v16_06_aqua}!"; }
 #memory { border-top: 1px solid #"!{v16_05_purple}!"; }
 #disk { border-top: 1px solid #"!{v16_04_blue}!"; }
-#temperature { border-top: 1px solid #"!{gruv_dark_orange}!"; }
+#temperature { border-top: 1px solid #"!{v16_accent}!"; }
 #temperature.critical { background-color: #"!{v16_01_red}!"; }
 #battery.great { border-top: 1px solid #"!{v16_02_green}!"; }
 #battery.good { border-top: 1px solid #"!{v16_10_green}!"; }
 #battery.fair { border-top: 1px solid #"!{v16_11_yellow}!"; }
 /* #battery.low is found below w/ network & pulse */
 #battery.charging { border-top: 1px solid #"!{v16_07_white}!"; }
-#network { border-top: 1px solid #"!{gruv_dark_green}!"; }
+#network { border-top: 1px solid #"!{v16_10_green}!"; }
 
 /*
  * warnings
@@ -170,7 +170,7 @@ button.urgent {
 #battery.low:not(.charging),
 #network.disconnected,
 #pulseaudio.muted {
-  background-color: #"!{shell_dark}!";
+  background-color: #"!{v16_00_black}!";
   border-top: 1px solid #"!{v16_01_red}!";
   color: #"!{v16_01_red}!";
 }
@@ -180,8 +180,8 @@ button.urgent {
 #disk.critical,
 #temperature.critical {
   background-color: #"!{v16_01_red}!";
-  border-top: 1px solid #"!{gruv_light}!";
-  color: #"!{gruv_light}!";
+  border-top: 1px solid #"!{v16_07_white}!";
+  color: #"!{v16_07_white}!";
   animation-name: blinking;
   animation-duration: 1s;
   animation-timing-function: linear;
@@ -190,6 +190,6 @@ button.urgent {
 }
 
 @keyframes blinking {
-  to { background-color: #"!{shell_dark}!"; }
+  to { background-color: #"!{v16_00_black}!"; }
 }
 
