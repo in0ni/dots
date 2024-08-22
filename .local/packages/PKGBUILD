@@ -23,7 +23,7 @@ pkgver=24
 pkgrel=08.7
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
-url='https://github.com/in0ni/dots'
+url='https://gitlab.com/gonzalez.af/dots'
 license=('ISC')
 pkgbase='paks'
 
@@ -331,6 +331,7 @@ package_paks-gui-desktop() {
     'mpv-uosc'
     'rhythmbox'
     'spotify'
+    'spotify-adblock-git'
   )
 }
 
