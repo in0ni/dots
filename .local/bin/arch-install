@@ -18,7 +18,7 @@
 #
 # Run installation:
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
-# - Run: `# bash <(curl -sL https://gitlab.com/gonzalez.af/dots/-/raw/master/.local/bin/arch-setup.sh)`
+# - Run: `# bash <(curl -sL https://github.com/in0ni/dots/blob/master/.local/bin/arch-install)`
 
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
