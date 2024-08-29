@@ -18,7 +18,7 @@
 #
 # Run installation:
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
-# - Run: `# bash <(curl -sL https://github.com/in0ni/dots/blob/master/.local/bin/arch-install)`
+# - Run: `# bash <(curl -sL https://raw.githubusercontent.com/in0ni/dots/master/.local/bin/arch-install)`
 
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
@@ -75,18 +75,18 @@ if [ ! -f /sys/firmware/efi/fw_platform_size ]; then
 fi
 
 echo -e "\n### Setting up clock"
-# timedatectl set-ntp true
-# hwclock --systohc --utc
+timedatectl set-ntp true
+hwclock --systohc --utc
 
 echo -e "\n### Installing additional tools"
-# pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
+pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
 
-# echo -e "\n### HiDPI screens"
-# noyes=("Yes" "The font is too small" "No" "The font size is just fine")
-# hidpi=$(get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
-# clear
-# [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
-# setfont "$font"
+echo -e "\n### HiDPI screens"
+noyes=("Yes" "The font is too small" "No" "The font size is just fine")
+hidpi=$(get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
+clear
+[[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
+setfont "$font"
 
 hostname=$(get_input "Hostname" "Enter hostname") || exit 1
 clear
