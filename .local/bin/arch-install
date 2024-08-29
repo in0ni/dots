@@ -159,20 +159,21 @@ mount "${part_efi}" /mnt/efi
 mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/"$dev_mapper_id" /mnt/mnt/btrfs-root
 mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/"$dev_mapper_id" /mnt/home
 mount -o noatime,nodiratime,compress=zstd,subvol=@pkgs /dev/mapper/"$dev_mapper_id" /mnt/var/cache/pacman
-mount -o noatime,nodiratime,compress=zstd,subvol=@docker /dev/mapper/"$dev_mapper_id" /mnt/var/lib/docker
 mount -o noatime,nodiratime,compress=zstd,subvol=@logs /dev/mapper/"$dev_mapper_id" /mnt/var/log
 mount -o noatime,nodiratime,compress=zstd,subvol=@temp /dev/mapper/"$dev_mapper_id" /mnt/var/tmp
 mount -o noatime,nodiratime,compress=zstd,subvol=@swap /dev/mapper/"$dev_mapper_id" /mnt/swap
 mount -o noatime,nodiratime,compress=zstd,subvol=@snapshots /dev/mapper/"$dev_mapper_id" /mnt/.snapshots
 
-# echo -e "\n### Configuring local repo"
-# mkdir "/mnt/var/cache/pacman/${user}-local"
-# repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
+echo -e "\n### Configuring local repo"
+mkdir "/mnt/var/cache/pacman/${user}-local"
+repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
 
+# TODO: support signatures, and default on base arch packages if not set (hiding personal url)
 if [ -n "$paks_name" ]; then
   echo -e "\n### Adding custom repo & key"
   cat >>/etc/pacman.conf <<EOF
 [${remote_repo_name}]
+SigLevel = None
 Server = ${remote_repo_url}
 EOF
 # wget -q $remote_repo_key_url -O- | pacman-key --add -
