@@ -18,11 +18,14 @@ tput_blue="$(tput setaf 12)"
 tput_red="$(tput setaf 1)"
 tput_reset="$(tput sgr0)"
 
-# set shellcheck to avoid these errors
+# exports all vars/fns to env of subsequently executed commands
 set -a
 # shellcheck source=/dev/null
 source "$vars"
+# disable automatic exporting of variables
 set +a
+# exit immediately if any command returns a non-zero exit status
+set -e
 
 hex_to_rgb() {
   printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
@@ -31,6 +34,7 @@ hex_to_rgb() {
 check_variable() {
   if [ -z "${!1+x}" ]; then
     echo "${tput_red}[ERROR]    $1 is not defined ${tput_reset}" >&2
+    exit 1
   fi
 }
 
