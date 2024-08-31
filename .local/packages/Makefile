@@ -1,6 +1,6 @@
 .PHONY: all
 # all: build install refresh publish clean
-all: build publish clean
+all: clean build publish clean
 
 .PHONY: build
 build: ## Build the meta-package

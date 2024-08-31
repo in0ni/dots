@@ -127,10 +127,10 @@ bindkey -e
 bindkey '^?'       backward-delete-char             # backspace
 bindkey '^[[3~'    delete-char                      # delete
 
-bindkey '^K'       up-line-or-history               # pgup
-bindkey '^J'       down-line-or-history             # pgdown
-# bindkey '^[[A'     up-line-or-beginning-search      # up
-# bindkey '^[[B'     down-line-or-beginning-search    # down
+bindkey '^K'       up-line-or-beginning-search      # pgup
+bindkey '^J'       down-line-or-beginning-search    # pgdown
+# bindkey '^[[A'     up-line-or-beginning-search    # up
+# bindkey '^[[B'     down-line-or-beginning-search  # down
 bindkey '^[[D'     backward-char                    # left
 bindkey '^[[C'     forward-char                     # right
 bindkey '^[[H'     beginning-of-line                # home

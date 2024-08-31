@@ -4,7 +4,7 @@
 #
 # log:
 # 1.x - legacy
-# 24-0712 - initial release of sys, usr, gui structure
+# 24-07.12 - initial release of sys, usr, gui structure
 
 pkgname=(
   'paks-sys-base'
@@ -18,9 +18,9 @@ pkgname=(
   'paks-gui-workstation'
   'paks-gui-mediacenter'
 )
-# YY.MM.rel
+# YY-MM.rel
 pkgver=24
-pkgrel=08.7
+pkgrel=08.15
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
 url='https://gitlab.com/gonzalez.af/dots'
@@ -56,6 +56,7 @@ package_paks-sys-base() {
     'reflector'
     'snap-pac'
     'terminus-font'
+    'iwd'
   )
 }
 
@@ -104,12 +105,12 @@ package_paks-sys-fonts() {
     'fonts-tlwg'
     'noto-fonts-cjk'
     'noto-fonts-emoji'
-    'otf-otf-overpass'
+    'otf-overpass'
     'ttf-amiri'
     'ttf-b612'
     'ttf-cmu-typewriter'
     'ttf-courier-prime'
-    'ttf-crosextra'
+    # 'ttf-crosextra'
     'ttf-cutive-mono'
     'ttf-dm-mono-git'
     'ttf-fira-code'
@@ -119,7 +120,7 @@ package_paks-sys-fonts() {
     'ttf-fragment-mono'
     'ttf-ibm-plex'
     'ttf-lato'
-    'ttf-librebaskerville'
+    # 'ttf-librebaskerville'
     'ttf-montserrat'
     'ttf-mulish'
     'ttf-nixie-one'
@@ -128,7 +129,6 @@ package_paks-sys-fonts() {
     'ttf-pt-mono'
     'ttf-rubik-vf'
     'ttf-share-gf'
-    'ttf-tt2020'
     'ttf-unifont'
     'ttf-work-sans'
     'ttf-work-sans-variable'
@@ -187,8 +187,6 @@ package_paks-usr-minimal() {
 package_paks-usr-admin() {
   pkgdesc='Power-user packages'
   replaces=(paks-core paks-usr-base)
-  provides=(paks-usr-minimal)
-  # conflicts=(paks-usr-minimal)
 
   depends=(
     'paks-usr-minimal'
@@ -218,7 +216,8 @@ package_paks-usr-admin() {
     'bash-language-server'
     'efm-langserver'
     'emmet-cli'
-    'eslint'
+    # 'eslint'
+    # 'eslint-language-server'
     'flake8'
     'flow-bin'
     'lua-language-server'
@@ -249,8 +248,6 @@ package_paks-usr-admin() {
 package_paks-gui-desktop() {
   pkgdesc='Baisc Desktop Environment'
   replaces=(paks-desktop paks-usr-desktop)
-  provides=(paks-sys-fonts)
-  conflicts=(paks-sys-fonts)
 
   depends=(
     'paks-sys-fonts'
@@ -268,7 +265,7 @@ package_paks-gui-desktop() {
     'waybar'
     'wl-clipboard'
     'xdg-user-dirs'
-    'xfce-polkit-git'
+    'xfce-polkit'
     'xorg-xwayland'
     'xsettingsd'
     'wl-mirror'
@@ -301,6 +298,7 @@ package_paks-gui-desktop() {
     'thunar-volman'
     'tumbler'
     'mlocate'
+    'udiskie'
 
     # network
     'browserpass-firefox'
@@ -331,15 +329,12 @@ package_paks-gui-desktop() {
     'mpv-uosc'
     'rhythmbox'
     'spotify'
-    'spotify-adblock-git'
   )
 }
 
 package_paks-gui-workstation() {
   pkgdesc='Workstation DE'
   replaces=()
-  provides=(paks-gui-desktop)
-  # conflicts=(paks-gui-desktop)
 
   depends=(
     'paks-gui-desktop'
@@ -368,7 +363,7 @@ package_paks-gui-workstation() {
     'asciinema'
     'calibre'
     'gource'
-    'rofi-rofi-emoji'
+    'rofi-emoji'
 
     # tools
     'android-tools'
@@ -402,8 +397,8 @@ package_paks-gui-workstation() {
     # network
     'cloudflare-warp-bin'
     'filezilla'
-    'signal-signal-desktop'
-    'teams-teams-for-linux'
+    'signal-desktop'
+    'teams-for-linux'
 
     # check
     # 'ctags'
@@ -420,8 +415,6 @@ package_paks-gui-workstation() {
 package_paks-gui-mediacenter() {
   pkgdesc='Media Center DE'
   replaces=(paks-usr-mediacenter)
-  provides=(paks-gui-desktop)
-  # conflicts=(paks-gui-desktop)
 
   depends=(
     'paks-gui-desktop'
