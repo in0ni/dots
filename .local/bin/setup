@@ -20,7 +20,7 @@ copy_dots_home() {
   : ${usr_repo_base_url:?"url cannot be empty"}
   usr_repo_url="$usr_repo_base_url/$usr_repo_name"
 
-  cd "$HOME/temp" || exit
+  cd "$HOME" || exit
   git clone "$usr_repo_url"
   cd "$usr_repo_name" || exit
 
@@ -46,7 +46,7 @@ copy_dots_sys() {
   : ${sys_repo_base_url:?"url cannot be empty"}
   sys_repo_url="$sys_repo_base_url/$sys_repo_name"
 
-  cd "$HOME/temp" || exit
+  cd "$HOME" || exit
   git clone "$sys_repo_url"
   cd "$sys_repo_name" || exit
 
