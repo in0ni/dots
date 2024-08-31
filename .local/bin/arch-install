@@ -20,6 +20,10 @@
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
 # - Run: `# bash <(curl -sL https://raw.githubusercontent.com/in0ni/dots/master/.local/bin/arch-install)`
 
+# -u  = exit with an error if it tries to use an unset variable
+# -o pipefail = default, exit status of a pipeline is the exit status of the
+# last command in the pipeline. With pipefail, will return the exit status of
+# the rightmost command that failed, or zero if all commands succeed
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
@@ -135,6 +139,7 @@ part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
 
 echo -e "\n### Setup LUKS, and enroll in TPM"
 echo -n "${luks_password}" | cryptsetup luksFormat "${part_root}"
+# TODO: avoid entering password
 systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
 echo -n "${luks_password}" | cryptsetup open "${part_root}" "$dev_mapper_id"
 
@@ -160,7 +165,7 @@ mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/"$dev_mapper_id" 
 mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/"$dev_mapper_id" /mnt/home
 mount -o noatime,nodiratime,compress=zstd,subvol=@pkgs /dev/mapper/"$dev_mapper_id" /mnt/var/cache/pacman
 mount -o noatime,nodiratime,compress=zstd,subvol=@logs /dev/mapper/"$dev_mapper_id" /mnt/var/log
-mount -o noatime,nodiratime,compress=zstd,subvol=@temp /dev/mapper/"$dev_mapper_id" /mnt/var/tmp
+mount -o noatime,nodiratime,compress=zstd,subvol=@tmp /dev/mapper/"$dev_mapper_id" /mnt/var/tmp
 mount -o noatime,nodiratime,compress=zstd,subvol=@swap /dev/mapper/"$dev_mapper_id" /mnt/swap
 mount -o noatime,nodiratime,compress=zstd,subvol=@snapshots /dev/mapper/"$dev_mapper_id" /mnt/.snapshots
 
@@ -172,9 +177,13 @@ repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
 if [ -n "$paks_name" ]; then
   echo -e "\n### Adding custom repo & key"
   cat >>/etc/pacman.conf <<EOF
-[${remote_repo_name}]
-SigLevel = None
-Server = ${remote_repo_url}
+[${paks_name}]
+SigLevel = Never
+Server = ${paks_url}
+
+[options]
+CacheDir = /mnt/var/cache/pacman/pkg
+CacheDir = /mnt/var/cache/pacman/${user}-local
 EOF
 # wget -q $remote_repo_key_url -O- | pacman-key --add -
 # pacman-key --finger $remote_repo_key_id
@@ -183,7 +192,7 @@ fi
 pacman -Sy
 
 echo -e "\n### Installing packages"
-pacstrap -i /mnt paks-sys-base paks-sys-usr-minimal
+pacstrap -i /mnt paks-sys-base paks-usr-minimal
 
 echo -e "\n### Generating base config files"
 ln -sfT dash /mnt/usr/bin/sh
