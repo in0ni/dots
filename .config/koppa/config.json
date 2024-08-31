@@ -9,10 +9,6 @@
     "path": "$HOME/.config/environment.d"
   },
   {
-    "id": "firefox",
-    "path": "$HOME/.config/firefox"
-  },
-  {
     "id": "gtk-2.0",
     "path": "$HOME/.gtkrc-2.0__"
   },
@@ -28,6 +24,10 @@
   {
     "id": "kitty",
     "path": "$HOME/.config/kitty"
+  },
+  {
+    "id": "koppa",
+    "path": "$HOME/.config/koppa"
   },
   {
     "id": "mpv",

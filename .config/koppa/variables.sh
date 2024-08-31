@@ -137,7 +137,3 @@ v16_12_blue=73dfff   # 38;5;12
 v16_13_purple=aaa6ff # 38;5;13
 v16_14_orange=ff9d4a # 38;5;14
 v16_15_white=c6e2ff  # 38;5;15
-
-hex_to_rgb() {
-  printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
-}
