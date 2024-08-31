@@ -89,7 +89,7 @@ alias ishrink='convert -resize 1200 -quality 90'
 alias sudo='sudo -E '
 alias ssh='kitty +kitten ssh'
 alias dots='/usr/bin/git --git-dir=$HOME/.dots-home/ --work-tree=$HOME'
-alias conf='/usr/bin/git --git-dir=$HOME/.dots-root/ --work-tree=/'
+alias conf='/usr/bin/git --git-dir=$HOME/.dots-sys/ --work-tree=/'
 
 #
 # zsh
