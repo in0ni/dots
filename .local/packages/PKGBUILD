@@ -20,7 +20,7 @@ pkgname=(
 )
 # YY-MM.rel
 pkgver=24
-pkgrel=08.15
+pkgrel=09.1
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
 url='https://gitlab.com/gonzalez.af/dots'
@@ -33,7 +33,6 @@ package_paks-sys-base() {
   replaces=(paks-base)
 
   depends=(
-    # 'archlinux-keyring'
     'arch-secure-boot'
     'base'
     'base-devel'
@@ -57,6 +56,10 @@ package_paks-sys-base() {
     'snap-pac'
     'terminus-font'
     'iwd'
+
+    # used by install/setup tools
+    'dialog'
+    'jq'
   )
 }
 
@@ -82,7 +85,7 @@ package_paks-sys-x1() {
     'intel-media-driver'
     'libva-utils'
     'libvdpau-va-gl'
-    # 'sof-firmware'
+    'sof-firmware'
     'tlp'
     'vulkan-intel'
   )
