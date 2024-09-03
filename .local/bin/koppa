@@ -24,8 +24,6 @@ set -a
 source "$vars"
 # disable automatic exporting of variables
 set +a
-# exit immediately if any command returns a non-zero exit status
-set -e
 
 hex_to_rgb() {
   printf "%d, %d, %d" 0x"${1:0:2}" 0x"${1:2:2}" 0x"${1:4:2}"
@@ -64,18 +62,15 @@ parse_file() {
   if [ -f "$1" ]; then
     file_in=$(basename "$1")
     base_path=$(dirname "$1")
-    content=$(<"$1")
 
     # Only if file name ends in "__" or has it before the extension
-    if [[ "$file_in" =~ ^(.+)$koppa_id\.[^.]+$ || "$file_in" =~ ^(.+)$koppa_id$ ]]; then
+    if [[ "$file_in" =~ ^(.+)$koppa_id($|\.[^.]+$) ]]; then
       echo "-> $1"
 
       # Remove the '__' from the file name
-      file_out="${BASH_REMATCH[1]}"
-      if [[ "$file_in" =~ \.[^.]+$ ]]; then
-        extension="${file_in##*.}"
-        file_out="$file_out.$extension"
-      fi
+      file_name="${BASH_REMATCH[1]}"
+      extension="${BASH_REMATCH[2]}"
+      file_out="$file_name$extension"
 
       content=$(<"$1")
       content=$(replace_tokens "$content" '%\{([^\}]+)\}%')
@@ -83,8 +78,7 @@ parse_file() {
 
       # unhide file
       if tail "$1" 2>/dev/null | grep -q "$unhide_cmd"; then
-        # shellcheck disable=2001
-        file_out=$(sed 's/^\.//' <<<"$file_out")
+        file_out="${file_out/#./}"
       fi
 
       path_out="$base_path/$file_out"
