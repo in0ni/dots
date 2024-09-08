@@ -6,8 +6,9 @@ export XDG_DATA_HOME=$HOME/.local/share
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US
 
+export DIFFPROG=meld
 export EDITOR=helix
-export VISUAL=$EDITOR
-export SUDO_EDITOR=$EDITOR
 export GIT_EDITOR=$EDITOR
 export PAGER='bat -p'
+export SUDO_EDITOR=$EDITOR
+export VISUAL=$EDITOR
