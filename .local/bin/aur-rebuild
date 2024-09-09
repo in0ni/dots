@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+pkg="$1"
+repo="paks"
+
+pkg_dir=$(find $HOME/.cache/aurutils/sync/ -maxdepth 1 -name "$pkg")
+
+if [ -d "$pkg_dir" ]; then
+  cd "$pkg_dir"
+  aur build -fR -d "$repo"
+  sudo pacman -S "$pkg"
+else
+  echo "Error: no already built package found!"
+fi
