@@ -5,11 +5,10 @@ icon_notify=simplescreenrecorder-paused
 if pidof wl-screenrec >/dev/null; then
   kill -SIGINT "$(pidof wl-screenrec)"
 else
-  wl-screenrec -g "$(slurp)" -f ~/Pictures/screencast-"$(date +%Y.%m.%d_%H%M%S)".mp4
-  if $?; then
-    notify-send "Screencast Failed" -i "$icon_notify" -u critical
-  else
+  if wl-screenrec -g "$(slurp)" -f ~/Pictures/screencast-"$(date +%Y.%m.%d_%H%M%S)".mp4; then
     notify-send "Screencast Captured" -i "$icon_notify"
+  else
+    notify-send "Screencast Failed" -i "$icon_notify" -u critical
   fi
 
 fi
