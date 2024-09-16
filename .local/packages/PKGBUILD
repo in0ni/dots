@@ -10,6 +10,7 @@ pkgname=(
   'paks-sys-base'
   'paks-sys-ettal'
   'paks-sys-x1'
+  'paks-sys-surface'
   'paks-sys-fonts'
   'paks-sys-printers'
   'paks-usr-minimal'
@@ -17,13 +18,14 @@ pkgname=(
   'paks-gui-desktop'
   'paks-gui-workstation'
   'paks-gui-mediacenter'
+  'paks-gui-tablet'
 )
 # YY-MM.rel
 pkgver=24
-pkgrel=09.1
+pkgrel=09.11
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
-url='https://gitlab.com/gonzalez.af/dots'
+url='https://github.com/in0ni/dots'
 license=('ISC')
 pkgbase='paks'
 
@@ -88,6 +90,26 @@ package_paks-sys-x1() {
     'sof-firmware'
     'tlp'
     'vulkan-intel'
+  )
+}
+
+package_paks-sys-surface() {
+  pkgdesc='Hardware - Surface Pro 9'
+
+  depends=(
+    'brightnessctl'
+    'linux-surface<6.10'
+    'linux-surface-headers<6.10'
+    'libwacom-surface'
+    'iptsd'
+    'networkmanager'
+    'mesa'
+    'vulkan-intel'
+    'intel-media-driver'
+    # 'fwupd'
+    'intel-compute-runtime'
+    # 'libvdpau-va-gl'
+    # 'tlp'
   )
 }
 
@@ -456,5 +478,24 @@ package_paks-gui-mediacenter() {
     'libretro-genesis-plus-gx'
     'mupen64plus'
     'pcsx2-latest-bin'
+  )
+}
+
+package_paks-gui-tablet() {
+  pkgdesc='Minimal GNOME for use on tablet'
+
+  depends=(
+    # keep hyprland based desktop
+    'paks-gui-desktop'
+
+    # media
+    'kodi'
+
+    # art
+    'gcolor3'
+    'gimp'
+    'gpick'
+    'inkscape'
+    'krita'
   )
 }
