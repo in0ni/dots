@@ -15,24 +15,22 @@ uw2_tickets=~/Work/un/tickets
 uw2_repos=~/Work/un/repos
 
 helix_cd() {
-  kitten="dispatch exec kitty -d='$1'"
-  hx="$kitten -T '[$2] - hx' --hold helix"
-  term1="$kitten -T '[$2] - t1'"
-  term2="$kitten -T '[$2] - t2'"
+  kitten="dispatch exec kitty --directory=$1"
+  hx="$kitten -T \"[$2] - hx\" --hold helix"
+  term1="$kitten -T \"[$2] - t1\""
+  term2="$kitten -T \"[$2] - t2\""
 
-  # create 3 pane window layout
-  # NOTE: 0.2s is appropriate wait for dispatches to trigger once previous command completes
   coproc {
     hyprctl "$hx"
-    sleep 0.2s
+    sleep 0.2
     hyprctl "$term1"
-    sleep 0.2s
-    hyprctl "dispatch togglesplit"
-    sleep 0.2s
+    sleep 0.2
+    hyprctl dispatch togglesplit
+    sleep 0.2
     hyprctl "$term2"
-    sleep 0.2s
-    hyprctl "dispatch resizeactive 0 60%"
-    hyprctl "dispatch movefocus u"
+    sleep 0.2
+    hyprctl dispatch resizeactive 0 60% &&
+      hyprctl dispatch movefocus u
   }
 }
 
