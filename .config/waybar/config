@@ -17,6 +17,7 @@
     "temperature",
     "battery",
     "network",
+    "bluetooth",
     "pulseaudio",
     "tray"
   ],
@@ -36,13 +37,6 @@
     "sort-by-number": true,
     "on-click": "activate"
   },
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "",
-      "deactivated": ""
-    }
-  },
   "hyprland/window": {
     "format": "{}",
     "separate-outputs": true,
@@ -51,90 +45,29 @@
   "hyperland/submap": {
     "format": "{}"
   },
-  "tray": {
-    "spacing": 8
-  },
-  "clock": {
+  "custom/pomodoro": {
     "interval": 1,
-    "tooltip": false,
-    "format": "{:%a %b %d %T}",
-    "on-click": "gsimplecal"
-    //"tooltip-format": "<big>{:%Y ~ %B}</big>\n<tt>{calendar}</tt>",
-    //"format-alt": "{:%T}"
+    "return-type": "json",
+    "exec": "waybar-pomodoro get-time",
+    "exec-if": "exit 0",
+    "format-icons": [""],
+    "format": "{} {icon}",
+    "on-click-right": "waybar-pomodoro toggle"
   },
-  "cpu": {
-    "interval": 1,
-    "states": {
-      "critical": 90
-    },
-    "format": "{usage} ", // brain
-    "tooltip": false
-  },
-  "memory": {
-    "interval": 1,
-    "format": "{} " // microchip
-  },
-  "disk": {
-    "interval": 5,
-    "format": "{percentage_free} ", // microchip
-    "path": "/",
-    "states": {
-      "critical": 96
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": ""
     }
   },
-  "temperature": {
-    // "thermal-zone": 2,
-    // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+  "custom/x1profile": {
     "interval": 1,
-    "critical-threshold": 80,
-    // "format-critical": "{temperatureC}°C {icon}",
-    "format": "{temperatureC}° {icon}",
-    "format-icons": [""]
-  },
-  "battery": {
-    "states": {
-      "great": 100,
-      "good": 75,
-      "fair": 40,
-      "low": 20,
-      "critical": 5
-    },
-    "format": "{capacity} {icon}",
-    "format-charging": "{capacity} ",
-    "format-plugged": "{capacity} ",
-    "format-full": "{capacity} ",
-    "format-alt": "{time} {icon}",
-    "format-icons": [""] // bolt
-  },
-  "network": {
-    "interval": 2,
-    // "interface": "wlp2*", // (Optional) To force the use of this interface
-    "format-wifi": "{signalStrength} ",
-    "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
-    "format-linked": "{ifname} (No IP) ",
-    "format-disconnected": "Disconnected ⚠",
-    "format-alt": "{ifname}: {ipaddr}/{cidr}",
-    "on-click-right": "iwgtk",
-    "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
-  },
-  "pulseaudio": {
-    // "scroll-step": 1, // %, can be a float
-    "format": "{icon} {format_source}",
-    "format-muted": " {format_source}",
-    "format-bluetooth": " {icon} {format_source}",
-    "format-bluetooth-muted": "  {format_source}",
-    "format-source": "",
-    "format-source-muted": "",
-    "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "",
-      "portable": "",
-      "car": "",
-      "default": ["", ""]
-    },
-    "on-click-right": "pavucontrol"
+    "return-type": "json",
+    "exec": "waybar-x1profile get-profile",
+    "exec-if": "exit 0",
+    "format-icons": ["", "", ""],
+    "format": "{icon}"
   },
   "custom/updates_software": {
     "signal": 1,
@@ -162,11 +95,18 @@
     "format-icons": {
       "uptodate": "",
       "error": "",
-      "outdated": " " // spacing here is easier
+      "outdated": " "
     },
     "return-type": "json",
     "exec": "waybar-updates display firmware",
     "on-click-right": "waybar-updates refresh firmware; pkill -RTMIN+1 waybar"
+  },
+  "clock": {
+    "interval": 1,
+    "tooltip": false,
+    "format": "{:%a %b %d %T}",
+    "timezone": "America/Cancun",
+    "on-click": "gsimplecal"
   },
   "custom/day_night": {
     "signal": 3,
@@ -178,21 +118,87 @@
     "return-type": "json",
     "on-click-right": "wm-day-night toggle; pkill -SIGRTMIN+3 waybar"
   },
-  "custom/pomodoro": {
+  "cpu": {
     "interval": 1,
-    "return-type": "json",
-    "exec": "waybar-pomodoro get-time",
-    "exec-if": "exit 0",
-    "format-icons": [""],
-    "format": "{} {icon}",
-    "on-click-right": "waybar-pomodoro toggle"
+    "states": {
+      "critical": 95
+    },
+    "format": "{usage} ",
+    "tooltip": false
   },
-  "custom/x1profile": {
+  "memory": {
     "interval": 1,
-    "return-type": "json",
-    "exec": "waybar-x1profile get-profile",
-    "exec-if": "exit 0",
-    "format-icons": ["", "", ""],
-    "format": "{icon}"
+    "format": "{percentage}/{swapPercentage} ",
+    "states": {
+      "critical": 95
+    }
+  },
+  "disk": {
+    "interval": 5,
+    "format": "{percentage_used} ",
+    "path": "/",
+    "states": {
+      "critical": 90
+    }
+  },
+  "temperature": {
+    "interval": 1,
+    "critical-threshold": 80,
+    "format": "{temperatureC}° {icon}",
+    "format-icons": [""]
+  },
+  "battery": {
+    "states": {
+      "great": 100,
+      "good": 75,
+      "fair": 40,
+      "low": 20,
+      "critical": 8
+    },
+    "format": "{capacity} {icon}",
+    "format-charging": "{capacity} ",
+    "format-plugged": "{capacity} ",
+    "format-full": "{capacity} ",
+    "format-alt": "{time} {icon}",
+    "format-icons": [""]
+  },
+  "network": {
+    "interval": 2,
+    "format-wifi": "{signalStrength} ",
+    "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
+    "format-linked": "{ifname} (No IP) ",
+    "format-disconnected": "Disconnected ⚠",
+    "format-alt": "{ifname}: {ipaddr}/{cidr}",
+    "on-click-right": "iwgtk",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
+  },
+  "bluetooth": {
+    "format-on": "",
+    "format-off": "",
+    "format-disabled": "",
+    "format-connected": "<sup>{num_connections}</sup>",
+    "tooltip-format-connected": "{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias} ({device_address})"
+  },
+  "pulseaudio": {
+    "format": "{icon} {format_source}",
+    "format-muted": " {format_source}",
+    "format-bluetooth": "{icon} {format_source}",
+    "format-bluetooth-muted": " {format_source}",
+    "format-source": "",
+    "format-source-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "car": "",
+      "hdmi": "",
+      "default": [" ", "", ""]
+    },
+    "on-click-right": "pavucontrol"
+  },
+  "tray": {
+    "spacing": 8
   }
 }
