@@ -1,0 +1,11 @@
+[Unit]
+Description=Automatic display rotation using built-in accelerometer
+Documentation=https://github.com/efernau/rot8
+PartOf=hyprland-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rot8
+
+[Install]
+WantedBy=hyprland-session.target
