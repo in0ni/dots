@@ -1,11 +1,11 @@
 [Unit]
 Description=Daemon implementation of XSETTINGS spec
 Documentation=https://github.com/derat/xsettingsd/wiki
-PartOf=graphical-session.target
+PartOf=hyprland-session.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/xsettingsd
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=hyprland-session.target
