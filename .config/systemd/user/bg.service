@@ -1,11 +1,11 @@
 [Unit]
 Description=Wallpaper utility
 Documentation=https://wiki.hyprland.org/Hypr-Ecosystem/hyprpaper/
-PartOf=graphical-session.target
+PartOf=hyprland-session.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/hyprpaper
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=hyprland-session.target

@@ -1,11 +1,11 @@
 [Unit]
 Description=playerctld
 Documentation=man:playerctl(1)
-PartOf=graphical-session.target
+PartOf=hyprland-session.target
 
 [Service]
 Type=simple
 ExecStart=playerctld daemon
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=hyprland-session.target
