@@ -38,6 +38,7 @@ copy_dots_home() {
 }
 
 copy_dots_sys() {
+  # TODO: generate key pair, and add to server before starting this!
   sys_repo_name=$(get_input "System conf files" "Enter repo name") || exit 1
   clear
   : ${sys_repo_name:?"repo name cannot be empty"}

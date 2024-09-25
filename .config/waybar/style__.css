@@ -60,6 +60,11 @@ window#waybar.empty #window { background-color: transparent; }
 #pulseaudio {
   padding: 0.35em 0.65em;
 }
+#tray,
+#bluetooth,
+#pulseaudio {
+  padding: 0.4em;
+}
 
 #custom-x1profile.performance {
   color: #"!{shell_light}!";
@@ -78,11 +83,6 @@ window#waybar.empty #window { background-color: transparent; }
 
 #custom-x1profile {
   padding-right: 0.7rem
-}
-
-/* in case of tray icons 🙄 - TODO: better selector, avoid padding on empty */
-#tray {
-  margin-right: 0.5em;
 }
 
 #workspaces button.active,

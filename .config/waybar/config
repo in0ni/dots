@@ -190,7 +190,6 @@
       "headset": "",
       "phone": "",
       "car": "",
-      "hdmi": "",
       "default": [" ", "", ""]
     },
     "on-click-right": "pavucontrol"

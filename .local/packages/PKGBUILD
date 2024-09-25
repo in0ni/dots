@@ -22,7 +22,7 @@ pkgname=(
 )
 # YY-MM.rel
 pkgver=24
-pkgrel=09.11
+pkgrel=09.16
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
 url='https://github.com/in0ni/dots'
@@ -34,6 +34,8 @@ package_paks-sys-base() {
   provides=(man-db)
   replaces=(paks-base)
 
+  optional=('linux')
+
   depends=(
     'arch-secure-boot'
     'base'
@@ -44,9 +46,8 @@ package_paks-sys-base() {
     'efitools'
     'intel-ucode'
     'kernel-modules-hook'
-    'linux'
+    'linux-lts'
     'linux-firmware'
-    'linux-headers'
     'logrotate'
     'pacman-contrib'
     'zsh'
@@ -98,18 +99,22 @@ package_paks-sys-surface() {
 
   depends=(
     'brightnessctl'
-    'linux-surface<6.10'
-    'linux-surface-headers<6.10'
-    'libwacom-surface'
+    'iio-hyprland-git'
+    'input-remapper-git'
+    'intel-compute-runtime'
+    'intel-media-driver'
     'iptsd'
     'networkmanager'
-    'mesa'
     'vulkan-intel'
-    'intel-media-driver'
+    # 'mesa'
     # 'fwupd'
-    'intel-compute-runtime'
     # 'libvdpau-va-gl'
     # 'tlp'
+
+    # patched kernel/drivers
+    'linux-surface'
+    'linux-surface-headers'
+    'libwacom-surface'
   )
 }
 
@@ -285,7 +290,8 @@ package_paks-gui-desktop() {
     'qt5-wayland'
     'qt6gtk2'
     'qt6-wayland'
-    'rofi-lbonn-wayland-git'
+    'rofi-wayland'
+    'rofi-emoji-git'
     'tela-circle-icon-theme-orange'
     'waybar'
     'wl-clipboard'
@@ -335,6 +341,7 @@ package_paks-gui-desktop() {
     # viewers
     'vimiv-qt'
     'zathura-pdf-mupdf'
+    'foliate'
 
     # media
     'alsa-utils'
@@ -359,7 +366,6 @@ package_paks-gui-desktop() {
 
 package_paks-gui-workstation() {
   pkgdesc='Workstation DE'
-  replaces=()
 
   depends=(
     'paks-gui-desktop'
@@ -388,7 +394,6 @@ package_paks-gui-workstation() {
     'asciinema'
     'calibre'
     'gource'
-    'rofi-emoji'
 
     # tools
     'android-tools'

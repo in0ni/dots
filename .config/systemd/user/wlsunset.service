@@ -1,12 +1,12 @@
 
 [Unit]
 Description=Day/night gamma adjustments
-PartOf=graphical-session.target
-After=graphical-session.target
+PartOf=hyprland-session.target
+After=hyprland-session.target
 
 [Service]
 ExecStart=/usr/bin/wlsunset -l $GPS_LAT -L $GPS_LON -t 3200
 Restart=on-failure
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=hyprland-session.target
