@@ -12,6 +12,7 @@
 # TODO: multi-line notifications, or parse cmd output and simplify
 # TODO: disable all features when powered off
 # TODO: handle turning on/off service
+# TODO: use coproc for all actions that take time
 
 icon=
 title=Bluetooth
@@ -129,15 +130,17 @@ toggle_discoverable() {
 # Toggles device connection
 # TODO: use coproc
 toggle_connection() {
-  if is_dev_state_on "$1" "${dev[connect]}"; then
-    cmd=$(bluetoothctl disconnect "$1")
-    ret=$?
-  else
-    cmd=$(bluetoothctl connect "$1")
-    ret=$?
-  fi
+  coproc {
+    if is_dev_state_on "$1" "${dev[connect]}"; then
+      cmd=$(bluetoothctl disconnect "$1")
+      ret=$?
+    else
+      cmd=$(bluetoothctl connect "$1")
+      ret=$?
+    fi
 
-  notify "$cmd" $ret
+    notify "$cmd" $ret
+  }
 }
 
 # Toggles device paired state
