@@ -22,7 +22,7 @@ pkgname=(
 )
 # YY-MM.rel
 pkgver=24
-pkgrel=09.19
+pkgrel=10.02
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
 url='https://github.com/in0ni/dots'
@@ -106,6 +106,7 @@ package_paks-sys-surface() {
     'iptsd'
     'networkmanager'
     'vulkan-intel'
+    'wvkbd'
     # 'mesa'
     # 'fwupd'
     # 'libvdpau-va-gl'
@@ -378,7 +379,7 @@ package_paks-gui-workstation() {
     # development
     'meld'
     'docker'
-    'docker-compose'
+    # 'docker-compose'
 
     # design
     'darktable'
