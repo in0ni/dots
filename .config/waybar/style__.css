@@ -15,51 +15,23 @@
   transition-duration: 0.5s;
 }
 
-/* avoid background if no items */
-window#waybar.empty #window { background-color: transparent; }
-
-/* make non-bg icons slightly opaque */
-#custom-updates_software,
-#custom-updates_firmware,
-#custom-day_night,
-#custom-pomodoro,
-#idle_inhibitor,
-#custom-x1profile,
-#network,
-#bluetooth,
-#pulseaudio {
+/* basic spacing between modules */
+label.module,
+box.module > *,
+scale.module highlight {
+  padding: 0.35em 0.65em;
+  /* slight dimming of color */
   opacity: 0.85;
 }
 
+/* avoid background if no items */
+#waybar.empty #window { background-color: transparent; }
+
 /* disabled/inactive */
-#idle_inhibitor.deactivated,
-#custom-pomodoro.disabled,
-#waybar.hidden,
-#custom-day_night.inactive { opacity: 0.5; }
+.module.deactivated,
+.module.hidden,
+.module.inactive { opacity: 0.5; }
 
-/* Blocks w/ horizontal spacing */
-#workspaces,
-#submap,
-#clock,
-#window {
-  margin: 0 0.25em;
-}
-
-/* Blocks w/ darker background */
-#workspaces > *,
-#submap,
-#window,
-#clock,
-#cpu,
-#memory,
-#disk,
-#temperature,
-#battery,
-#network,
-#bluetooth,
-#pulseaudio {
-  padding: 0.35em 0.65em;
-}
 #tray,
 #bluetooth,
 #pulseaudio {
@@ -70,27 +42,13 @@ window#waybar.empty #window { background-color: transparent; }
   color: #"!{shell_light}!";
 }
 
-#clock,
-#window {
-  color: #"!{v16_07_white}!";
-}
-
-#custom-pomodoro,
-#idle_inhibitor,
-#custom-x1profile {
-  padding: 0.35em 0.35em;
-}
-
-#custom-x1profile {
-  padding-right: 0.7rem
-}
-
+/* items with bg  */
 #workspaces button.active,
+#window,
+#clock,
 #cpu,
 #memory,
 #disk,
-#clock,
-#window,
 #temperature,
 #network,
 #battery {
@@ -100,13 +58,6 @@ window#waybar.empty #window { background-color: transparent; }
 /*
  * workspaces
  */
-#workspaces { margin-left: 0; }
-label:focus { background-color: #"!{v16_bg}!"; }
-
-label:disabled,
-button:disabled {
-  color: #"!{v16_07_white}!";
-}
 
 button {
   border-top: 1px solid transparent;
@@ -132,10 +83,18 @@ button.urgent {
 }
 
 /*
+ * TODO: remove if has no effect
+label:focus { background-color: #"!{v16_bg}!"; }
+label:disabled,
+button:disabled {
+  color: #"!{v16_07_white}!";
+}
+*/
+
+/*
  * modes
  */
 #submap{
-  margin-right: 0;
   font-weight: bold;
   background-color: #"!{v16_07_white}!";
   color: #"!{v16_bg}!";
@@ -150,7 +109,6 @@ button.urgent {
 #temperature,
 #network,
 #battery {
-  color: #"!{v16_07_white}!";
   opacity: 0.75;
 }
 
@@ -166,7 +124,7 @@ button.urgent {
 #network { border-top: 1px solid #"!{v16_08_black}!"; }
 
 /*
- * warnings
+ * important
  */
 #battery.low:not(.charging),
 #network.disconnected,
@@ -176,6 +134,9 @@ button.urgent {
   color: #"!{v16_01_red}!";
 }
 
+/*
+ * warnings
+ */
 #cpu.critical,
 #memory.critical,
 #disk.critical,
@@ -195,3 +156,29 @@ button.urgent {
   to { background-color: #"!{v16_00_black}!"; }
 }
 
+/* OVERLAY */
+scale.module {
+  margin-right: 1rem;
+}
+
+scale.module slider {
+    min-height: 18px;
+    min-width: 18px;
+    border: 0;
+    border-radius: 9px;
+    background-color: #"!{gruv_light_1}!";
+}
+
+scale.module trough {
+    min-height: 5px;
+    min-width: 150px;
+    border-radius: 4px;
+    background-color: rgba("!{v16_00_black--rgb}!", 0.6);
+}
+
+scale.module highlight {
+    min-width: 5px;
+    border: 4px solid transparent;
+    border-radius: 4px;
+    background-color: #"!{gruv_light_3}!";
+}
