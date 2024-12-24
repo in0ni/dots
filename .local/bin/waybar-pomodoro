@@ -30,7 +30,7 @@ case $1 in
     ;;
   get-time)
     if [[ $time_set = "" ]]; then
-      printf '{"text": "", "tooltip": "off", "class": "disabled"}'
+      printf '{"text": "", "tooltip": "off", "class": "deactivated"}'
     else
       seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
       mins=$(date -d @"$seconds_passed" +"%M")

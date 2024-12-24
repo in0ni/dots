@@ -117,6 +117,11 @@ zstyle ':completion:*:kill:*'      force-list  always
 zstyle ':completion:*:*:killall:*' menu        yes       select
 zstyle ':completion:*:killall:*'   force-list  always
 
+# setup dotfile aliases
+compdef dots=git
+compdef conf=git
+
+
 ### Key bindings
 # NOTE: showkey -a
 #

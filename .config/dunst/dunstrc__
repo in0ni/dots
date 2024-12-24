@@ -4,7 +4,6 @@
 # on wayland there is no difference between mouse/keyboard
 follow = mouse
 width = 350
-height = 150
 offset = 10x10
 progress_bar_height = 15
 progress_bar_max_width = 400

@@ -170,9 +170,9 @@
     "tooltip-format-wifi": "{essid} ({signalStrength}%): {signaldBm}dBm @ {frequency}Mhz"
   },
   "bluetooth": {
-    "format-on": "",
+    "format-on": "<sup></sup>",
     "format-off": "",
-    "format-disabled": "",
+    "format-disabled": "<sup></sup>",
     "format-connected": "<sup>{num_connections}</sup>",
     "tooltip-format-connected": "{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias} ({device_address})"

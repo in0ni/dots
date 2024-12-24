@@ -22,7 +22,7 @@ pkgname=(
 )
 # YY-MM.rel
 pkgver=24
-pkgrel=09.16
+pkgrel=10.02
 pkgdesc='Meta-packages for custom packages'
 arch=('any')
 url='https://github.com/in0ni/dots'
@@ -97,15 +97,16 @@ package_paks-sys-x1() {
 package_paks-sys-surface() {
   pkgdesc='Hardware - Surface Pro 9'
 
+  optional=('input-remapper-git')
   depends=(
     'brightnessctl'
     'iio-hyprland-git'
-    'input-remapper-git'
     'intel-compute-runtime'
     'intel-media-driver'
     'iptsd'
     'networkmanager'
     'vulkan-intel'
+    'wvkbd'
     # 'mesa'
     # 'fwupd'
     # 'libvdpau-va-gl'
@@ -378,7 +379,7 @@ package_paks-gui-workstation() {
     # development
     'meld'
     'docker'
-    'docker-compose'
+    # 'docker-compose'
 
     # design
     'darktable'
@@ -425,7 +426,7 @@ package_paks-gui-workstation() {
     'xournalpp'
 
     # network
-    'cloudflare-warp-bin'
+    # 'cloudflare-warp-bin'
     'filezilla'
     'signal-desktop'
     'teams-for-linux'
@@ -471,18 +472,20 @@ package_paks-gui-mediacenter() {
 
     # gaming: emulators
     'dolphin-emu'
+    'ppsspp'
+    'lime3ds'
+    'mupen64plus'
+    'pcsx2-latest-bin'
     'libretro-beetle-psx'
     'libretro-beetle-psx-hw'
-    'libretro-citra'
-    'libretro-dolphin'
+    # 'libretro-citra'
+    # 'libretro-dolphin'
     'libretro-flycast'
     'libretro-mupen64plus-next'
     'libretro-pcsx2'
     'libretro-ppsspp'
     'libretro-snes9x'
     'libretro-genesis-plus-gx'
-    'mupen64plus'
-    'pcsx2-latest-bin'
   )
 }
 

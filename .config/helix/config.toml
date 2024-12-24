@@ -40,6 +40,8 @@ enable = true
 "A-Q" = "wonly" # close all but selected
 "A-v" = "vsplit"
 "A-b" = "hsplit"
+"C-S-k" = ":quit-all!"
+"C-S-a" = ":write-all"
 
 # prev/next/close buffer
 "A-minus" = "goto_previous_buffer"
