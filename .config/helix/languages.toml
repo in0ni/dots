@@ -37,7 +37,6 @@ lintFormats = [
 #   "%f:%l:%c: %m [%tarning]",
 # ]
 
-
 # eslint
 # TODO: consider vscode-eslint-language-server
 [[language-server.efm-langserver.config.languages.javascript]]
@@ -59,6 +58,24 @@ lintFormats = [
   "%f:%l:%c: %rror - %m",
   "%f:%l:%c: %tarning - %m"
 ]
+# phpactor (intelephense requires license for all useful features)
+[language-server.phpactor]
+command = "phpactor"
+args = [
+  "language-server",
+  # Workaround for https://github.com/phpactor/phpactor/issues/2648
+  "--config-extra={ \"language_server_completion.trim_leading_dollar\": true }"
+]
+
+#
+# Sass/scss
+#
+[language-server.some-sass-lsp]
+command="some-sass-language-server"
+args = ["--stdio"]
+
+[language-server.some-sass-lsp.config]
+somesass = { suggestFromUseOnly = true, loadPaths = ["web/themes/uw/un2_theme"] }
 
 #
 # Emmet
@@ -67,13 +84,16 @@ lintFormats = [
 args = ["--stdio"]
 command="emmet-ls"
 
+#
+# Vue
+#
 [language-server.vuels]
 command = "vue-language-server"
 args = ["--stdio"]
 config = { typescript = { tsdk = "/usr/lib/node_modules/typescript/lib/" } }
 
 #
-# Emmet
+# cspell
 #
 [language-server.cspell]
 command="cspell-lsp"
@@ -116,6 +136,7 @@ auto-format=true
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "scss"] }
 language-servers = [
   "cspell",
+  { name = "some-sass-lsp", except-features = ["format"] },
   { name = "vscode-css-language-server", except-features = ["format"] },
   # stylelint
   { name = "efm-langserver", except-features = ["format"] },
@@ -139,8 +160,9 @@ formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-file
 
 [[language]]
 name="yaml"
-auto-format=true
+auto-format=false
 formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "yaml"] }
+language-servers = ["cspell"]
 
 [[language]]
 name="twig"
@@ -191,7 +213,7 @@ file-types = ["php", "inc", "theme", "module", "profile", "install"]
 # formatter = { command = "phpcbf", args = ["-q", "--stdin-path=${INPUT}", "-"] }
 language-servers = [
   "cspell",
- { name = "intelephense", except-features = ["format"] },
+ { name = "phpactor", except-features = ["format"] },
  # phpcs & phpcbf
  { name = "efm-langserver", only-features = ["diagnostics", "format"] },
 ]
