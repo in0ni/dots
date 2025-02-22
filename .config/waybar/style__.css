@@ -42,6 +42,10 @@ scale.module highlight {
   color: #"!{shell_light}!";
 }
 
+#custom-updates_firmware {
+  padding-left: 0;
+}
+
 /* items with bg  */
 #workspaces button.active,
 #window,
