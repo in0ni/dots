@@ -5,7 +5,7 @@
     "custom/updates_software",
     "custom/updates_firmware",
     "clock",
-    "custom/day_night"
+    "custom/sunset"
   ],
   "modules-right": [
     "custom/pomodoro",
@@ -108,15 +108,14 @@
     "timezone": "America/Cancun",
     "on-click": "gsimplecal"
   },
-  "custom/day_night": {
+  "custom/sunset": {
     "signal": 3,
     "format": "{icon}",
-    "format-icons": ["", "", "", ""],
-    "interval": 60,
-    "exec": "wm-day-night waybar",
-    "exec-if": "exit 0",
+    "format-icons": ["", ""],
+    "interval": 10,
+    "exec": "wm-sunset waybar",
     "return-type": "json",
-    "on-click-right": "wm-day-night toggle; pkill -SIGRTMIN+3 waybar"
+    "on-click-right": "wm-sunset toggle; pkill -SIGRTMIN+3 waybar"
   },
   "cpu": {
     "interval": 1,
