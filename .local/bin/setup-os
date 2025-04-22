@@ -18,7 +18,7 @@
 #
 # Run installation:
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
-# - Run: `# bash <(curl -sL https://raw.githubusercontent.com/in0ni/dots/master/.local/bin/arch-install)`
+# - Run: `# bash <(curl -sL https://raw.githubusercontent.com/in0ni/dots/master/.local/bin/setup-os)`
 
 # -u  = exit with an error if it tries to use an unset variable
 # -o pipefail = default, exit status of a pipeline is the exit status of the
@@ -32,14 +32,31 @@ exec 2> >(tee "stderr.log" >&2)
 
 timezone=America/Cancun
 
-dev_mapper_id=luks
+mapper_root=luks-root
+mapper_data=luks-data
 part_label_root=root
+part_label_data=data
 part_label_boot=efi
 
 export SNAP_PAC_SKIP=y
 
+declare -A CFG=(
+  [partition_layout]="root"
+  # [partition_layout]="root_data"
+  [root_size]="40G"
+  [efi_size]="525M"
+)
+
+is_partition_root_only() {
+  if [[ "${CFG[partition_layout]}" == "root" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 # Dialog
-BACKTITLE="Arch Linux installation"
+BACKTITLE="Arch installation"
 
 get_input() {
   title="$1"
@@ -131,47 +148,76 @@ umount -R /mnt 2>/dev/null || true
 cryptsetup luksClose luks 2>/dev/null || true
 
 lsblk -plnx size -o name "${device}" | xargs -n1 wipefs --all
-sgdisk --clear "${device}" --new 1::-551MiB "${device}" --new 2::0 --typecode 2:ef00 "${device}"
-sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
+
+if is_partition_root_only; then
+  echo -e "\n### Creating a root only partition layout"
+  sgdisk --clear --new 1::-"${CFG[efi_size]}" --typecode 1:ef00 --new 2::0 --typecode 2:8300 "${device}"
+  sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
+else
+  echo -e "\n### Creating a root with data partition layout"
+  sgdisk --clear --new "1:0:+${CFG[root_size]}" --typecode 1:8300 --new "2:0:-${CFG[efi_size]}" --typecode 2:8300 --new 3:0:0 --typecode 3:ef00 "${device}"
+  sgdisk --change-name=1:root --change-name=2:data --change-name=3:ESP "${device}"
+fi
 
 part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
-part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
+if is_partition_root_only; then
+  part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
+else
+  part_data="$(ls ${device}* | grep -E "^${device}p?2$")"
+  part_efi="$(ls ${device}* | grep -E "^${device}p?3$")"
+fi
 
-echo -e "\n### Setup LUKS, and enroll in TPM"
+echo -e "\n### Setup LUKS, and enroll in TPM for root"
 echo -n "${luks_password}" | cryptsetup luksFormat "${part_root}"
 # TODO: avoid entering password
 systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
-echo -n "${luks_password}" | cryptsetup open "${part_root}" "$dev_mapper_id"
+echo -n "${luks_password}" | cryptsetup open "${part_root}" "$mapper_root"
+if ! is_partition_root_only; then
+  echo -e "\n### Setup LUKS, and enroll in TPM for data"
+  echo -n "${password}" | cryptsetup luksFormat "${part_data}"
+  echo -n "${password}" | cryptsetup open "${part_data}" "$mapper_data"
+fi
 
 echo -e "\n### Formatting partitions"
 mkfs.vfat -n "$part_label_boot" -F 32 "$part_efi"
-mkfs.btrfs -L "$part_label_root" /dev/mapper/"$dev_mapper_id"
+mkfs.btrfs -L "$part_label_root" /dev/mapper/"$mapper_root"
+if ! is_partition_root_only; then
+  mkfs.btrfs -L "$part_label_data" /dev/mapper/"$mapper_data"
+fi
 
 echo -e "\n### Setting up BTRFS subvolumes"
-mount /dev/mapper/"$dev_mapper_id" /mnt
+mount /dev/mapper/"$mapper_root" /mnt
 btrfs subvolume create /mnt/@
-btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@pkgs
 btrfs subvolume create /mnt/@logs
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@swap
-btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@snaps
+
+if is_partition_root_only; then
+  btrfs subvolume create /mnt/@home
+fi
 umount /mnt
 
-mount -o noatime,nodiratime,compress=zstd,subvol=@ /dev/mapper/"$dev_mapper_id" /mnt
+echo -e "\n### Setting up all root-level subvolumes "
+mount -o noatime,nodiratime,compress=zstd,subvol=@ /dev/mapper/"$mapper_root" /mnt
 mkdir -p /mnt/{mnt/btrfs-root,efi,home,var/{cache/pacman,log,tmp},swap,.snapshots}
 mount "${part_efi}" /mnt/efi
-mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/"$dev_mapper_id" /mnt/mnt/btrfs-root
-mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/"$dev_mapper_id" /mnt/home
-mount -o noatime,nodiratime,compress=zstd,subvol=@pkgs /dev/mapper/"$dev_mapper_id" /mnt/var/cache/pacman
-mount -o noatime,nodiratime,compress=zstd,subvol=@logs /dev/mapper/"$dev_mapper_id" /mnt/var/log
-mount -o noatime,nodiratime,compress=zstd,subvol=@tmp /dev/mapper/"$dev_mapper_id" /mnt/var/tmp
-mount -o noatime,nodiratime,compress=zstd,subvol=@swap /dev/mapper/"$dev_mapper_id" /mnt/swap
-mount -o noatime,nodiratime,compress=zstd,subvol=@snapshots /dev/mapper/"$dev_mapper_id" /mnt/.snapshots
+mount -o noatime,nodiratime,compress=zstd,subvol=/ /dev/mapper/"$mapper_root" /mnt/mnt/btrfs-root
+mount -o noatime,nodiratime,compress=zstd,subvol=@pkgs /dev/mapper/"$mapper_root" /mnt/var/cache/pacman
+mount -o noatime,nodiratime,compress=zstd,subvol=@logs /dev/mapper/"$mapper_root" /mnt/var/log
+mount -o noatime,nodiratime,compress=zstd,subvol=@tmp /dev/mapper/"$mapper_root" /mnt/var/tmp
+mount -o noatime,nodiratime,compress=zstd,subvol=@swap /dev/mapper/"$mapper_root" /mnt/swap
+mount -o noatime,nodiratime,compress=zstd,subvol=@snaps /dev/mapper/"$mapper_root" /mnt/.snapshots
 
-echo -e "\n### Configuring local repo"
-mkdir "/mnt/var/cache/pacman/${user}-local"
-repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
+if is_partition_root_only; then
+  echo -e "\n### Setting up @home subvolume "
+  mount -o noatime,nodiratime,compress=zstd,subvol=@home /dev/mapper/"$mapper_root" /mnt/home
+fi
+
+echo -e "\n### Configuring paks repo"
+# mkdir "/mnt/var/cache/pacman/${user}-local"
+# repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
 
 # TODO: support signatures, and default on base arch packages if not set (hiding personal url)
 if [ -n "$paks_name" ]; then
@@ -183,8 +229,8 @@ Server = ${paks_url}
 
 [options]
 CacheDir = /mnt/var/cache/pacman/pkg
-CacheDir = /mnt/var/cache/pacman/${user}-local
 EOF
+# CacheDir = /mnt/var/cache/pacman/${user}-local
 # wget -q $remote_repo_key_url -O- | pacman-key --add -
 # pacman-key --finger $remote_repo_key_id
 # pacman-key --lsign $remote_repo_key_id
@@ -201,7 +247,7 @@ rootuuid=$(lsblk -pdn -o uuid "${part_root}")
 echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard root=LABEL=${part_label_root} rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" >/mnt/etc/kernel/cmdline
 
 echo "FONT=$font" >/mnt/etc/vconsole.conf
-genfstab -L /mnt >>/mnt/etc/fstab
+genfstab -U /mnt >>/mnt/etc/fstab
 echo "${hostname}" >/mnt/etc/hostname
 echo "en_US.UTF-8 UTF-8" >>/mnt/etc/locale.gen
 ln -sf /usr/share/zoneinfo/"${timezone}" /mnt/etc/localtime
@@ -215,7 +261,9 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole block sd-encrypt
 EOF
 
 arch-chroot /mnt mkinitcpio -p linux
-arch-chroot /mnt arch-secure-boot initial-setup
+arch-chroot /mnt arch-secure-boot generate-keys
+arch-chroot /mnt arch-secure-boot generate-efi
+arch-chroot /mnt arch-secure-boot add-efi
 
 echo -e "\n### Configuring swap file"
 btrfs filesystem mkswapfile --size 4G /mnt/swap/swapfile
@@ -223,7 +271,7 @@ echo "/swap/swapfile none swap defaults 0 0" >>/mnt/etc/fstab
 
 echo -e "\n### Creating user"
 arch-chroot /mnt useradd -m -s /usr/bin/zsh "$user"
-for group in wheel video input; do
+for group in docker vboxusers video input wheel; do
   arch-chroot /mnt groupadd -rf "$group"
   arch-chroot /mnt gpasswd -a "$user" "$group"
 done
@@ -231,14 +279,86 @@ arch-chroot /mnt chsh -s /usr/bin/zsh
 echo "$user:$password" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd -dl root
 
-echo -e "\n### Setting permissions on the custom repo"
-arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
+if ! is_partition_root_only; then
+  echo -e "\n### Setup open, auto-mount, and close of encrypted home"
+  cat <<EOF >/mnt/etc/pam_encrypted_home_open.sh
+#!/bin/sh
+
+if [ "\$PAM_USER" = "$user" ] && [ ! -e "/dev/mapper/$user" ]; then
+  echo "about to unlock $part_data\n"
+  /usr/bin/cryptsetup open $part_data $user
+  echo "unlocked $part_data"
+fi
+EOF
+
+  awk '
+    # Track the line number of each "auth" line
+    /auth/ { last = NR }
+
+    # Print every line
+    { print }
+
+    # After the last "auth" line, insert the new line
+    NR == last {
+        print "auth       optional   pam_exec.so expose_authtok /etc/pam_encrypted_home_open.sh"
+    }
+' /etc/pam.d/system-login
+
+  # TODO: allow for custom uid, vs 1000
+  cat <<EOF >/mnt/etc/systemd/system/encrypted-home.mount
+[Unit]
+Requires=user@1000.service
+Before=user@1000.service
+
+[Mount]
+Where=/home/$user
+What=/dev/mapper/$user
+Type=btrfs
+Options=rw,noatime,nodiratime,compress=zstd,subvol=@
+
+[Install]
+RequiredBy=user@1000.service
+EOF
+
+  escaped_path=$(systemd-escape --path "$part_data")
+  cat <<EOF >/mnt/etc/systemd/system/encrypted-home-close.service
+[Unit]
+DefaultDependencies=no
+BindsTo=$escaped_path.device
+After=$escaped_path.device
+BindsTo=dev-mapper-$user.device
+Requires=encrypted-user.mount
+Before=encrypted-user.mount
+Conflicts=umount.target
+Before=umount.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutSec=0
+ExecStop=/usr/bin/cryptsetup close $user
+
+[Install]
+RequiredBy=dev-mapper-$user.device
+EOF
+fi
+
+# echo -e "\n### Setting permissions on the custom repo"
+# arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
 echo -e "\n### Basic system settings & services"
+cat >>/etc/pacman.conf <<EOF
+%wheel ALL=(ALL:ALL) ALL
+%wheel ALL=(ALL) NOPASSWD:SETENV: \
+    /usr/bin/pacman -Sy, \
+    /usr/bin/pacman -Syu
+EOF
 echo "%wheel ALL=(ALL:ALL) ALL" >/mnt/etc/sudoers.d/override
 
-echo -e "\n### Unmounting, enrolling encryption for auto-unlock"
+echo -e "\n### Unmounting"
 umount -R /mnt
-cryptsetup close /dev/mapper/"$dev_mapper_id"
-
+cryptsetup close /dev/mapper/"$mapper_root"
+if ! is_partition_root_only; then
+  cryptsetup close /dev/mapper/"$mapper_data"
+fi
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"

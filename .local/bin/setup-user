@@ -12,13 +12,7 @@ get_input() {
 }
 
 copy_dots_home() {
-  usr_repo_name=$(get_input "User dotfiles" "Enter repo name") || exit 1
-  clear
-  : ${usr_repo_name:?"repo name cannot be empty"}
-  usr_repo_base_url=$(get_input "User dotfiles" "Enter repo url path") || exit 1
-  clear
-  : ${usr_repo_base_url:?"url cannot be empty"}
-  usr_repo_url="$usr_repo_base_url/$usr_repo_name"
+  usr_repo_url="https://github.com/in0ni/dots.git"
 
   cd "$HOME" || exit
   git clone "$usr_repo_url"
@@ -52,16 +46,16 @@ copy_dots_sys() {
   cd "$sys_repo_name" || exit
 
   git config --local status.showUntrackedFiles no
-  git config --local user.name "Andrés González"
-  git config --local user.email "1596691+in0ni@users.noreply.github.com"
+  # git config --local user.name "Andrés González"
+  # git config --local user.email "1596691+in0ni@users.noreply.github.com"
 
   # move files
-  # mv .git ../.dots-sys
+  mv .git ../.dots-sys
   # sudo cp -a ./. /
 
   # clean-up
   # cd ../
-  # rm -rf "$sys_repo"
+  # rm -rf "$sys_repo_name"
 }
 
 user_service_blacklist() {
@@ -107,13 +101,22 @@ select_services_user() {
 
 select_services_sys() {
   local services=(
-    iwd.service
+    bluetooth.service
+    encrypted-home.mount
+    encrypted-home-close.service
+    # btrfs-scrub@-.timer
+    # btrfs-scrub@home.timer
     firewalld.service
-    systemd-networkd.service
-    systemd-resolved.service
-    tlp.service
+    fstrim.service
+    iwd.service
     reflector.timer
     snapper-cleanup.timer
+    # systemd-network-generator.service
+    # systemd-networkd-wait-online.service
+    systemd-networkd.service
+    systemd-resolved.service
+    # systemd-timesyncd.service
+    tlp.service
   )
 
   local options=()
@@ -147,7 +150,7 @@ sys)
   # load services
   # TODO: properly copy files and enable services
   for item in "${selected[@]}"; do
-    echo "systemctl enable --now $item"
+    echo "sudo systemctl enable --now $item"
   done
   echo "NOTE: you must manually copy config files for now"
   echo "NOTE: you must manually enable services above"
