@@ -12,7 +12,8 @@ get_input() {
 }
 
 copy_dots_home() {
-  usr_repo_url="https://github.com/in0ni/dots.git"
+  usr_repo_name="dots"
+  usr_repo_url="https://github.com/in0ni/$usr_repo_name.git"
 
   cd "$HOME" || exit
   git clone "$usr_repo_url"
@@ -46,8 +47,6 @@ copy_dots_sys() {
   cd "$sys_repo_name" || exit
 
   git config --local status.showUntrackedFiles no
-  # git config --local user.name "Andrés González"
-  # git config --local user.email "1596691+in0ni@users.noreply.github.com"
 
   # move files
   mv .git ../.dots-sys
@@ -102,18 +101,19 @@ select_services_user() {
 select_services_sys() {
   local services=(
     bluetooth.service
-    encrypted-home.mount
+    btrfs-scrub@home.timer
+    btrfs-scrub@-.timer
     encrypted-home-close.service
-    # btrfs-scrub@-.timer
-    # btrfs-scrub@home.timer
+    encrypted-home.mount
     firewalld.service
     fstrim.service
+    home-in0ni*.mount
     iwd.service
     reflector.timer
     snapper-cleanup.timer
-    # systemd-network-generator.service
-    # systemd-networkd-wait-online.service
     systemd-networkd.service
+    # systemd-networkd-wait-online.service
+    # systemd-network-generator.service
     systemd-resolved.service
     # systemd-timesyncd.service
     tlp.service
