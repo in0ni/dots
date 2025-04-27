@@ -1,4 +1,4 @@
-version = '0.21.9'
+version = "1.0.0"
 
 xplr.config.general.panel_ui.default.border_type = "Thick"
 xplr.config.general.panel_ui.default.border_style.fg = { Rgb = {"!{shell_dark--rgb}!"} }
