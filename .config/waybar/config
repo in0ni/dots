@@ -2,14 +2,15 @@
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
   "modules-center": [
-    "custom/updates_software",
-    "custom/updates_firmware",
+    "custom/pomodoro",
     "clock",
-    "custom/sunset"
+    "custom/sunset",
+    "custom/updates_software"
   ],
   "modules-right": [
-    "custom/pomodoro",
+    "custom/updates_firmware",
     "idle_inhibitor",
+    "power-profiles-daemon",
     "custom/x1profile",
     "cpu",
     "memory",
@@ -50,7 +51,6 @@
     "return-type": "json",
     "exec": "waybar-pomodoro get-time",
     "exec-if": "exit 0",
-    "format-icons": [""],
     "format": "{} {icon}",
     "on-click-right": "waybar-pomodoro toggle"
   },
@@ -59,6 +59,17 @@
     "format-icons": {
       "activated": "",
       "deactivated": ""
+    }
+  },
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "",
+      "performance": "",
+      "balanced": "",
+      "power-saver": ""
     }
   },
   "custom/x1profile": {
@@ -105,7 +116,6 @@
     "interval": 1,
     "tooltip": false,
     "format": "{:%a %b %d %T}",
-    "timezone": "America/Cancun",
     "on-click": "gsimplecal"
   },
   "custom/sunset": {

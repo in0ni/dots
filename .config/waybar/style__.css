@@ -26,6 +26,7 @@ scale.module highlight {
 
 /* avoid background if no items */
 #waybar.empty #window { background-color: transparent; }
+#window { margin-left: 0.5em; }
 
 /* disabled/inactive */
 .module.deactivated,
@@ -42,8 +43,25 @@ scale.module highlight {
   color: #"!{shell_light}!";
 }
 
-#custom-updates_firmware {
-  padding-left: 0;
+#custom-pomodoro.start{
+  opacity: 0.7;
+}
+#custom-pomodoro.one-third{
+  opacity: 0.8;
+}
+#custom-pomodoro.two-third{
+  opacity: 0.9;
+}
+
+#custom-pomodoro.end{
+  background-color: #"!{v16_06_aqua}!";
+  border-top: 1px solid #"!{v16_07_white}!";
+  color: #"!{v16_07_white}!";
+  animation-name: blinking;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 /* items with bg  */
@@ -56,7 +74,7 @@ scale.module highlight {
 #temperature,
 #network,
 #battery {
-  background-color: rgba("!{v16_bg--rgb}!", 0.6);
+  background-color: rgba("!{v16_bg--rgb}!", 0.8);
 }
 
 /*
