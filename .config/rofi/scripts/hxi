@@ -16,9 +16,9 @@ uw2_repos=~/Work/un/repos
 
 helix_cd() {
   kitten="dispatch exec kitty --directory=$1"
-  hx="$kitten -T \"[$2] - hx\" --hold helix"
-  term1="$kitten -T \"[$2] - t1\""
-  term2="$kitten -T \"[$2] - t2\""
+  hx="$kitten -T \"$icon ~ $2 (editor)\" --hold helix"
+  term1="$kitten -T \"$icon ~ $2 (term1)\""
+  term2="$kitten -T \"$icon ~ $2 (term2)\""
 
   coproc {
     hyprctl "$hx"
@@ -29,8 +29,9 @@ helix_cd() {
     sleep 0.2
     hyprctl "$term2"
     sleep 0.2
-    hyprctl dispatch resizeactive 0 60% &&
-      hyprctl dispatch movefocus u
+    hyprctl dispatch resizeactive 0 60%
+    sleep 0.2
+    hyprctl dispatch movefocus u
   }
 }
 
