@@ -118,8 +118,8 @@ zstyle ':completion:*:*:killall:*' menu        yes       select
 zstyle ':completion:*:killall:*'   force-list  always
 
 # setup dotfile aliases
-compdef dots=git
-compdef conf=git
+# compdef dots=git
+# compdef conf=git
 
 
 ### Key bindings
