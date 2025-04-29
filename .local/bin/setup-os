@@ -85,12 +85,6 @@ set_hidpi() {
   setfont "$font"
 }
 
-set_partition_layout() {
-  types=("root_only" "Root parition only" "root_data" "Root and Data (user) parittions")
-  partition_layout=$(dialog_get_choice "Parition Type" "Select a partitoin type" "${types[@]}") || exit 1
-  clear
-}
-
 set_hostname() {
   hostname=$(dialog_get_input "Hostname" "Enter hostname") || exit 1
   clear
@@ -120,10 +114,22 @@ set_device() {
   read -r -a devicelist <<<$devicelist
   device=$(dialog_get_choice "Installation" "Select installation disk" "${devicelist[@]}") || exit 1
   clear
+
+  types=("root_only" "Root parition only" "root_data" "Root and Data (user) parittions")
+  partition_layout=$(dialog_get_choice "Parition Type" "Select a partitoin type" "${types[@]}") || exit 1
+  clear
+
+  part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
+  if is_partition_root_only; then
+    part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
+  else
+    part_data="$(ls ${device}* | grep -E "^${device}p?2$")"
+    part_efi="$(ls ${device}* | grep -E "^${device}p?3$")"
+  fi
 }
 
 set_paks() {
-  paks_name=$(dialog_get_input "Custom Packages" "Enter a name, or leave blank for none") || exit 1
+  paks_name=$(dialog_get_input "Custom Packages" "Enter a name") || exit 1
   clear
   : "${paks_name:?"Custom packages name cannot be empty"}"
 
@@ -172,14 +178,6 @@ mk_root_partitions() {
     echo -e "\n### Creating a root with data partition layout"
     sgdisk --clear --new "1:0:+${CFG[root_size]}" --typecode 1:8300 --new "2:0:-${CFG[efi_size]}" --typecode 2:8300 --new 3:0:0 --typecode 3:ef00 "${device}"
     sgdisk --change-name=1:root --change-name=2:data --change-name=3:ESP "${device}"
-  fi
-
-  part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
-  if is_partition_root_only; then
-    part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
-  else
-    part_data="$(ls ${device}* | grep -E "^${device}p?2$")"
-    part_efi="$(ls ${device}* | grep -E "^${device}p?3$")"
   fi
 
   echo -e "\n### Root filesystem: Setup luks, enroll TPM"
@@ -331,6 +329,26 @@ cfg_base() {
   HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole block sd-encrypt filesystems)
 EOF
 
+  cat <<EOF >/mnt/etc/systemd/network/20-wlan.network
+[Match]
+Name=wl*
+
+[Link]
+RequiredForOnline=routable
+Multicast=true
+
+[Network]
+DHCP=yes
+MulticastDNS=resolve
+IgnoreCarrierLoss=3s
+
+[DHCPv4]
+RouteMetric=600
+
+[IPv6AcceptRA]
+RouteMetric=600
+EOF
+
   arch-chroot /mnt chattr +C /var/lib/docker
 
   arch-chroot /mnt mkinitcpio -p linux
@@ -435,23 +453,22 @@ cfg_services() {
     echo -n "Enabling $service... "
 
     if arch-chroot /mnt systemctl enable "$service" 2>/dev/null; then
-      echo "✓"
+      echo "yes"
     else
       failed_services+=("$service")
-      echo "✗"
+      echo "no"
     fi
   done
 }
 
 cfg_sudo() {
   echo -e "\n### Basic system settings & services"
-  cat >>/etc/pacman.conf <<EOF
-  %wheel ALL=(ALL:ALL) ALL
-  %wheel ALL=(ALL) NOPASSWD:SETENV: \
-      /usr/bin/pacman -Sy, \
-      /usr/bin/pacman -Syu
+  cat >>/mnt/etc/sudoers.d/override <<EOF
+%wheel ALL=(ALL:ALL) ALL
+%wheel ALL=(ALL) NOPASSWD:SETENV: \
+    /usr/bin/pacman -Sy, \
+    /usr/bin/pacman -Syu
 EOF
-  echo "%wheel ALL=(ALL:ALL) ALL" >/mnt/etc/sudoers.d/override
 }
 
 unmount_drives() {
@@ -472,20 +489,19 @@ usage() {
 handle_pre() {
   init
   set_hidpi
-  set_device
-  set_partition_layout
   set_luks_password
   set_paks
+  set_device
   mk_root_partitions
   cfg_custom_repo
 }
 
 handle_post() {
   set_hidpi
-  set_device
   set_hostname
   set_user
   set_password
+  set_device
   mk_home_partitions
   cfg_base
   cfg_user
