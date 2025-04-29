@@ -35,7 +35,7 @@ exec 2> >(tee "stderr.log" >&2)
 export SNAP_PAC_SKIP=y
 
 declare -A CFG=(
-  [root_size]="40G"
+  [root_size]="55G"
   [efi_size]="525M"
   [timezone]="America/Cancun"
   [mapper_root]="luks-root"
@@ -156,11 +156,11 @@ init() {
   timedatectl set-ntp true
   hwclock --systohc --utc
 
-  echo -e "\n### Setting up fastest mirrors"
-  reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
-
   echo -e "\n### Installing additional tools"
   pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
+
+  echo -e "\n### Setting up fastest mirrors"
+  reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
 }
 
 mk_root_partitions() {
@@ -383,6 +383,7 @@ if [ "\$PAM_USER" = "$user" ] && [ ! -e "/dev/mapper/$user" ]; then
   echo "unlocked $part_data"
 fi
 EOF
+    arch-chroot /mnt chmod 754 /etc/pam_home_open.sh
 
     arch-chroot /mnt awk '
     # Track the line number of each "auth" line
@@ -395,10 +396,10 @@ EOF
     NR == last {
         print "auth       optional   pam_exec.so expose_authtok /etc/pam_encrypted_home_open.sh"
     }
-' /etc/pam.d/system-login
+' /mnt/etc/pam.d/system-login
 
     # create all automount files
-    mk_home_automounts work photos
+    mk_home_automounts work photos docker
 
     escaped_path=$(systemd-escape --path "$part_data")
     cat <<EOF >/mnt/etc/systemd/system/home-"$user"-close.service
@@ -431,16 +432,17 @@ cfg_services() {
     bluetooth.service
     btrfs-scrub@home.timer
     btrfs-scrub@-.timer
-    encrypted-home-close.service
-    encrypted-home.mount
+    home-"$user"-close.service
     firewalld.service
     fstrim.service
+    # nope
     home-"$user"*.mount
     iwd.service
     reflector.timer
     snapper-cleanup.timer
     systemd-networkd.service
     systemd-resolved.service
+    # nope
     tlp.service
   )
 
