@@ -1,0 +1,9 @@
+{
+  "home_external": "/run/media/$USER/n0s/backups/home",
+  "aosp_rsync": {
+    "uri": "rsync://localhost",
+    "port": "8873",
+    "path": "/sdcard/Music"
+  },
+  "gpg_recipient": "4DFDEC3DB76AA0DBA1F3046D5FF8F1ABEC0DE51A"
+}

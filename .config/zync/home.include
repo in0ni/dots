@@ -1,0 +1,24 @@
+# RESTORE (selective for fresh installs)
+
+# personal configs
+.gitconfig*
+# .ssh
+.histfile
+.local/share/rhythmbox
+.config/hxi.projs
+
+# personal files
+Documents
+# Downloads
+Music
+Work
+
+# TODO: reassess, this should all be managed by git dotfiles
+# .config/blockify
+# .config/darktable
+# .config/deluge
+# .config/easytag
+# .config/gopass
+# .config/inkscape
+# .config/spotify
+# .local/share/hamster-applet

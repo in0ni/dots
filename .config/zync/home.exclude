@@ -1,0 +1,19 @@
+# BACK-UP (all but tmp files)
+
+# Cache and trash
+.cache
+.local/share/Trash
+lost+found
+.Trash-*
+
+# Temporary files
+*.swp
+*.tmp
+
+# Private Files
+.gnupg
+.password-storage
+.ssh
+
+# tmp shit
+Downloads/t0rz
