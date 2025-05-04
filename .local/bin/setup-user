@@ -30,6 +30,8 @@ copy_dots_home() {
   # clean-up
   cd ../
   rm -rf "$usr_repo_name"
+
+  # TODO: run koppa mk all
 }
 
 copy_dots_sys() {
@@ -98,38 +100,6 @@ select_services_user() {
   echo "${result[@]}"
 }
 
-select_services_sys() {
-  local services=(
-    bluetooth.service
-    btrfs-scrub@home.timer
-    btrfs-scrub@-.timer
-    encrypted-home-close.service
-    encrypted-home.mount
-    firewalld.service
-    fstrim.service
-    home-in0ni*.mount
-    iwd.service
-    reflector.timer
-    snapper-cleanup.timer
-    systemd-networkd.service
-    # systemd-networkd-wait-online.service
-    # systemd-network-generator.service
-    systemd-resolved.service
-    # systemd-timesyncd.service
-    tlp.service
-  )
-
-  local options=()
-
-  for service in "${services[@]}"; do
-    options+=("$service" "" "on")
-  done
-
-  local result=($(dialog --clear --stdout --checklist "Select System Services:" 0 0 0 "${options[@]}"))
-  # clear
-  echo "${result[@]}"
-}
-
 case $1 in
 user)
   copy_dots_home
@@ -144,16 +114,7 @@ user)
   ;;
 sys)
   copy_dots_sys
-  # enable selected services
-  selected=($(select_services_sys))
-
-  # load services
-  # TODO: properly copy files and enable services
-  for item in "${selected[@]}"; do
-    echo "sudo systemctl enable --now $item"
-  done
-  echo "NOTE: you must manually copy config files for now"
-  echo "NOTE: you must manually enable services above"
+  echo "Ready, you must manually ~/.dots-sys files to root"
   ;;
 *)
   echo -e "Usage: $(basename "$0") <user|sys>\n"

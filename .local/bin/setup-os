@@ -323,10 +323,10 @@ cfg_base() {
   arch-chroot /mnt hwclock --systohc
   arch-chroot /mnt locale-gen
   cat <<EOF >/mnt/etc/mkinitcpio.conf
-  MODULES=()
-  BINARIES=()
-  FILES=()
-  HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole block sd-encrypt filesystems)
+MODULES=()
+BINARIES=()
+FILES=()
+HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole block sd-encrypt filesystems)
 EOF
 
   cat <<EOF >/mnt/etc/systemd/network/20-wlan.network
@@ -385,18 +385,21 @@ fi
 EOF
     arch-chroot /mnt chmod 754 /etc/pam_home_open.sh
 
-    arch-chroot /mnt awk '
-    # Track the line number of each "auth" line
-    /auth/ { last = NR }
+    # TODO: get this awk command working
+    echo "ACTION REQUIRED: add the following to /etc/pam.d/system-login"
+    echo "auth       optional   pam_exec.so expose_authtok /etc/pam_home_open.sh"
+    #     arch-chroot /mnt awk '
+    #     # Track the line number of each "auth" line
+    #     /auth/ { last = NR }
 
-    # Print every line
-    { print }
+    #     # Print every line
+    #     { print }
 
-    # After the last "auth" line, insert the new line
-    NR == last {
-        print "auth       optional   pam_exec.so expose_authtok /etc/pam_encrypted_home_open.sh"
-    }
-' /mnt/etc/pam.d/system-login
+    #     # After the last "auth" line, insert the new line
+    #     NR == last {
+    #         print "auth       optional   pam_exec.so expose_authtok /etc/pam_encrypted_home_open.sh"
+    #     }
+    # ' /mnt/etc/pam.d/system-login
 
     # create all automount files
     mk_home_automounts work photos docker
