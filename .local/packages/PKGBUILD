@@ -314,7 +314,7 @@ package_paks-gui-desktop() {
     'hyprpaper'
     'hypridle'
     'hyprlock'
-    # works with hyprsunset
+    # hyprsunset
     'sunwait'
     'xdg-desktop-portal-hyprland'
 
