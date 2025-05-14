@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -uo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+
+exec 1> >(tee "/tmp/zync_stdout.log")
+exec 2> >(tee "/tmp/zync_stderr.log" >&2)
+
 declare -A CFG=(
   [settings]="$XDG_CONFIG_HOME/zync/settings.json"
   [home_include]="$XDG_CONFIG_HOME/zync/home.include"
@@ -8,7 +14,6 @@ declare -A CFG=(
 
 get_json_setting() {
   local name=$1
-  echo "$name"
   # Set local working directory from local config file
   CFG["$name"]=$(jq -e -r ".$name" "${CFG[settings]}" || {
     echo -e "\e[31mMissing '$name' in config\e[0m" >&2
@@ -25,6 +30,9 @@ handle_backup() {
   local target="${CFG[home_external]}"
   local exclude="${CFG[home_exclude]}"
 
+  # files
+  rsync -ahv --progress --exclude-from="$exclude" "$src" "$target"
+
   # gpg
   gpg --export-secret-keys --export-options backup --output "$target/priv.gpg"
   gpg --export --export-options backup --output "$target/pub.gpg"
@@ -33,9 +41,6 @@ handle_backup() {
   # ssh
   cd "$src" || exit
   tar czf - .ssh | gpg --encrypt -r 5FF8F1ABEC0DE51A --output "$target/ssh.tgz.gpg"
-
-  # files
-  rsync -ahv --progress --exclude-from="$exclude" "$src" "$target"
 }
 
 handle_restore() {
@@ -45,6 +50,8 @@ handle_restore() {
 
   # ssh
   gpg -d "$src/ssh.tgz.gpg" | tar xzf - -C "$target"
+
+  # todo: import gpg keys
 
   rsync -ahv --progress --include-from="$include" "$src" "$target"
 }

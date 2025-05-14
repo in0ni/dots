@@ -1,8 +1,14 @@
 # BACK-UP (all but tmp files)
 
+# Temp
+Work/un/tickets
+
 # Cache and trash
 .cache
+.docker-data
+.dots-*
 .local/share/Trash
+.local/vbox_vms
 lost+found
 .Trash-*
 

@@ -6,6 +6,7 @@
 .histfile
 .local/share/rhythmbox
 .config/hxi.projs
+# .mozilla/firefox/*.in0ni
 
 # personal files
 Documents
