@@ -100,7 +100,7 @@ select_services_user() {
   echo "${result[@]}"
 }
 
-case $1 in
+case "${1:-}" in
 user)
   copy_dots_home
   systemctl --user daemon-reload
