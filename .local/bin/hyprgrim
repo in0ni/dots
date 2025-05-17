@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+handle_area() {
+  area=$(slurp)
+  grim -g "$area" - | swappy -f -
+}
+
+handle_window() {
+  current_window=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+  grim -g "$current_window" - | swappy -f -
+}
+
+handle_monitor() {
+  current_monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) |.name')
+  grim -o "$current_monitor" - | swappy -f -
+}
+
+usage() {
+  printf "\nUsage:\t%s [area|window|monitor]" "$(basename "$0")"
+  printf "\n"
+}
+
+main() {
+  case "${1:-}" in
+  area) handle_area ;;
+  window) handle_window ;;
+  monitor) handle_monitor ;;
+  *)
+    usage
+    exit 1
+    ;;
+  esac
+}
+
+main "$@"
