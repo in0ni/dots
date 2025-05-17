@@ -22,7 +22,7 @@ pkgname=(
 )
 # YY-MM.rel
 pkgver=25
-pkgrel=04.23
+pkgrel=05.16
 pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
 url='https://github.com/in0ni/dots'
@@ -98,6 +98,30 @@ package_paks-hw-x1() {
   )
 }
 
+package_paks-hw-x12() {
+  pkgdesc='Hardware - x12'
+  replaces=()
+
+  depends=(
+    'brightnessctl'
+    'fwupd'
+    'sof-firmware'
+    'tlp'
+
+    # 'intel-compute-runtime'
+    'intel-media-driver'
+    'libva-utils'
+    # OpenGL/VAAPI backend for VDPAU
+    'libvdpau-va-gl'
+    # 3D acceleration DRI driver
+    'mesa'
+    # Intel Video Processing Library
+    'vpl-gpu-rt'
+    'vulkan-intel'
+    'vulkan-tools'
+  )
+}
+
 package_paks-hw-surface() {
   pkgdesc='Hardware - Surface Pro 9'
   replaces=(paks-sys-surface)
@@ -105,17 +129,21 @@ package_paks-hw-surface() {
   optional=('input-remapper-git')
   depends=(
     'brightnessctl'
+    'fwupd'
     'iio-hyprland-git'
     'intel-compute-runtime'
     'intel-media-driver'
     'iptsd'
+    # OpenGL/VAAPI backend for VDPAU
+    'libvdpau-va-gl'
+    # 3D acceleration DRI driver
+    'mesa'
     'networkmanager'
+    'tlp'
+    # Intel Video Processing Library
+    'vpl-gpu-rt'
     'vulkan-intel'
     'wvkbd'
-    # 'mesa'
-    # 'fwupd'
-    # 'libvdpau-va-gl'
-    # 'tlp'
 
     # patched kernel/drivers
     'linux-surface'
@@ -182,7 +210,6 @@ package_paks-usr-minimal() {
     'bc'
     'fd'
     'findutils'
-    # 'gawk'
     'htop'
     'lshw'
     'perl-rename'
@@ -211,6 +238,8 @@ package_paks-usr-minimal() {
     'gzip'
     'p7zip'
     'unrar'
+    # 'unzip'
+    # 'zip'
     'xplr'
 
     # code
@@ -259,7 +288,7 @@ package_paks-usr-admin() {
     'flow-bin'
     'lua-language-server'
     # 'marksman'
-    # 'nodejs-intelephense'
+    'nodejs-emmet-ls'
     'npm'
     'phpactor'
     'patch'
@@ -314,15 +343,16 @@ package_paks-gui-desktop() {
     'hyprpaper'
     'hypridle'
     'hyprlock'
-    # hyprsunset
+    "hyprsunset"
     'sunwait'
     'xdg-desktop-portal-hyprland'
 
     # tools
-    # 'grimshot'
+    'grim'
     'gsimplecal'
     'gucharmap'
     'qalculate-gtk'
+    'slurp'
     'swappy'
     'wl-screenrec-git'
 
