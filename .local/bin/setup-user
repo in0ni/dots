@@ -13,7 +13,7 @@ get_input() {
 
 copy_dots_home() {
   usr_repo_name="dots"
-  usr_repo_url="https://github.com/in0ni/$usr_repo_name.git"
+  usr_repo_url="git@github.com:in0ni/$usr_repo_name.git"
 
   cd "$HOME" || exit
   git clone "$usr_repo_url"
