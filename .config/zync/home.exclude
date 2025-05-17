@@ -16,7 +16,7 @@ lost+found
 *.swp
 *.tmp
 
-# Private Files
+# Private Files (backed up differently)
 .gnupg
 .password-storage
 .ssh
