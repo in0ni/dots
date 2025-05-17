@@ -48,12 +48,15 @@ handle_restore() {
   local target="$HOME/"
   local include="${CFG[home_include]}"
 
+  # gpg
+  # gpg --import "$src/priv.gpg"
+  # TODO: ensure message of setting trust for key
+  # gpg --edit-key gonzalez > trust
+
   # ssh
-  gpg -d "$src/ssh.tgz.gpg" | tar xzf - -C "$target"
+  # gpg -d "$src/ssh.tgz.gpg" | tar xzf - -C "$target"
 
-  # todo: import gpg keys
-
-  rsync -ahv --progress --include-from="$include" "$src" "$target"
+  rsync -arhv --progress --files-from="$include" "$src" "$target"
 }
 
 usage() {
