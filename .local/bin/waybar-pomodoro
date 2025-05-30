@@ -2,48 +2,65 @@
 
 xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-pomodoro"
 
-# time in seconds (25m)
-pomodoro=1500
-time_set=$(cat $xdg_cache 2> /dev/null)
+# time in mins
+mins=25
+pomodoro=$((mins * 60))
+chunks=$((pomodoro / 3))
+time_set=$(cat $xdg_cache 2>/dev/null)
 
 start() {
-  date +"%s" > $xdg_cache
+  date +"%s" >$xdg_cache
 }
 
 stop() {
-  echo "" > $xdg_cache
+  echo "" >$xdg_cache
 }
 
 case $1 in
-  toggle)
-    if [[ $time_set = "" ]]; then
-      start
-    else
-      stop
-    fi
-    ;;
-  start)
+toggle)
+  if [[ $time_set = "" ]]; then
     start
-    ;;
-  stop)
+  else
     stop
-    ;;
-  get-time)
-    if [[ $time_set = "" ]]; then
-      printf '{"text": "", "tooltip": "off", "class": "deactivated"}'
-    else
-      seconds_passed=$(echo "$(date +"%s")" - $time_set | bc)
-      mins=$(date -d @"$seconds_passed" +"%M")
-      mins_secs=$(date -d @"$seconds_passed" +"%M:%S")
-      printf '{"text": "%s", "tooltip": "%s"}' "$mins" "$mins_secs"
-
-      if [[ $seconds_passed -gt $pomodoro ]]; then
-        notify-send "🍅 Tomate" "Time is up, take a break!" -u critical
-      fi
+  fi
+  ;;
+vstart)
+  start
+  ;;
+stop)
+  stop
+  ;;
+get-time)
+  if [[ $time_set = "" ]]; then
+    printf '{"text": "○○○", "tooltip": "relax :)", "class": "deactivated"}'
+  else
+    seconds_passed=$(echo "$(date +"%s")" - "$time_set" | bc)
+    if [[ $seconds_passed -gt $((chunks * 3)) ]]; then
+      progress="◉◉◉"
+      class="end"
+    elif [[ $seconds_passed -gt $((chunks * 2)) ]]; then
+      progress="◉◉○"
+      class="two-third"
+    elif [[ $seconds_passed -gt $chunks ]]; then
+      progress="◉○○"
+      class="one-third"
+    elif [[ $seconds_passed -lt $chunks ]]; then
+      progress="○○○"
+      class="start"
+      # class="1-3"
     fi
-    ;;
-  *)
-    echo >&2 "Usage: $0 <toggle|start|get-time>"
-    exit 1
-    ;;
+
+    mins_secs=$(date -d @"$seconds_passed" +"%M:%S")
+    percent=$((seconds_passed * 100 / pomodoro))
+    printf '{"text": "%s", "tooltip": "%s", "class": "%s"}' "<small>$percent%</small> $progress" "$mins_secs / $mins mins" "$class"
+
+    # if [[ $seconds_passed -gt $pomodoro ]]; then
+    # notify-send "🍅 Tomate" "Time is up, take a break!" -u critical
+    # fi
+  fi
+  ;;
+*)
+  echo >&2 "Usage: $0 <toggle|start|get-time>"
+  exit 1
+  ;;
 esac

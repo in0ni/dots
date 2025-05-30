@@ -2,11 +2,16 @@
   "layer": "top",
   "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
   "modules-center": [
-    "custom/updates_software",
+    "custom/pomodoro",
     "clock",
-    "custom/day_night"
+    "custom/sunset",
+    "custom/updates_software"
   ],
   "modules-right": [
+    "custom/updates_firmware",
+    "idle_inhibitor",
+    "power-profiles-daemon",
+    "custom/x1profile",
     "cpu",
     "memory",
     "disk",
@@ -47,7 +52,6 @@
     "return-type": "json",
     "exec": "waybar-pomodoro get-time",
     "exec-if": "exit 0",
-    "format-icons": [""],
     "format": "{} {icon}",
     "on-click-right": "waybar-pomodoro toggle"
   },
@@ -56,6 +60,17 @@
     "format-icons": {
       "activated": "",
       "deactivated": ""
+    }
+  },
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "",
+      "performance": "",
+      "balanced": "",
+      "power-saver": ""
     }
   },
   "custom/x1profile": {
@@ -102,18 +117,16 @@
     "interval": 1,
     "tooltip": false,
     "format": "{:%a %b %d %T}",
-    "timezone": "America/Cancun",
     "on-click": "gsimplecal"
   },
-  "custom/day_night": {
+  "custom/sunset": {
     "signal": 3,
     "format": "{icon}",
-    "format-icons": ["", "", "", ""],
-    "interval": 60,
-    "exec": "wm-day-night waybar",
-    "exec-if": "exit 0",
+    "format-icons": ["", ""],
+    "interval": 10,
+    "exec": "wm-sunset waybar",
     "return-type": "json",
-    "on-click-right": "wm-day-night toggle; pkill -SIGRTMIN+3 waybar"
+    "on-click-right": "wm-sunset toggle; pkill -SIGRTMIN+3 waybar"
   },
   "cpu": {
     "interval": 1,

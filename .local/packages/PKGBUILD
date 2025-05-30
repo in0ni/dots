@@ -8,67 +8,71 @@
 
 pkgname=(
   'paks-sys-base'
-  'paks-sys-ettal'
-  'paks-sys-x1'
-  'paks-sys-surface'
   'paks-sys-fonts'
   'paks-sys-printers'
-  'paks-usr-minimal'
   'paks-usr-admin'
+  'paks-usr-minimal'
   'paks-gui-desktop'
-  'paks-gui-workstation'
   'paks-gui-mediacenter'
   'paks-gui-tablet'
+  'paks-gui-workstation'
+  'paks-hw-ettal'
+  'paks-hw-surface'
+  'paks-hw-x1'
 )
 # YY-MM.rel
-pkgver=24
-pkgrel=10.02
-pkgdesc='Meta-packages for custom packages'
+pkgver=25
+pkgrel=05.16
+pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
 url='https://github.com/in0ni/dots'
 license=('ISC')
 pkgbase='paks'
 
 package_paks-sys-base() {
-  pkgdesc="Minimum packages for basic arch installation"
+  pkgdesc="Minimum system packages, required for installation"
   provides=(man-db)
   replaces=(paks-base)
 
   optional=('linux')
 
   depends=(
+    #boot
     'arch-secure-boot'
-    'base'
-    'base-devel'
-    'btrfs-progs'
-    'dash'
     'efibootmgr'
     'efitools'
     'intel-ucode'
-    'kernel-modules-hook'
-    'linux-lts'
+    'linux'
     'linux-firmware'
-    'logrotate'
-    'pacman-contrib'
-    'zsh'
+    'linux-lts'
 
-    # required by server
-    'firewalld'
+    # os
+    'base'
+    'base-devel'
+    'dash'
+    'iwd'
+    'kernel-modules-hook'
+    'pacman-contrib'
     'pacman-hook-kernel-install'
+    'terminus-font'
+    'zsh'
+    
+    # services/tools
+    'btrfs-progs'
+    'firewalld'
+    'logrotate'
     'reflector'
     'snap-pac'
-    'terminus-font'
-    'iwd'
 
-    # used by install/setup tools
+    # required by setup
     'dialog'
     'jq'
   )
 }
 
-package_paks-sys-ettal() {
+package_paks-hw-ettal() {
   pkgdesc='Hardware - ettal'
-  replaces=(paks-hw-ettal)
+  replaces=(paks-sys-ettal)
 
   depends=(
     'intel-media-driver'
@@ -77,9 +81,9 @@ package_paks-sys-ettal() {
   )
 }
 
-package_paks-sys-x1() {
+package_paks-hw-x1() {
   pkgdesc='Hardware - x1'
-  replaces=(paks-hw-x1)
+  replaces=(paks-sys-x1)
 
   depends=(
     'brightnessctl'
@@ -94,23 +98,52 @@ package_paks-sys-x1() {
   )
 }
 
-package_paks-sys-surface() {
+package_paks-hw-x12() {
+  pkgdesc='Hardware - x12'
+  replaces=()
+
+  depends=(
+    'brightnessctl'
+    'fwupd'
+    'sof-firmware'
+    'tlp'
+
+    # 'intel-compute-runtime'
+    'intel-media-driver'
+    'libva-utils'
+    # OpenGL/VAAPI backend for VDPAU
+    'libvdpau-va-gl'
+    # 3D acceleration DRI driver
+    'mesa'
+    # Intel Video Processing Library
+    'vpl-gpu-rt'
+    'vulkan-intel'
+    'vulkan-tools'
+  )
+}
+
+package_paks-hw-surface() {
   pkgdesc='Hardware - Surface Pro 9'
+  replaces=(paks-sys-surface)
 
   optional=('input-remapper-git')
   depends=(
     'brightnessctl'
+    'fwupd'
     'iio-hyprland-git'
     'intel-compute-runtime'
     'intel-media-driver'
     'iptsd'
+    # OpenGL/VAAPI backend for VDPAU
+    'libvdpau-va-gl'
+    # 3D acceleration DRI driver
+    'mesa'
     'networkmanager'
+    'tlp'
+    # Intel Video Processing Library
+    'vpl-gpu-rt'
     'vulkan-intel'
     'wvkbd'
-    # 'mesa'
-    # 'fwupd'
-    # 'libvdpau-va-gl'
-    # 'tlp'
 
     # patched kernel/drivers
     'linux-surface'
@@ -167,78 +200,80 @@ package_paks-sys-fonts() {
 }
 
 package_paks-usr-minimal() {
-  pkgdesc='Minimal user packages, suitable for a server'
+  pkgdesc='Basic user packages, suitable for a server'
   replaces=(paks-server)
 
   depends=(
-    # utils
+    # cmds
     'bat'
     'bat-extras'
-    'dfrs'
-    'dua-cli'
-    'eza'
+    'bc'
     'fd'
-    'file'
     'findutils'
-    'fzf'
-    # 'gawk'
-    'git-prompt.zsh-git'
     'htop'
     'lshw'
     'perl-rename'
     'pipe-rename'
     'ripgrep'
     'ripgrep-all'
-    'rmtrash'
-    # 'sed'
+    'sed'
+
+    # tools
+    'dfrs'
+    'dua-cli'
+    'fzf'
+    'rsync'
     'trash-cli'
-    # 'tree'
-    'vivid'
-    'zsh'
+    'tree'
     'zsh-autosuggestions'
     'zsh-completions'
     'zsh-syntax-highlighting'
 
-    # tools
-    'rsync'
+    # ui
+    'eza'
+    'vivid'
 
     # files
-    'xplr'
+    'file'
     'gzip'
     'p7zip'
     'unrar'
+    # 'unzip'
+    # 'zip'
+    'xplr'
 
     # code
     'helix'
     'git'
+    'git-prompt.zsh-git'
     'gitui'
   )
 }
 
 package_paks-usr-admin() {
   pkgdesc='Power-user packages'
-  replaces=(paks-core paks-usr-base)
+  replaces=(paks-core paks-usr-base paks-usr-minimal)
 
   depends=(
     'paks-usr-minimal'
 
-    # utils
+    # admin
+    'aurutils'
     'man-db'
-    'openssh'
+    'speedtest-cli'
     'sudo'
+    'vdpauinfo'
     'vifm'
     'vim'
+    'wavemon'
+    'whois'
 
     # tools
-    'aurutils'
     'gopass'
-    'vdpauinfo'
-    'wavemon'
+    'openssh'
     'wget'
-    'whois'
-    'speedtest-cli'
 
-    # files
+    # filesystems
     'exfat-utils'
     'hfsprogs'
     'ntfs-3g'
@@ -247,14 +282,15 @@ package_paks-usr-admin() {
     'bash-language-server'
     'efm-langserver'
     'emmet-cli'
-    # 'eslint'
+    'eslint'
     # 'eslint-language-server'
     'flake8'
     'flow-bin'
     'lua-language-server'
-    'marksman'
-    'nodejs-intelephense'
+    # 'marksman'
+    'nodejs-emmet-ls'
     'npm'
+    'phpactor'
     'patch'
     'prettier'
     'python-black'
@@ -278,7 +314,7 @@ package_paks-usr-admin() {
 
 package_paks-gui-desktop() {
   pkgdesc='Baisc Desktop Environment'
-  replaces=(paks-desktop paks-usr-desktop)
+  replaces=(paks-desktop paks-usr-desktop paks-sys-fonts)
 
   depends=(
     'paks-sys-fonts'
@@ -297,7 +333,7 @@ package_paks-gui-desktop() {
     'waybar'
     'wl-clipboard'
     'xdg-user-dirs'
-    'xfce-polkit'
+    'hyprpolkitagent'
     'xorg-xwayland'
     'xsettingsd'
     'wl-mirror'
@@ -307,16 +343,18 @@ package_paks-gui-desktop() {
     'hyprpaper'
     'hypridle'
     'hyprlock'
+    "hyprsunset"
+    'sunwait'
     'xdg-desktop-portal-hyprland'
 
     # tools
-    # 'grimshot'
+    'grim'
     'gsimplecal'
     'gucharmap'
     'qalculate-gtk'
+    'slurp'
     'swappy'
     'wl-screenrec-git'
-    'wlsunset'
 
     # files
     'file-roller'
@@ -379,6 +417,7 @@ package_paks-gui-workstation() {
     # development
     'meld'
     'docker'
+    'ddev-bin'
     # 'docker-compose'
 
     # design

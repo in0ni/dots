@@ -49,8 +49,8 @@ update_software() {
   fi
 
   # svr
-  if grep svr ~/.ssh/config -q; then
-    svr=$(ssh svr checkupdates)
+  if grep srv ~/.ssh/config -q; then
+    svr=$(ssh srv checkupdates)
     svr_count=$(get_count "$svr")
     svr_info=$(get_details "$svr")
   fi

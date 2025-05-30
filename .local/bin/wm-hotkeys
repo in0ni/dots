@@ -35,29 +35,29 @@ fi
 
 # check arg1 and proceed
 case $command in
-  vi)
-    pamixer -ui "$increment"
-    ;;
-  vd)
-    pamixer -ud "$increment"
-    ;;
-  vm)
-    pamixer -t
-    ;;
-  mt)
-    pamixer --default-source -t
-    ;;
-  bi)
-    brightnessctl set +"${increment}"%
-    ;;
-  bd)
-    brightnessctl set "${increment}"%-
-    ;;
-  *)
-    echo -e "$file: '$command' is not a valid COMMAND"
-    print_usage
-    exit 1
-    ;;
+vi)
+  pamixer -ui "$increment"
+  ;;
+vd)
+  pamixer -ud "$increment"
+  ;;
+vm)
+  pamixer -t
+  ;;
+mt)
+  pamixer --default-source -t
+  ;;
+bi)
+  brightnessctl set +"${increment}"%
+  ;;
+bd)
+  brightnessctl set "${increment}"%-
+  ;;
+*)
+  echo -e "$file: '$command' is not a valid COMMAND"
+  print_usage
+  exit 1
+  ;;
 esac
 
 # set title & get value
@@ -98,6 +98,6 @@ fi
 
 # notify that bitch
 if [[ "$command" != "mt" ]]; then
-  dunstify "${txt_header}: ${current_value}%" \
-    -r "$dunst_id" -a "$dunst_appname" -i "$icon_name" -h int:value:"$current_value"
+  dunstify -h string:x-canonical-private-synchronous:audio "${txt_header}: ${current_value}%" \
+    -t 1000 --icon "$icon_name" -h int:value:"$current_value"
 fi

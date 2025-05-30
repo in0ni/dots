@@ -1,348 +1,78 @@
 #!/bin/bash
-#
-# a quite crude script to backup os/home, has gotten job done for years
-#
-# this is an old script intended to learn basic scripting, and my first
-# operation tool. it's definitely not optimal it might need some
-# reconsidering now I am starting to manage my dotfiles w/ git,
-# and might want to do the same for os files.
-#
-# regardless, it works, not going to spend much time. it has seen some recent
-# cleaning up and refactoring, still needs work
-#
-# TODO: sync music and restore home need to be re-added
-# TODO: look into using version control for os configuration files
-# TODO: look into btrfs features to aid (snapshots?)
-# TODO: logging should be done globally, not line by line on each command
-# 		(... 2>> $path_log
-#
-# this script uses:
-#  - tar to backup os configuration files from an include file
-#  - mysqldump/mongodump to back up databases
-#  - rsync to backup/restore home
-#    - exclude list to backup (includes unnecessary .dot files)
-#    - include list to restore files (restores clean home)
-today=$(date --iso)
 
-# include/exclude config files
-cfg_path=$XDG_CONFIG_HOME/zync
-cfg_paths_json=$cfg_path/paths.json
-cfg_home_backup_excl=$cfg_path/home_backup.excl
-# cfg_home_restore_incl=$cfg_path/home_restore.incl
-cfg_sys_backup_incl=$cfg_path/sys_backup.incl
-cfg_music_incl=$cfg_path/music_sync.incl
+set -uo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
-get_conf() {
-  echo "$(eval echo $(cat $cfg_paths_json | jq -r $1))"
-}
+exec 1> >(tee "/tmp/zync_stdout.log")
+exec 2> >(tee "/tmp/zync_stderr.log" >&2)
 
-# NOTE: read eval isn't ideal, not clear why but it's easy so using it now.
-# TODO: find better approach, instead of eval, for var expansion in cfg strings
-path_log=/tmp/zync-$today.log
-path_usb_home=$(get_conf ".usb_home")
-path_usb_os=$(get_conf ".usb_os")
-path_music=$(get_conf ".local_music")
-path_aosp_rsync_uri=$(get_conf ".aosp_rsync.uri")
-path_aosp_rsync_port=$(get_conf ".aosp_rsync.port")
-path_aosp_rsync_path=$(get_conf ".aosp_rsync.path")
-path_crypt_home_part=$(get_conf ".crypt_home_part")
-path_crypt_usb_part=$(get_conf ".crypt_usb_part")
+declare -A CFG=(
+  [settings]="$XDG_CONFIG_HOME/zync/settings.json"
+  [home_include]="$XDG_CONFIG_HOME/zync/home.include"
+  [home_exclude]="$XDG_CONFIG_HOME/zync/home.exclude"
+)
 
-# gpg_recipient=$(eval echo "$(cat $cfg_paths_json | jq -r '.gpg_recipient')")
-
-# output strings
-z="~zync~"
-err="$z (err)"
-info="$z (info)"
-
-manage_service() {
-  echo "$info $1 service is about to $2..."
-  sudo systemctl "$2" "$1".service
-}
-
-db_backup() {
-  # check if service is already running, store exit code
-  systemctl is-active --quiet "$1".service
-  is_active=$?
-  # if service is not active, start it for backup
-  [[ $is_active -ne 0 ]] && manage_service "$1" start
-
-  # back up db
-  # TODO: catch errors -- below I had "-- gzip 2>>", which should print error
-  echo "$info backing up all $1 databases..."
-  if [[ $1 == "mariadb" ]]; then
-    echo "$info $1 backup with mysqldump..."
-    sudo mysqldump -u root -p="" --all-databases \
-      | gzip > "$path_usb_os/$1-$today.sql.gz" 2>> "$path_log"
-  elif [[ $1 == "mongodb" ]]; then
-    echo "$info $1 backup with mongodump..."
-    # TODO: ensure only error is logging
-    mongodump --archive="$path_usb_os/$1-$today.gz" --gzip 2>> "$path_log"
-  fi
-
-  # if service was not active, stop it to keep it as it was
-  [[ $is_active -ne 0 ]] && manage_service "$1" stop
-}
-
-os_backup() {
-  # TODO: remove use of a temporary file, use '-' instead for --files-from
-  path_tmp_os_includes=/tmp/zyn_os_includes
-  echo "$info backing up config files..."
-  # TODO: remove these from include list, just append to os_includes below
-  pacman -Qqen > /tmp/pacman_installed_native
-  pacman -Qqem > /tmp/pacman_installed_foreign
-
-  # NOTE: unlike rsync, lines starting w/ '#' or ';' are not ignored
-  # /d in regex deletes
-  sed -E "/^(#.*)?$/d" "$cfg_sys_backup_incl" > $path_tmp_os_includes
-
-  # TODO: reconsider use of sudo, perhaps files that are only readable by root
-  # should not be backed up... nothing major really as backups are encrypted
-  sudo tar cvzf "$path_usb_os/arch-$today.tgz" --files-from $path_tmp_os_includes 2>> "$path_log"
-
-  rm $path_tmp_os_includes
-}
-
-# TODO: create pgp encrypted luks headers and send all crypt backups remotely
-# TODO: consider upging gpg to encrypt luks header img files (see archwiki)
-# 		not urgent as luks headers are stored in encrypted devices
-crypt_backup() {
-  # local: private key
-  printf "\nDo you want to backup private key?\n"
-  select opt in Yes No; do
-    case $opt in
-      Yes)
-        gpg --export-secret-keys -a -o "$path_usb_home/$gpg_recipient.asc" 2>> $path_log
-        break
-        ;;
-      No)
-        break
-        ;;
-    esac
-  done
-
-  # local: luks header
-  printf "\nDo you want to backup local luks header?\n"
-  select opt in Yes No; do
-    case $opt in
-      Yes)
-        sudo cryptsetup luksHeaderBackup $path_crypt_home_part --header-backup-file "$path_usb_home/home_luks.img" 2>> $path_log
-        break
-        ;;
-      No)
-        break
-        ;;
-    esac
-  done
-
-  printf "\nDo you want to backup usb luks header?\n"
-  select opt in Yes No; do
-    case $opt in
-      Yes)
-        sudo cryptsetup luksHeaderBackup $path_crypt_usb_part --header-backup-file "$HOME/.sys/usb_luks.img" 2>> $path_log
-        break
-        ;;
-      No)
-        break
-        ;;
-    esac
-  done
-}
-
-isAdbDeviceConnected() {
-  if [ "$(adb devices | wc -l)" -lt "3" ]; then
-    false
-  else
-    true
-  fi
-}
-# adb_rsync_start() {
-#   RSYNCPORT=873
-
-#   echo "Waiting for device"
-#   adb wait-for-device
-#   adb root
-#   adb wait-for-device
-#   adb shell "umask 077 && test ! -d /storage/emulated/0/rsyncd && mkdir -p /storage/emulated/0/rsyncd"
-#   adb shell "umask 077 && printf 'address = 127.0.0.1\npid file = /mnt/secure/rsyncd.pid\nuid = root\ngid = root\n[root_all]\npath = /\nhosts allow = 127.0.0.1\nread only = false\n' > /mnt/secure/rsyncd.conf"
-#   adb shell -t -t "umask 077 && rsync --daemon --no-detach --log-file=/storage/emulated/0/rsyncd/rsyncd.log --config=/mnt/secure/rsyncd.conf" &
-
-#   # give rsync daemon time to start
-#   sleep 2
-
-#   adb forward tcp:"$path_aosp_rsync_port" tcp:$RSYNCPORT
-# }
-
-# adb_rsync_end() {
-#   # kill rsyncd
-#   adb shell "test -f /mnt/secure/rsyncd.pid && kill $(cat /mnt/secure/rsyncd.pid)"
-
-#   # remove temporary files
-#   adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid
-#   # adb shell rm -f /mnt/secure/rsyncd.conf /mnt/secure/rsyncd.pid /mnt/secure/rsyncd.secrets
-# }
-
-music_sync() {
-  remote_server="$path_aosp_rsync_uri:$path_aosp_rsync_port"
-  remote_path="$remote_server$path_aosp_rsync_path"
-  set -e
-  if ! isAdbDeviceConnected; then
-    echo "There are no ADB devices connected. If that seems wrong, try 'adb kill-server'"
+get_json_setting() {
+  local name=$1
+  # Set local working directory from local config file
+  CFG["$name"]=$(jq -e -r ".$name" "${CFG[settings]}" || {
+    echo -e "\e[31mMissing '$name' in config\e[0m" >&2
     exit 1
-  fi
-  # Launch Termux activity (If it fails, terminate script execution
-  termux=com.termux/com.termux.app.TermuxActivity
-  adb shell << EOF
-  if am start -n $termux 2>&1 | grep Error >/dev/null ; then
-      echo "Termux doesn't seem to be installed.."
-      exit 1
-  fi
-EOF
-
-  adb forward tcp:8873 tcp:8873
-  read -p "$info Run: \"rsync --daemon; exit\""
-
-  if ! rsync -nq "$remote_server"; then
-    echo "$err Rsync not running, try again."
-    exit 1
-  fi
-
-  # reserved characters in fat32
-  # https://msdn.microsoft.com/en-us/library/aa365247.aspx#basic_naming_conventions%22%20target=%22_new%22
-  # ? [%3F]
-  # < [%3C]
-  # > [%3E]
-  # * [...]
-  # | [%7C]
-  # : [%3A]
-  # note: in rhythmbox.xml the following are printed normally and not escaped
-  # :, *
-  flacs=$(find $path_music -name *.flac)
-  flacs_count=$(find $path_music -name *.flac | wc -l)
-  invalid=$(find $path_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)')
-  # @todo -- should re-use variable output here
-  invalid_count=$(find $path_music -regextype awk -regex '.*\/.*(\?|<|>|*|\||:).*\.(mp3|m4a)' | wc -l)
-
-  # check if flacs are found in source
-  if [ $flacs_count -gt 0 ]; then
-    echo "$flacs"
-    echo "-------------------------------------"
-    echo "$err Found $flacs_count FLAC files."
-    exit
-  fi
-
-  if [ $invalid_count -gt 0 ]; then
-    printf "\nFound %d invalid file names...\n" $invalid_count
-    select opt in Ignore "Print & Exit"; do
-      case $opt in
-        Ignore)
-          echo "$info Ignoring invalid file names..."
-          break
-          ;;
-        "Print & Exit")
-          echo "$invalid"
-          exit
-          ;;
-      esac
-    done
-  fi
-
-  echo "$info synchronizing music..."
-  # here -s solves 'mkstemp' error (-s, no space-splitting; wildcard chars only)
-  # here -O should remove timestamp errors
-  # rsync -rltDszv --modify-window=1 --stats --files-from="$cfg_music_incl" "$path_music/" "$remote_path" 2>> $path_log
-  rsync -ravPh --info=progress2 --files-from="$cfg_music_incl" "$path_music/" "$remote_path" --delete 2>> $path_log
-  echo "$info synchronizing music done."
-  # maybe --8 is required?
-  # rsync -aruv -8 --modify-window=1 --stats --files-from=$cfg_music_incl $path_music $remote_music
-  # echo "hi" >> $path_log
-
-  # adb_rsync_end
+  })
+  CFG["$name"]=$(eval echo "${CFG["$name"]}")
 }
 
-home_backup() {
-  # NOTE:
-  # as time passes, unnecesary files start to build up in home directory,
-  # this is intentional to recover files if already deleted locally.
-  # to remove these files, the --clean-dest option can be passed to remove
-  # all files in remote that are not found locally
-  if [[ $1 == "clean" ]]; then
-    echo "$info backing up home directory using --delete & --force..."
-    rsync -av "$HOME/" $path_usb_home --stats --exclude-from=$cfg_home_backup_excl \
-      --delete --force 2>> $path_log
-    echo "$info backing up home directory using --delete & --force done."
-  else
-    echo "$info backing up home directory..."
-    rsync -av "$HOME/" $path_usb_home --stats --exclude-from=$cfg_home_backup_excl 2>> $path_log
-    echo "$info backing up home directory done."
-  fi
+# INIT
+get_json_setting home_external
+
+handle_backup() {
+  local src="$HOME/"
+  local target="${CFG[home_external]}"
+  local exclude="${CFG[home_exclude]}"
+
+  # files
+  rsync -ahv --progress --exclude-from="$exclude" "$src" "$target"
+
+  # gpg
+  gpg --export-secret-keys --export-options backup --output "$target/priv.gpg"
+  gpg --export --export-options backup --output "$target/pub.gpg"
+  gpg --export-ownertrust >"$target/trust.gpg"
+
+  # ssh
+  cd "$src" || exit
+  tar czf - .ssh | gpg --encrypt -r 5FF8F1ABEC0DE51A --output "$target/ssh.tgz.gpg"
 }
 
-log() {
-  # view/clear error logs
-  # ignore the leading slash message from tar in log
-  sed -i -r "/^tar: Removing leading.*/d" $path_log
+handle_restore() {
+  local src="${CFG[home_external]}"
+  local target="$HOME/"
+  local include="${CFG[home_include]}"
 
-  log_lines=$(wc -l < $path_log)
-  if [[ $log_lines -gt 0 ]]; then
-    printf "\nThere are %d lines in the error log...\n" $log_lines
-    select opt in View Clear; do
-      case $opt in
-        View)
-          less $path_log
-          ;;
-        Clear)
-          echo "$info Clearing log file..."
-          break
-          ;;
-      esac
-    done
-  fi
+  # gpg
+  # gpg --import "$src/priv.gpg"
+  # TODO: ensure message of setting trust for key
+  # gpg --edit-key gonzalez > trust
 
-  rm $path_log
-  echo "$info Done."
+  # ssh
+  # gpg -d "$src/ssh.tgz.gpg" | tar xzf - -C "$target"
+
+  rsync -arhv --progress --files-from="$include" "$src" "$target"
 }
 
-case "$1" in
-  cryptbackup)
-    crypt_backup
-    ;;
-  backup)
-    # TODO: look into auto-mounting (not unlock/mount via thunar)
-    # backup os
-    if [[ ! -d $path_usb_os ]]; then
-      echo "$err $path_usb_os does not exist"
-      exit 1
-    else
-      db_backup mariadb
-      db_backup mongodb
-      os_backup
-    fi
+usage() {
+  printf "\nUsage:\t%s [backup|restore]" "$(basename "$0")"
+  printf "\n"
+}
 
-    # backup home directory
-    if [[ ! -d $path_usb_home ]]; then
-      echo "$err $path_usb_home does not exist"
-      exit 1
-    else
-      [[ $2 == "--clean-dest" ]] && home_backup clean || home_backup
-    fi
-    ;;
-  music)
-    music_sync
-    ;;
+main() {
+  case "${1:-}" in
+  backup) handle_backup "${@:2}" ;;
+  restore) handle_restore "${@:2}" ;;
   *)
-    echo "Usage: $(basename $0) {cryptbackup|backup|restore}"
+    usage
     exit 1
     ;;
-esac
+  esac
+}
 
-log
-
-# case "$1" in
-#   music)
-#   restore)
-#     echo "$info restoring from backup..."
-#     rsync -arv "$remote_home/" $HOME --stats --files-from=$inc_restore_home 2>> $log
-#     echo "$info restoring from backup done."
-#     ;;
-# esac
+main "$@"

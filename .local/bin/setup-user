@@ -12,13 +12,8 @@ get_input() {
 }
 
 copy_dots_home() {
-  usr_repo_name=$(get_input "User dotfiles" "Enter repo name") || exit 1
-  clear
-  : ${usr_repo_name:?"repo name cannot be empty"}
-  usr_repo_base_url=$(get_input "User dotfiles" "Enter repo url path") || exit 1
-  clear
-  : ${usr_repo_base_url:?"url cannot be empty"}
-  usr_repo_url="$usr_repo_base_url/$usr_repo_name"
+  usr_repo_name="dots"
+  usr_repo_url="git@github.com:in0ni/$usr_repo_name.git"
 
   cd "$HOME" || exit
   git clone "$usr_repo_url"
@@ -35,6 +30,8 @@ copy_dots_home() {
   # clean-up
   cd ../
   rm -rf "$usr_repo_name"
+
+  # TODO: run koppa mk all
 }
 
 copy_dots_sys() {
@@ -52,16 +49,14 @@ copy_dots_sys() {
   cd "$sys_repo_name" || exit
 
   git config --local status.showUntrackedFiles no
-  git config --local user.name "Andrés González"
-  git config --local user.email "1596691+in0ni@users.noreply.github.com"
 
   # move files
-  # mv .git ../.dots-sys
+  mv .git ../.dots-sys
   # sudo cp -a ./. /
 
   # clean-up
   # cd ../
-  # rm -rf "$sys_repo"
+  # rm -rf "$sys_repo_name"
 }
 
 user_service_blacklist() {
@@ -105,29 +100,7 @@ select_services_user() {
   echo "${result[@]}"
 }
 
-select_services_sys() {
-  local services=(
-    iwd.service
-    firewalld.service
-    systemd-networkd.service
-    systemd-resolved.service
-    tlp.service
-    reflector.timer
-    snapper-cleanup.timer
-  )
-
-  local options=()
-
-  for service in "${services[@]}"; do
-    options+=("$service" "" "on")
-  done
-
-  local result=($(dialog --clear --stdout --checklist "Select System Services:" 0 0 0 "${options[@]}"))
-  # clear
-  echo "${result[@]}"
-}
-
-case $1 in
+case "${1:-}" in
 user)
   copy_dots_home
   systemctl --user daemon-reload
@@ -141,16 +114,7 @@ user)
   ;;
 sys)
   copy_dots_sys
-  # enable selected services
-  selected=($(select_services_sys))
-
-  # load services
-  # TODO: properly copy files and enable services
-  for item in "${selected[@]}"; do
-    echo "systemctl enable --now $item"
-  done
-  echo "NOTE: you must manually copy config files for now"
-  echo "NOTE: you must manually enable services above"
+  echo "Ready, you must manually ~/.dots-sys files to root"
   ;;
 *)
   echo -e "Usage: $(basename "$0") <user|sys>\n"

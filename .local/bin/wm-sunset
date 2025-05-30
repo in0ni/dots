@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# NOTE:
+# uses lat/long enviornment variable set here:
+#   ~/.config/environment.d/02-gps.conf
+service=hyprsunset
+poll=$(sunwait poll)
+
+service_status() {
+  systemctl --user is-active "$service" >/dev/null 2>&1 &&
+    echo "active" || echo "inactive"
+}
+
+set_temperature() {
+  case "$poll" in
+  NIGHT) hyprctl hyprsunset temperature 3200 >/dev/null 2>&1 ;;
+  DAY) hyprctl hyprsunset identity >/dev/null 2>&1 ;;
+  esac
+}
+
+toggle_service() {
+  service_status
+  if [[ $(service_status) == "active" ]]; then
+    systemctl --user stop "$service"
+  else
+    systemctl --user start "$service"
+    set_temperature
+  fi
+}
+
+waybar_json() {
+
+  case "$poll" in
+  DAY)
+    percentage="0"
+    ;;
+  NIGHT)
+    percentage="100"
+    ;;
+  *)
+    echo "Unable to parse \`sunwait poll\`"
+    exit 1
+    ;;
+  esac
+
+  # NOTE: should be improved
+  if [[ $(service_status) == "active" ]]; then
+    set_temperature
+  fi
+
+  tooltip="$poll ($(service_status))"
+
+  echo "{\"percentage\":$percentage,\"tooltip\":\"$tooltip\",\"class\":\"$(service_status)\"}"
+}
+
+case "$1" in
+toggle)
+  toggle_service
+  ;;
+waybar)
+  waybar_json
+  ;;
+*)
+  echo -e "Usage: $(basename $0) {toogle|waybar}\n"
+  echo -e "toggle\t\t start systemd service / set temperature"
+  echo -e "waybar\t\t print waybar json data"
+  exit 1
+  ;;
+esac
