@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 host=$(hostnamectl --static)
-if [ "$host" = "x1" ]; then
+if [[ "$host" == "x"* ]]; then
   case $1 in
-    get-profile)
-      profile=$(cat /sys/firmware/acpi/platform_profile)
-      percentage=0
+  get-profile)
+    profile=$(cat /sys/firmware/acpi/platform_profile)
+    percentage=0
 
-      if [[ "$profile" = "balanced" ]]; then
-        percentage=50
-      else
-        if [[ "$profile" = "performance" ]]; then
-          percentage=100
-        fi
+    if [[ "$profile" = "balanced" ]]; then
+      percentage=50
+    else
+      if [[ "$profile" = "performance" ]]; then
+        percentage=100
       fi
+    fi
 
-      printf '{"tooltip": "%s", "class": "%s", "percentage": %s}' "$profile" "$profile" "$percentage"
-      ;;
+    printf '{"tooltip": "%s", "class": "%s", "percentage": %s}' "$profile" "$profile" "$percentage"
+    ;;
 
   esac
 fi
