@@ -24,6 +24,20 @@ scale.module highlight {
   opacity: 0.85;
 }
 
+/* reduced spacing for custom buttons */
+#custom-pomodoro,
+#custom-sunset,
+#custom-updates_software,
+#custom-updates_firmware,
+#idle_inhibitor,
+#custom-x1profile {
+  padding: 0.35em;
+}
+
+/* accomodate spacing for custom buttons on both sides */
+#cpu { margin-left: 0.65em; }
+#network { margin-right: 0.65em; }
+
 /* avoid background if no items */
 #waybar.empty #window { background-color: transparent; }
 #window { margin-left: 0.5em; }
