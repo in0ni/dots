@@ -26,7 +26,7 @@ theme_cursor_size=0
 
 font_mono="Fira Code"
 font_sans="Rubik"
-font_icon="Font Awesome 6 Free"
+font_icon="Font Awesome 7 Free"
 font_size=15
 font_size_sm=11
 # currently only used for dunst
