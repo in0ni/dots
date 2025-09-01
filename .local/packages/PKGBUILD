@@ -19,10 +19,11 @@ pkgname=(
   'paks-hw-ettal'
   'paks-hw-surface'
   'paks-hw-x1'
+  'paks-hw-x1c-12'
 )
 # YY-MM.rel
 pkgver=25
-pkgrel=05.16
+pkgrel=06.27
 pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
 url='https://github.com/in0ni/dots'
@@ -98,8 +99,8 @@ package_paks-hw-x1() {
   )
 }
 
-package_paks-hw-x12() {
-  pkgdesc='Hardware - x12'
+package_paks-hw-x1c-12() {
+  pkgdesc='Hardware - x1 Carbon Gen 12'
   replaces=()
 
   depends=(
@@ -108,7 +109,6 @@ package_paks-hw-x12() {
     'sof-firmware'
     'tlp'
 
-    # 'intel-compute-runtime'
     'intel-media-driver'
     'libva-utils'
     # OpenGL/VAAPI backend for VDPAU
@@ -191,9 +191,10 @@ package_paks-sys-fonts() {
     'ttf-opensans'
     'ttf-poppins'
     'ttf-pt-mono'
+    'ttf-roboto'
     'ttf-rubik-vf'
     'ttf-share-gf'
-    'ttf-unifont'
+    # 'ttf-unifont'
     'ttf-work-sans'
     'ttf-work-sans-variable'
   )
@@ -238,8 +239,7 @@ package_paks-usr-minimal() {
     'gzip'
     'p7zip'
     'unrar'
-    # 'unzip'
-    # 'zip'
+    'unzip'
     'xplr'
 
     # code
@@ -252,7 +252,8 @@ package_paks-usr-minimal() {
 
 package_paks-usr-admin() {
   pkgdesc='Power-user packages'
-  replaces=(paks-core paks-usr-base paks-usr-minimal)
+  replaces=(paks-core paks-usr-base)
+  provides=(paks-usr-minimal)
 
   depends=(
     'paks-usr-minimal'
@@ -280,6 +281,7 @@ package_paks-usr-admin() {
 
     # code
     'bash-language-server'
+    'cspell-lsp'
     'efm-langserver'
     'emmet-cli'
     'eslint'
@@ -290,6 +292,7 @@ package_paks-usr-admin() {
     # 'marksman'
     'nodejs-emmet-ls'
     'npm'
+    'nvm'
     'phpactor'
     'patch'
     'prettier'
@@ -298,6 +301,7 @@ package_paks-usr-admin() {
     'rust-analyzer'
     'shellcheck'
     'shfmt'
+    'some-sass-language-server'
     'stylelint'
     'svelte-language-server'
     'taplo-cli'
@@ -314,29 +318,31 @@ package_paks-usr-admin() {
 
 package_paks-gui-desktop() {
   pkgdesc='Baisc Desktop Environment'
-  replaces=(paks-desktop paks-usr-desktop paks-sys-fonts)
+  replaces=(paks-desktop paks-usr-desktop)
+  provides=(paks-sys-fonts)
 
   depends=(
     'paks-sys-fonts'
 
     # desktop environment
     'dunst'
+    'gtk-engine-murrine'
+    'hyprpolkitagent'
     'kde-gtk-config'
     'kitty'
     'qt5-styleplugins'
     'qt5-wayland'
     'qt6gtk2'
     'qt6-wayland'
-    'rofi-wayland'
     'rofi-emoji-git'
+    'rofi-wayland'
     'tela-circle-icon-theme-orange'
     'waybar'
     'wl-clipboard'
+    'wl-mirror'
     'xdg-user-dirs'
-    'hyprpolkitagent'
     'xorg-xwayland'
     'xsettingsd'
-    'wl-mirror'
 
     # window manager
     'hyprland'
@@ -374,8 +380,12 @@ package_paks-gui-desktop() {
     'browserpass-firefox'
     'chromium'
     'deluge-gtk'
+    'filezilla'
     'firefox'
     'iwgtk'
+    'magic-wormhole'
+    'signal-desktop'
+    'telegram-desktop'
 
     # viewers
     'vimiv-qt'
@@ -466,9 +476,13 @@ package_paks-gui-workstation() {
 
     # network
     # 'cloudflare-warp-bin'
-    'filezilla'
-    'signal-desktop'
     'teams-for-linux'
+
+    # virtual machine
+    'dnsmasq'
+    'qemu-full'
+    'virt-manager'
+    'virt-viewer'
 
     # check
     # 'ctags'
@@ -510,7 +524,7 @@ package_paks-gui-mediacenter() {
     'retroarch-assets-xmb'
 
     # gaming: emulators
-    'dolphin-emu'
+    # 'dolphin-emu'
     'ppsspp'
     'lime3ds'
     'mupen64plus'
