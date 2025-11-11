@@ -41,7 +41,7 @@ if [[ $ROFI_RETV == 0 ]]; then
     printf "%s (%s)\\0info\x1f%s:%s\n", $2, $1, $1, $2
   }' <"$projs")
 
-  projs_uw_tickets=$(fd -d1 -td 'UW2' "$uw2_tickets" |
+  projs_uw_tickets=$(fd -d1 -td -i 'uw2' "$uw2_tickets" |
     awk -F'/' '{
     printf "ticket: %s\\0info\x1f%s:%s\n", $(NF-1), $0, $(NF-1)
   }')

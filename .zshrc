@@ -14,7 +14,7 @@ sbit="36;1"
 rwx_str="ur=${rbit}:gr=${rbit}:tr=${rbit}:uw=${wbit}:gw=${wbit}:tw=${warnbit}:ue=37:ux=${xbit}:gx=${xbit}:tx=${xbit}"
 owner="uu=38;5;8:gu=38;5;8:un=38;5;8:gn=38;5;8"
 # da - date, sn - size number
-EZA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=38;5;14;5;12:sb=1;36"
+EZA_COLORS="${rwx_str}:${owner}:su=${sbit}:sf=${sbit}:da=38;5;12:sn=38;5;14:sb=1;36"
 export EZA_COLORS
 
 # fzf
