@@ -1,4 +1,11 @@
 #!/usr/bin/bash
+# Instructions:
+# 1. Ensure ssh login to new install
+# 2. Create ssh key for github, and upload pub key
+# 3. Create ssh key for srv, upload pub key
+# 4. Edit .ssh/config for github/srv
+#
+# If new system,
 set -uo pipefail
 
 # tput_red="$(tput setaf 1)"
@@ -36,10 +43,10 @@ copy_dots_home() {
 
 copy_dots_sys() {
   # TODO: generate key pair, and add to server before starting this!
-  sys_repo_name=$(get_input "System conf files" "Enter repo name") || exit 1
+  sys_repo_name=$(get_input "System conf files" "Enter repo name (no ''.git')") || exit 1
   clear
   : ${sys_repo_name:?"repo name cannot be empty"}
-  sys_repo_base_url=$(get_input "System conf files" "Enter repo url path") || exit 1
+  sys_repo_base_url=$(get_input "System conf files" "Enter repo url (no trailing /)") || exit 1
   clear
   : ${sys_repo_base_url:?"url cannot be empty"}
   sys_repo_url="$sys_repo_base_url/$sys_repo_name"
