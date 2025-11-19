@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+icon=
+title=Home
+
+if [[ $ROFI_RETV == 1 ]]; then
+  echo -en "\0prompt\x1f$@\n"
+
+  case $ROFI_INFO in
+  "kodi")
+    # hack to get standalone properly working in fullscreen
+    coproc (kitty --class kodi_hack kodi-standalone --audio-backend=pulseaudio -fs &>/dev/null)
+    # coproc (gtk-launch kodi >/dev/null 2>&1)
+    ;;
+  "popcorn_time")
+    coproc (gtk-launch popcorntime >/dev/null 2>&1)
+    ;;
+  "spotify")
+    coproc (gtk-launch spotify >/dev/null 2>&1)
+    ;;
+  "firefox")
+    coproc (gtk-launch firefox >/dev/null 2>&1)
+    ;;
+  "emulation_station")
+    coproc (gtk-launch org.es_de.frontend >/dev/null 2>&1)
+    ;;
+  "retroarch")
+    coproc (gtk-launch com.libretro.RetroArch >/dev/null 2>&1)
+    ;;
+  "deluge")
+    coproc (gtk-launch deluge >/dev/null 2>&1)
+    ;;
+  "thunar")
+    coproc (gtk-launch thunar >/dev/null 2>&1)
+    ;;
+  "xplr")
+    coproc (gtk-launch xplr >/dev/null 2>&1)
+    ;;
+  esac
+
+else
+  echo -en "\0prompt\x1f$icon $title\n"
+  echo -en "   Kodi (Media Center)\0meta\x1f\x1finfo\x1fkodi\n"
+  echo -en "   Popcorn Time (Streaming Videos)\0meta\x1f\x1finfo\x1fpopcorn_time\n"
+  echo -en "   Spotify (Streaming Music)\0meta\x1f\x1finfo\x1fspotify\n"
+  echo -en "   Firefox (Browser)\0meta\x1f\x1finfo\x1ffirefox\n"
+  echo -en "   EmulationStation (Launch Games)\0meta\x1f\x1finfo\x1femulation_station\n"
+  echo -en "   RetroArch (Game Emulator)\0meta\x1f\x1finfo\x1fretroarch\n"
+  echo -en "   Deluge (Torrents)\0meta\x1f\x1finfo\x1fdeluge\n"
+  echo -en "   Thunar (File Manager)\0meta\x1f\x1finfo\x1fthunar\n"
+  echo -en "   Xplr (File Manager)\0meta\x1f\x1finfo\x1fxplr\n"
+fi
