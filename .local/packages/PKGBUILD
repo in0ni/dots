@@ -1,7 +1,5 @@
 # Maintainer: Andrés González
 #
-# TODO: add arc-dark theme 
-#
 # log:
 # 1.x - legacy
 # 24-07.12 - initial release of sys, usr, gui structure
@@ -25,7 +23,7 @@ pkgname=(
 # version=YY
 # release=MM.ddx
 pkgver=25
-pkgrel=11.120
+pkgrel=12.04
 
 pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
@@ -77,31 +75,29 @@ package_paks-hw-mfmc() {
   pkgdesc='Hardware - mfmc'
 
   depends=(
+    # better for gaming
+    'linux-zen'
     'amd-ucode'
     # Open-source graphics drivers (includes RADV Vulkan driver)
     'mesa'
-    # 32-bit support for gaming
-    # 'lib32-mesa'
     # Open-source Vulkan driver for AMD GPUs
     'vulkan-radeon'
-    # 32-bit Vulkan support
-    # 'lib32-vulkan-radeon'
     # Vulkan loader
     'vulkan-icd-loader'
-    # 32-bit Vulkan loader
-    # 'lib32-vulkan-icd-loader'
     #
     # HW acceleration
     #
     # VA-API hardware video acceleration
     'libva-mesa-driver'
-    # 32-bit VA-API support
-    # 'lib32-libva-mesa-driver'
     # VDPAU video acceleration
     'mesa-vdpau'
-    # 32-bit VDPAU support
-    # 'lib32-mesa-vdpau'
+    # required for xpadneo (dkms)
     'xpadneo-dkms'
+    'linux-headers'
+    'linux-lts-headers'
+    'linux-headers'
+    'linux-lts-headers'
+    'linux-zen-headers'
   )
 }
 
@@ -365,7 +361,6 @@ package_paks-gui-desktop() {
 
     # desktop environment
     'dunst'
-    # 'gtk-engine-murrine'
     'hyprpolkitagent'
     'kde-gtk-config'
     'kitty'
@@ -375,6 +370,7 @@ package_paks-gui-desktop() {
     'qt6-wayland'
     'rofi-emoji-git'
     'rofi-wayland'
+    'skeuos-gtk'
     'tela-circle-icon-theme-orange'
     'waybar'
     'wl-clipboard'
@@ -543,7 +539,7 @@ package_paks-gui-mediacenter() {
     'paks-gui-desktop'
 
     # system
-    'deluged-service'
+    # 'deluged-service'
     'mariadb'
     'nfs-utils'
 
@@ -570,8 +566,8 @@ package_paks-gui-mediacenter() {
     'libretro-dolphin'
     'libretro-flycast'
     'libretro-mupen64plus-next'
-    'libretro-pcsx2'
-    'libretro-ppsspp'
+    # 'libretro-pcsx2'
+    # 'libretro-ppsspp'
     'libretro-snes9x'
     'libretro-genesis-plus-gx'
     # basics
