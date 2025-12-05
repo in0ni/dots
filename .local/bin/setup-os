@@ -78,7 +78,7 @@ dialog_get_choice() {
 }
 
 set_hidpi() {
-  noyes=("Yes" "The font is too small" "No" "The font size is just fine")
+  noyes=("Yes" "Monitor is HiDPI" "No" "Not a HiDPI device (font size is incorrect)")
   hidpi=$(dialog_get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
   clear
   [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
@@ -129,11 +129,11 @@ set_device() {
 }
 
 set_paks() {
-  paks_name=$(dialog_get_input "Custom Packages" "Enter a name") || exit 1
+  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman entry") || exit 1
   clear
   : "${paks_name:?"Custom packages name cannot be empty"}"
 
-  paks_url=$(dialog_get_input "Custom Packages" "Enter a url") || exit 1
+  paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
   clear
   : "${paks_url:?"Custom packages url cannot be empty"}"
 }
@@ -211,7 +211,7 @@ mk_root_partitions() {
 
   echo -e "\n### Setting up all root-level mounts by subvolume"
   mount -o noatime,compress=zstd,subvol=@ /dev/mapper/"${CFG[mapper_root]}" /mnt
-  mkdir -p /mnt/{home,mnt/btrfs-root,efi,var/{cache/pacman,log,tmp},swap,.snapshots}
+  mkdir -p /mnt/{home,mnt/btrfs-root,efi,var/{cache/pacman,lib/docker,log,tmp},swap,.snapshots}
   mount "${part_efi}" /mnt/efi
   mount -o noatime,compress=zstd,subvol=/ /dev/mapper/"${CFG[mapper_root]}" /mnt/mnt/btrfs-root
   mount -o noatime,compress=zstd,subvol=@pkgs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/cache/pacman
