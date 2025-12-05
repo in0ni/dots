@@ -1,24 +1,13 @@
 <settings>
-    <setting id="circle_rating" type="bool">false</setting>
-    <setting id="autoscroll" type="bool">false</setting>
-    <setting id="touchmode" type="bool">false</setting>
-    <setting id="homemenunotvshowbutton" type="bool">false</setting>
-    <setting id="homemenunofavbutton" type="bool">false</setting>
-    <setting id="movieset_onclick_continuewatching" type="bool">false</setting>
-    <setting id="homemenunoweatherbutton" type="bool">false</setting>
-    <setting id="movieset_onclick_queue" type="bool">false</setting>
-    <setting id="circle_userrating" type="bool">true</setting>
-    <setting id="show_weatherinfo" type="bool">false</setting>
-    <setting id="homemenunomoviebutton" type="bool">false</setting>
-    <setting id="tvshow_onclick_playfrombeginning" type="bool">false</setting>
-    <setting id="album_onclick_play" type="bool">false</setting>
-    <setting id="album_onclick_browse" type="bool">false</setting>
     <setting id="album_onclick_queue" type="bool">false</setting>
-    <setting id="homemenunomusicbutton" type="bool">true</setting>
-    <setting id="show_musicvideoposter" type="bool">false</setting>
-    <setting id="osdautoclose" type="bool">false</setting>
-    <setting id="album_onclick_playnext" type="bool">false</setting>
+    <setting id="autoscroll" type="bool">false</setting>
     <setting id="no_fanart" type="bool">false</setting>
+    <setting id="album_onclick_playnext" type="bool">false</setting>
+    <setting id="show_musicvideoposter" type="bool">false</setting>
+    <setting id="touchmode" type="bool">false</setting>
+    <setting id="album_onclick_browse" type="bool">false</setting>
+    <setting id="movieset_onclick_continuewatching" type="bool">false</setting>
+    <setting id="album_onclick_play" type="bool">false</setting>
     <setting id="home_no_categories_widget" type="bool">false</setting>
     <setting id="homemenunopicturesbutton" type="bool">true</setting>
     <setting id="homemenunogamesbutton" type="bool">true</setting>
@@ -38,8 +27,19 @@
     <setting id="homemenunotvbutton" type="bool">true</setting>
     <setting id="show_profileavatar" type="bool">false</setting>
     <setting id="movieset_onclick_playfrombeginning" type="bool">false</setting>
-    <setting id="homemenunovideosbutton" type="bool">true</setting>
+    <setting id="homemenunovideosbutton" type="bool">false</setting>
     <setting id="tvshow_onclick_playnext" type="bool">false</setting>
+    <setting id="homemenunofavbutton" type="bool">false</setting>
+    <setting id="homemenunomoviebutton" type="bool">false</setting>
+    <setting id="tvshow_onclick_playfrombeginning" type="bool">false</setting>
+    <setting id="show_weatherinfo" type="bool">false</setting>
+    <setting id="circle_rating" type="bool">false</setting>
+    <setting id="homemenunotvshowbutton" type="bool">false</setting>
+    <setting id="osdautoclose" type="bool">false</setting>
+    <setting id="homemenunomusicbutton" type="bool">true</setting>
+    <setting id="movieset_onclick_queue" type="bool">false</setting>
+    <setting id="homemenunoweatherbutton" type="bool">false</setting>
+    <setting id="circle_userrating" type="bool">true</setting>
     <setting id="WeatherFanart.name" type="string"></setting>
     <setting id="homefanart.path" type="string"></setting>
     <setting id="background_overlay" type="string">1</setting>
