@@ -78,7 +78,7 @@ dialog_get_choice() {
 }
 
 set_hidpi() {
-  noyes=("Yes" "The font is too small" "No" "The font size is just fine")
+  noyes=("Yes" "Monitor is HiDPI" "No" "Not a HiDPI device (font size is incorrect)")
   hidpi=$(dialog_get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
   clear
   [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
@@ -129,11 +129,11 @@ set_device() {
 }
 
 set_paks() {
-  paks_name=$(dialog_get_input "Custom Packages" "Enter a name") || exit 1
+  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman entry") || exit 1
   clear
   : "${paks_name:?"Custom packages name cannot be empty"}"
 
-  paks_url=$(dialog_get_input "Custom Packages" "Enter a url") || exit 1
+  paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
   clear
   : "${paks_url:?"Custom packages url cannot be empty"}"
 }
@@ -172,10 +172,15 @@ mk_root_partitions() {
 
   if is_partition_root_only; then
     echo -e "\n### Creating a root only partition layout"
-    sgdisk --clear --new 1::-"${CFG[efi_size]}" --typecode 1:ef00 --new 2::0 --typecode 2:8300 "${device}"
+    # 1: available space - efi size
+    # 2: rest of space (efi)
+    sgdisk --clear --new 1::-"${CFG[efi_size]}" --typecode 1:8300 --new 2::0 --typecode 2:ef00 "${device}"
     sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
   else
     echo -e "\n### Creating a root with data partition layout"
+    # 1: root size
+    # 2: available left - efi size
+    # 3: rest of space (efi)
     sgdisk --clear --new "1:0:+${CFG[root_size]}" --typecode 1:8300 --new "2:0:-${CFG[efi_size]}" --typecode 2:8300 --new 3:0:0 --typecode 3:ef00 "${device}"
     sgdisk --change-name=1:root --change-name=2:data --change-name=3:ESP "${device}"
   fi
@@ -206,7 +211,7 @@ mk_root_partitions() {
 
   echo -e "\n### Setting up all root-level mounts by subvolume"
   mount -o noatime,compress=zstd,subvol=@ /dev/mapper/"${CFG[mapper_root]}" /mnt
-  mkdir -p /mnt/{home,mnt/btrfs-root,efi,var/{cache/pacman,log,tmp},swap,.snapshots}
+  mkdir -p /mnt/{home,mnt/btrfs-root,efi,var/{cache/pacman,lib/docker,log,tmp},swap,.snapshots}
   mount "${part_efi}" /mnt/efi
   mount -o noatime,compress=zstd,subvol=/ /dev/mapper/"${CFG[mapper_root]}" /mnt/mnt/btrfs-root
   mount -o noatime,compress=zstd,subvol=@pkgs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/cache/pacman
@@ -305,7 +310,7 @@ EOF
   # pacman-key --lsign $remote_repo_key_id
   fi
   pacman -Sy
-  echo -e "\n### Run 'pacstrap -i /mnt paks-sys-base paks-usr-minimal'"
+  echo -e "\n\n\n### Run 'pacstrap -i /mnt paks-sys-base paks-usr-minimal'"
 }
 
 cfg_base() {
@@ -507,7 +512,7 @@ handle_post() {
   set_user
   set_password
   set_device
-  mk_home_partitions
+  # mk_home_partitions
   cfg_base
   cfg_user
   cfg_sudo

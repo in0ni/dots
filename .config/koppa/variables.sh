@@ -5,7 +5,8 @@
 # THEME #
 #
 
-theme=Arc-Dark
+# theme=Nordic
+theme=Skeuos-Orange-Dark
 theme_icon=Tela-circle-orange-dark
 theme_icon_variant=Tela-circle-orange
 theme_cursor=Adwaita
@@ -54,19 +55,14 @@ a80=33
 a100=00
 
 # window ui "shell" theme - gtk, qt-via gtk)
-# cool tones, based on Arc-Dark
-shell_highlight=e7610b
+# cool tones, based on Skeuos Orange Theme
+shell_highlight=fd7d00
 
-shell_dark=272729
-shell_dark_1=33343f
-shell_dark_2=373a48
-shell_dark_3=454854
-shell_dark_4=687183
+shell_dark=1b1d24
+shell_dark_1=23252e
+shell_dark_2=292c37
+shell_dark_3=323643
 shell_light=f1f8fd
-shell_light_1=d6e0eb
-shell_light_2=bac2ce
-shell_light_3=adb3c2
-shell_light_4=8b92a2
 
 # https://github.com/morhetz/gruvbox
 # warm tones (with matching colors)
@@ -119,9 +115,9 @@ gruv_light_4=a89984
 # vibra16
 v16_fg=f7fffe
 v16_bg=1a1817
-v16_accent=e7610b
+v16_accent=$shell_highlight
 v16_00_black=090b0a  # 30
-v16_01_red=f50072    # 31
+v16_01_red=e6006b    # 31
 v16_02_green=3bd700  # 32
 v16_03_yellow=f4da00 # 33
 v16_04_blue=009cec   # 34
