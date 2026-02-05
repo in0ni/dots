@@ -12,7 +12,6 @@ systemctl --user import-environment GPG_TTY SSH_AUTH_SOCK
 # If running from tty1 start wm
 if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
   # enable logging and journalctl
-  systemd-cat -t hyprland Hyprland
+  systemd-cat -t hyprland start-hyprland
   systemctl --user stop hyprland-session.target
-  systemctl --user unset-environment WAYLAND_DISPLAY SWAYSOCK
 fi
