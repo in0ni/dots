@@ -1,7 +1,0 @@
-#!fmt/hocon
-
-close_on_unfocus = 1
-show_timezones = 1
-show_week_numbers = 1
-mainwindow_position = mouse
-mainwindow_decorated = 0
