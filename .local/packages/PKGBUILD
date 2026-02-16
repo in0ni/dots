@@ -89,8 +89,6 @@ package_paks-hw-mfmc() {
     #
     # VA-API hardware video acceleration
     'libva-mesa-driver'
-    # VDPAU video acceleration
-    'mesa-vdpau'
     # required for xpadneo (dkms)
     'xpadneo-dkms'
     'linux-headers'

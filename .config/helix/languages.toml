@@ -8,10 +8,6 @@ args = ["server", "-p", "codeium"]
 [language-server.efm-langserver]
 command = "efm-langserver"
 
-[language-server.efm-langserver.config]
-# only for phpcbf, unable to get working w/o this
-documentFormatting = true
-
 [language-server.efm-langserver.config.languages]
 
 # stylelint
@@ -49,18 +45,6 @@ lintStdin = true
 lintFormats = [
   "%f(%l,%c): %trror %m",
   "%f(%l,%c): %tarning %m",
-]
-
-# phpcs/phpcbf
-[[language-server.efm-langserver.config.languages.php]]
-# issues using helix default "format" command
-formatCommand = "phpcbf -q --stdin-path=${INPUT} - || true"
-formatStdin = true
-lintCommand = "phpcs --report=\"emacs\" --stdin-path=${INPUT} -"
-lintStdin = true
-lintFormats = [
-  "%f:%l:%c: %rror - %m",
-  "%f:%l:%c: %tarning - %m"
 ]
 
 # twig-cs-fixer
@@ -219,16 +203,12 @@ language-servers = [
 [[language]]
 name="php"
 auto-format=true
-# add drupal types
 file-types = ["php", "inc", "theme", "module", "profile", "install"]
-# issues using helix default "format" command
-# formatter = { command = "phpcbf", args = ["-q", "--stdin-path=${INPUT}", "-"] }
 language-servers = [
   "cspell",
   "llm-lsp",
- { name = "phpactor", except-features = ["format"] },
- # phpcs & phpcbf
- { name = "efm-langserver", only-features = ["diagnostics", "format"] },
+# uses phpcs/phpcbf via phpactor
+ { name = "phpactor" },
 ]
 
 [[language]]

@@ -1,0 +1,23 @@
+{
+  "$schema": "/usr/lib/phpactor/phpactor.schema.json",
+  "language_server_configuration.auto_config": false,
+  "indexer.supported_extensions": [
+    "php",
+    "inc",
+    "module",
+    "install",
+    "theme",
+    "profile"
+  ],
+  "indexer.include_patterns": [
+    "/**/*.php",
+    "/**/*.inc",
+    "/**/*.module",
+    "/**/*.install",
+    "/**/*.theme",
+    "/**/*.profile"
+  ],
+  "php_code_sniffer.enabled": true,
+  "php_code_sniffer.bin": "%project_root%/vendor/bin/phpcs",
+  "php_code_sniffer.show_diagnostics": true
+}

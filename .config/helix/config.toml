@@ -2,6 +2,7 @@ theme="noctis"
 
 [editor]
 bufferline="multiple"
+default-line-ending="lf"
 color-modes=true
 line-number="relative"
 idle-timeout=50
@@ -9,7 +10,7 @@ cursorline=true
 
 [editor.statusline]
 left = ["mode", "spinner", "version-control", "file-name", "file-modification-indicator"]
-right = ["diagnostics", "selections", "position", "position-percentage", "file-encoding", "file-type", "total-line-numbers"]
+right = ["diagnostics", "selections", "position", "position-percentage", "file-encoding", "file-line-ending", "file-type", "total-line-numbers"]
 
 [editor.lsp]
 display-messages=true 
