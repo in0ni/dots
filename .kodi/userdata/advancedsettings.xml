@@ -1,0 +1,33 @@
+<advancedsettings>
+  <videodatabase>
+    <type>mysql</type>
+    <host>mfmc.local</host>
+    <port>3306</port>
+    <user>kodi</user>
+    <pass>kodi</pass>
+  </videodatabase>
+
+  <musicdatabase>
+    <type>mysql</type>
+    <host>mfmc.local</host>
+    <port>3306</port>
+    <user>kodi</user>
+    <pass>kodi</pass>
+  </musicdatabase>
+
+  <videolibrary>
+    <updateonstartup>true</updateonstartup>
+    <groupmoviesets>true</groupmoviesets>
+    <importwatchedstate>true</importwatchedstate>
+    <importresumepoint>true</importresumepoint>
+  </videolibrary>
+
+  <myvideos>
+    <stackvideos>true</stackvideos>
+    <extractthumb>false</extractthumb>
+  </myvideos>
+
+  <audiooutput>
+    <guisoundvolume>80</guisoundvolume>
+  </audiooutput>
+</advancedsettings>
