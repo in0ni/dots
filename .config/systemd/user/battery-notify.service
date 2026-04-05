@@ -4,7 +4,7 @@ PartOf=hyprland-session.target
 After=hyprland-session.target
 
 [Service]
-ExecStart=%h/.local/bin/battery-notify
+ExecStart=%h/.local/bin/wm-battery-notify
 
 [Install]
 WantedBy=hyprland-session.target

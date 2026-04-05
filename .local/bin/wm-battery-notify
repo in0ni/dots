@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -u
+
+readonly BAT="${BAT:-/sys/class/power_supply/BAT0}"
+readonly STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/battery-notify"
+readonly STATE_FILE="$STATE_DIR/state"
+readonly DUNST_ID=99901
+
+readonly LEVEL_LOW=25
+readonly LEVEL_CRITICAL=5
+readonly CRITICAL_REPEAT_SECS=60
+
+mkdir -p "$STATE_DIR"
+
+[[ -d $BAT ]] || exit 0
+command -v dunstify >/dev/null 2>&1 || exit 0
+
+level=$(<"$BAT/capacity")
+status=$(<"$BAT/status")
+now=$(date +%s)
+
+low_sent=0
+critical_last=0
+
+if [[ -f $STATE_FILE ]]; then
+  # shellcheck disable=SC1090
+  source "$STATE_FILE"
+fi
+
+save_state() {
+  cat >"$STATE_FILE" <<EOF
+low_sent=$low_sent
+critical_last=$critical_last
+EOF
+}
+
+reset_state() {
+  low_sent=0
+  critical_last=0
+  dunstify -C "$DUNST_ID" >/dev/null 2>&1 || true
+  save_state
+}
+
+if [[ $status != "Discharging" ]]; then
+  reset_state
+  exit 0
+fi
+
+if ((level <= LEVEL_CRITICAL)); then
+  if ((now - critical_last >= CRITICAL_REPEAT_SECS)); then
+    dunstify \
+      -r "$DUNST_ID" \
+      -u critical \
+      -i battery-empty \
+      "Battery critically low" \
+      "Battery reports ${level}% charge left."
+    critical_last=$now
+  fi
+
+  low_sent=1
+  save_state
+  exit 0
+fi
+
+if ((level <= LEVEL_LOW)); then
+  if ((low_sent == 0)); then
+    dunstify \
+      -r "$DUNST_ID" \
+      -i battery-low \
+      "Battery level is getting low" \
+      "Battery reports ${level}% charge left."
+    low_sent=1
+  fi
+
+  critical_last=0
+  save_state
+  exit 0
+fi
+
+reset_state

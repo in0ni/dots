@@ -1,0 +1,14 @@
+[Unit]
+Description=Run battery notification check periodically
+Documentation=man:systemd.timer(5)
+PartOf=hyprland-session.target
+After=hyprland-session.target
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=battery-notify.service
+
+[Install]
+WantedBy=hyprland-session.target
