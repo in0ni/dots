@@ -25,7 +25,7 @@ helix_cd() {
     sleep 0.2
     hyprctl "$term1"
     sleep 0.2
-    hyprctl dispatch togglesplit
+    hyprctl dispatch layoutmsg togglesplit
     sleep 0.2
     hyprctl "$term2"
     sleep 0.2

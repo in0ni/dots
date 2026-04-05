@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+# Sourced by rofi scripts. Caller must set before sourcing:
+#   $icon         — prompt icon
+#   $title        — prompt title
+#   $icon_notify  — notification icon name
+#   $icons_rofi   — associative array of icon glyphs
+
+: "${icon:?'icon' must be set before sourcing utils}"
+: "${title:?'title' must be set before sourcing utils}"
+: "${icon_notify:?'icon_notify' must be set before sourcing utils}"
+
+set_prompt() {
+  echo -en "\\0prompt\\x1f${icon}  $1\\n"
+}
+
+set_subtitle() {
+  set_prompt "→   $1 $2"
+}
+
+set_message() {
+  echo -en "\\0message\\x1f$1\\n"
+}
+
+set_data() {
+  echo -en "\\0data\\x1f$1\\n"
+}
+
+print_divider() {
+  echo -en " \\0nonselectable\\x1ftrue\\n"
+}
+
+# --- awk icon bridge ---
+# Produces -v icon_name=glyph arguments for awk.
+# Usage: awk $(build_icon_vars active secure insecure) '...'
+build_icon_vars() {
+  local args=""
+  for name in "$@"; do
+    args+="-v icon_${name}=${icons_rofi[$name]:?icon '$name' not in icons_rofi} "
+  done
+  printf '%s' "$args"
+}
+
+# --- Notifications ---
+# Usage: notify "message" [exit_code]
+notify() {
+  local desc urgency
+  desc=$(printf '%s' "$1" | sed 's/\x1b\[[0-9;]*m//g; s/[\x01\x02]//g')
+  urgency=$( ((${2:-0} == 0)) && echo normal || echo critical)
+  notify-send "${title}" "$desc" -i "${icon_notify}" -u "$urgency"
+}

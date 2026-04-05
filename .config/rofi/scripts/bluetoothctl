@@ -17,29 +17,30 @@
 icon=
 title=Bluetooth
 icon_notify=blueman
-source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
 
 # Controller states
-declare -A ctrl
-ctrl[power]=Powered
-ctrl[scan]=Discovering
-ctrl[pair]=Pairable
-ctrl[discover]=Discoverable
+declare -A ctrl=(
+  [power]=Powered
+  [scan]=Discovering
+  [pair]=Pairable
+  [discover]=Discoverable
+)
 
 # Device states
-declare -A dev
-dev[connect]=Connected
-dev[pair]=Paired
-dev[trust]=Trusted
+declare -A dev=(
+  [connect]=Connected
+  [pair]=Paired
+  [trust]=Trusted
+)
 
 # Fontawesome, some currently unused
 declare -A icons_rofi
 icons_rofi[toggle_on]=
 icons_rofi[toggle_off]=
 icons_rofi[back]=
+source "$(dirname "$0")/common/utils"
 
 back=back
-
 is_service_active() {
   if systemctl is-active bluetooth.service --quiet; then
     return 0

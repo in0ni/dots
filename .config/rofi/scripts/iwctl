@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
+set -uo pipefail
 
-# TODO: auto-detect device (wlan0), multiple devices
-# TODO: better messaging (on fail/success)
-# TODO: final round of testing (auto-connect not working?)
+# ---------------------------------------------------------------------------
+# rofi-iwctl: wireless network manager via rofi + iwctl
+# ---------------------------------------------------------------------------
 
 icon=
 title=Wireless
 icon_notify=network-wireless-connected
 
-# fontawesome-based
 declare -A icons_rofi
 icons_rofi[active]=
 icons_rofi[auto]=
@@ -25,173 +26,204 @@ icons_rofi[scan]=
 icons_rofi[secure]=
 icons_rofi[show]=
 icons_rofi[warn]=
-source "$(dirname "$0")/common/utils" "$icon" "$title" "${icons_rofi[@]}"
 
-# XXX: remove this hardcoded reference
-iwctl_station=wlan0
+# shellcheck disable=SC1091  # common/utils is a local shared library
+source "$(dirname "$0")/common/util"
 
-# look into ' +' regex for field separator, like rofi-systemctl
-# awk field widths
-fields_station_show="2 10 20 21"
-fields_get_networks="6 34 20 4"
-fields_known_networks="2 32 13 13 20"
-fields_known_network_show="2 10 18 50"
+# unit separator — safe delimiter for ROFI_INFO payloads (cannot appear in SSIDs)
+# TODO: this recommended separator does not work.
+# SEP=$'\x1f'
+SEP=':'
 
-# parses the signal columng, only leaving those that are white (value)
-ansi_clean_signal='s/\x1b\[1;90m\*{1,3}//g'
-# cleans all remaining ansi codes
-ansi_clean_all='s/\x1b\[[0-9;]*m//g'
-
-declare -A cmd
-cmd[auto_connect]=auto-connect
-cmd[connect]=connect
-cmd[disconnect]=disconnect
-cmd[forget_network]=forget-network
-cmd[known_network]=known-network
-cmd[list_avail]=list-available
-cmd[list_known]=list-known
-cmd[scan]=scan
-
-declare -A opt
-opt[refresh_network]="${icons_rofi[refresh]}  Refresh networks list...\0info\x1f${cmd[list_avail]}\n"
-opt[scan_networks]="${icons_rofi[scan]}  Scan for networks...\0info\x1f${cmd[scan]}\n"
-opt[known_networks]="${icons_rofi[saved]}  Known networks...\0info\x1f${cmd[list_known]}\n"
-opt[back_available_networks]="${icons_rofi[back]}  Back to networks list...\0info\x1f${cmd[list_avail]}\n"
-opt[back_known_networks]="${icons_rofi[back]}  Back to known networks list...\0info\x1f${cmd[list_known]}\n"
-
-is_scanning() {
-  output=$(iwctl station $iwctl_station show |
-    sed -E "$ansi_clean_all" |
-    awk -v FIELDWIDTHS="$fields_station_show" '$3~/Scanning/ { print $4 }')
-
-  if [[ $output == "yes" ]]; then
-    return 0
-  else
-    return 1
-  fi
+# ---------------------------------------------------------------------------
+# Device detection
+# ---------------------------------------------------------------------------
+detect_device() {
+  iwctl device list 2>/dev/null |
+    sed 's/\x1b\[[0-9;]*m//g' |
+    awk 'NR > 4 {
+      gsub(/^ +| +$/, "", $0)
+      if (length($0)) { print $1; exit }
+    }'
 }
 
+DEVICE=$(detect_device)
+if [[ -z "$DEVICE" ]]; then
+  echo -en "  No wireless device found"
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# ANSI cleaning (single sed expression)
+# parses signal column first; cleans remaining ansi codes
+# ---------------------------------------------------------------------------
+ansi_clean='s/\x1b\[1;90m\*{1,3}//g; s/\x1b\[[0-9;]*m//g'
+
+# ---------------------------------------------------------------------------
+# Commands & menu options
+# ---------------------------------------------------------------------------
+declare -A cmd=(
+  [auto_connect]=auto-connect
+  [connect]=connect
+  [disconnect]=disconnect
+  [forget]=forget-network
+  [known]=known-network
+  [list_avail]=list-available
+  [list_known]=list-known
+  [scan]=scan
+)
+
+declare -A opt=(
+  [refresh]="${icons_rofi[refresh]}  Refresh networks list...\\0info\x1f${cmd[list_avail]}\n"
+  [scan]="${icons_rofi[scan]}  Scan for networks...\\0info\x1f${cmd[scan]}\n"
+  [known]="${icons_rofi[saved]}  Known networks...\\0info\x1f${cmd[list_known]}\n"
+  [back_avail]="${icons_rofi[back]}  Back to networks list...\\0info\x1f${cmd[list_avail]}\n"
+  [back_known]="${icons_rofi[back]}  Back to known networks list...\\0info\x1f${cmd[list_known]}\n"
+)
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 is_known_network() {
   iwctl known-networks "$1" show &>/dev/null
-  return $?
 }
 
 station_scan() {
-  iwctl station $iwctl_station scan
+  local ret
+  iwctl station "$DEVICE" scan
+  ret=$?
   set_message "Scanning for networks, should refresh..."
-  notify "Scanning for networks..." $?
+  notify "Scanning for networks..." "$ret"
 }
 
-# LISTS
-# TODO: remove empty line at end of output
+# ---------------------------------------------------------------------------
+# List builders
+# ---------------------------------------------------------------------------
+# shellcheck disable=SC2046
 list_available_networks() {
   output=$(
-    iwctl station $iwctl_station get-networks |
-      sed -E "$ansi_clean_signal" |
-      sed "$ansi_clean_all" |
-      # get all, but last lines
+    iwctl station "$DEVICE" get-networks |
+      sed -E "$ansi_clean" |
       head -n -1 |
-      awk -v FIELDWIDTHS="$fields_get_networks" \
-        -v cmd_disconnect="${cmd[disconnect]}" -v cmd_connect="${cmd[connect]}" \
-        $(set_icon_vars "active" "insecure" "secure" "radio_on" "radio_off" "not_found") \
+      awk \
+        -v sep="$SEP" \
+        -v cmd_disconnect="${cmd[disconnect]}" \
+        -v cmd_connect="${cmd[connect]}" \
+        $(build_icon_vars active insecure secure radio_on radio_off not_found) \
         '
-      # from 5th record (Number Record)
       NR > 4 {
-        # no networks found
-        if ($1 == "No n") {
+        active = substr($0, 1, 6)
+        ssid = substr($0, 7, 34)
+        security = substr($0, 41, 20)
+        signal = substr($0, 61, 4)
+
+        gsub(/ +/, "", active)
+        gsub(/ +$/, "", ssid)
+        gsub(/ +/, "", security)
+        gsub(/ /, "", signal)
+        signal = length(signal)
+
+        if (ssid == "" && NR == 5) {
           printf "%s  No networks found...", icon_not_found
           exit
         }
 
-        active=gensub(/ +/, "", "g", $1)
-        ssid=gensub(/ +$/,"", "g", $2)
-        security=gensub(/ +/,"", "g", $3)
-        signal=length(gensub(/ /, "", "g", $4))
-
-        # active
+        # active indicator
         if (length(active))
-          printf "%s  ", icon_active
+          printf "%s ", icon_active
         else
-          printf "      "
+          printf "   "
 
-        # security
+        # security indicator
         if (security == "open")
           printf "%s  ", icon_insecure
         else
           printf "%s  ", icon_secure
 
-        # signal
-        for (i = 0; i < signal; ++i)
-          printf "%s", icon_radio_on
-        for (i = 0; i < 4-signal; ++i)
-          printf "%s", icon_radio_off
+        # signal bars
+        for (i = 0; i < signal; ++i) printf "%s", icon_radio_on
+        for (i = 0; i < 4 - signal; ++i) printf "%s", icon_radio_off
 
         printf "  %s", ssid
 
         if (length(active))
           printf "\\0info\x1f%s\n", cmd_disconnect
         else
-          printf "\\0info\x1f%s:%s:%s\n", cmd_connect, ssid, security
+          printf "\\0info\x1f%s%s%s%s\n", cmd_connect, sep, ssid, sep, security
+      }'
+  )
+  # TODO: look into removing the output=$()
+  echo -en "$output"
+}
+
+# shellcheck disable=SC2046
+list_known_networks() {
+  output=$(
+    iwctl known-networks list |
+      sed -E "$ansi_clean" |
+      head -n -1 |
+      awk \
+        -v sep="$SEP" \
+        -v cmd_known="${cmd[known]}" \
+        $(build_icon_vars insecure secure) \
+        '
+      NR > 4 {
+        f2 = substr($0, 3, 32)
+        f3 = substr($0, 35, 13)
+        f5 = substr($0, 61, 20)
+
+        gsub(/ +$/, "", f2)
+        gsub(/ +/, "", f3)
+        gsub(/ +$/, "", f5)
+
+        printf "  "
+
+        if (f3 == "open")
+          printf "%s  ", icon_insecure
+        else
+          printf "%s  ", icon_secure
+
+        printf " %s (%s)", f2, f5
+        printf "\\0info\x1f%s%s%s\n", cmd_known, sep, f2
       }'
   )
   echo -en "$output"
 }
 
-list_known_networks() {
-  output=$(
-    iwctl known-networks list |
-      sed -E "$ansi_clean_signal" |
-      sed "$ansi_clean_all" |
-      head -n -1 |
-      awk -v FIELDWIDTHS="$fields_known_networks" \
-        -v cmd_known="${cmd[known_network]}" \
-        $(set_icon_vars "insecure" "secure") \
-        'NR > 4 {
-          ssid=gensub(/ +$/,"", "g", $2)
-          security=gensub(/ +/,"", "g", $3)
-          hidden=gensub(/ +/, "", "g", $4)
-          last=gensub(/ +$/, "", "g", $5)
-
-          printf "      "
-
-          # security
-          if (security == "open")
-            printf "%s  ", icon_insecure
-          else
-            printf "%s  ", icon_secure
-
-          printf " %s (%s)", ssid, last
-          printf "\\0info\x1f%s:%s\n", cmd_known, ssid
-    }'
-  )
-  echo -en "$output"
-}
-
-# OPTIONS
+# ---------------------------------------------------------------------------
+# Menus
+# ---------------------------------------------------------------------------
 networks_menu() {
-  echo -en "${opt[refresh_network]}"
-  echo -en "${opt[scan_networks]}"
-  echo -en "${opt[known_networks]}"
+  echo -en "${opt[refresh]}"
+  echo -en "${opt[scan]}"
+  echo -en "${opt[known]}"
   print_divider
 }
 
 known_networks_menu() {
-  echo -en "${opt[back_available_networks]}"
+  echo -en "${opt[back_avail]}"
   print_divider
 }
 
 known_network_menu() {
-  ssid=$1
-  echo -en "${opt[back_known_networks]}"
+  local ssid="$1" auto_val toggle
+  echo -en "${opt[back_known]}"
   print_divider
-  output=$(iwctl known-networks "$1" show |
-    sed "$ansi_clean_all" |
-    awk -v FIELDWIDTHS="$fields_known_network_show" '$3~/AutoConnect/ { print $4 }')
 
-  [[ $output == "yes" ]] && toggle=no || toggle=yes
-  echo -en "${icons_rofi[auto]}  Auto Connect: $output\0info\x1f${cmd[auto_connect]}:$1:$toggle\n"
-  # echo -en "${icons_rofi[show]}  Show Password\0info\x1fget-password:$ssid\n"
-  echo -en "${icons_rofi[delete]} Forget\0info\x1f${cmd[forget_network]}:$ssid\n"
+  auto_val=$(
+    iwctl known-networks "$ssid" show |
+      sed "$ansi_clean" |
+      awk '
+        /AutoConnect/ {
+          gsub(/ +/, "", $0)
+          sub(/.*AutoConnect/, "", $0)
+          print
+        }'
+  )
+
+  [[ "$auto_val" == "yes" ]] && toggle=no || toggle=yes
+  echo -en "${icons_rofi[auto]}  Auto Connect: ${auto_val}\\0info\x1f${cmd[auto_connect]}${SEP}${ssid}${SEP}${toggle}\n"
+  echo -en "${icons_rofi[delete]}  Forget\\0info\x1f${cmd[forget]}${SEP}${ssid}\n"
 }
 
 rofi_list_networks() {
@@ -199,105 +231,126 @@ rofi_list_networks() {
   list_available_networks
 }
 
-rofi_list_known_networks() {
-  known_networks_menu
-  list_known_networks
+# ---------------------------------------------------------------------------
+# Parse SEP-delimited ROFI_INFO fields
+# ---------------------------------------------------------------------------
+
+parse_info() {
+  local IFS="$SEP"
+  read -r -a FIELDS <<<"$ROFI_INFO"
 }
 
-# DEFAULT TITLE
-set_title $title
+# ---------------------------------------------------------------------------
+# Main dispatch
+# ---------------------------------------------------------------------------
+
+# defaults — ROFI_RETV and ROFI_INFO may be unset on first invocation
+ROFI_RETV="${ROFI_RETV:-0}"
+ROFI_INFO="${ROFI_INFO:-}"
+ROFI_DATA="${ROFI_DATA:-}"
+
+set_prompt "$title"
 set_message ""
 
-# FIRST RUN
-if [[ $ROFI_RETV == 0 ]]; then
-  # if ! is_scanning; then
-  #   station_scan
-  # fi
-
+if [[ "$ROFI_RETV" == 0 ]]; then
   rofi_list_networks
-fi
 
-# ENTRY MADE
-if [[ $ROFI_RETV == 1 ]]; then
+elif [[ "$ROFI_RETV" == 1 ]]; then
+  parse_info
 
-  case $ROFI_INFO in
+  case "${FIELDS[0]}" in
   "${cmd[list_avail]}")
     rofi_list_networks
     ;;
+
   "${cmd[scan]}")
     station_scan
     rofi_list_networks
     ;;
+
   "${cmd[list_known]}")
     set_subtitle "Known Networks" "${icons_rofi[saved]}"
     known_networks_menu
     list_known_networks
     ;;
-  "${cmd[known_network]}":*)
-    ssid=${ROFI_INFO#*"${cmd[known_network]}":}
-    set_subtitle "$ssid" "${icons_rofi[saved]}"
-    known_network_menu "$ssid"
+
+  "${cmd[known]}")
+    local_ssid="${FIELDS[1]}"
+    set_subtitle "$local_ssid" "${icons_rofi[saved]}"
+    known_network_menu "$local_ssid"
     ;;
-  "${cmd[forget_network]}":*)
-    ssid=${ROFI_INFO#*"${cmd[forget_network]}":}
-    iwctl known-networks "$ssid" forget
-    notify "Forgot network" $?
+
+  "${cmd[forget]}")
+    local_ssid="${FIELDS[1]}"
+    iwctl known-networks "$local_ssid" forget
+    ret=$?
+    notify "Forgot network: $local_ssid" "$ret"
+    set_subtitle "Known Networks" "${icons_rofi[saved]}"
+    known_networks_menu
+    list_known_networks
     ;;
-  "${cmd[auto_connect]}":*)
-    IFS=":" read -r -a data <<<"$ROFI_INFO"
-    iwctl known-networks "${data[1]}" set-property AutoConnect "${data[2]}"
-    notify "Toggle ${cmd[auto_connect]}" $?
-    known_network_menu "${data[1]}"
+
+  "${cmd[auto_connect]}")
+    local_ssid="${FIELDS[1]}"
+    local_toggle="${FIELDS[2]}"
+    iwctl known-networks "$local_ssid" set-property AutoConnect "$local_toggle"
+    ret=$?
+    notify "Auto-connect ${local_toggle} for $local_ssid" "$ret"
+    set_subtitle "$local_ssid" "${icons_rofi[saved]}"
+    known_network_menu "$local_ssid"
     ;;
+
   "${cmd[disconnect]}")
-    iwctl station $iwctl_station disconnect
-    notify "Disconnected" $?
+    iwctl station "$DEVICE" disconnect
+    ret=$?
+    notify "Disconnected" "$ret"
+    rofi_list_networks
     ;;
-  # get-password:*)
-  #   ssid=${ROFI_INFO#*get-password:}
-  #   # pkexec cat "/var/lib/iwd/$ssid.psk"
-  #   ;;
-  "${cmd[connect]}":*)
-    IFS=":" read -r -a data <<<"$ROFI_INFO"
-    ssid="${data[1]}"
-    security="${data[2]}"
 
-    # if network is known, and open no need for password
-    if is_known_network "$ssid" || [ "$security" = "open" ]; then
-      set_message "Unable to connect to $ssid..."
-      exec=$(iwctl station $iwctl_station connect "$ssid")
+  "${cmd[connect]}")
+    local_ssid="${FIELDS[1]}"
+    local_security="${FIELDS[2]:-}"
+
+    if is_known_network "$local_ssid" || [[ "$local_security" == "open" ]]; then
+      iwctl station "$DEVICE" connect "$local_ssid"
       ret=$?
-      if [ $ret -eq 0 ]; then
-        notify "Connected to $ssid" $ret
+      if [[ $ret -eq 0 ]]; then
+        notify "Connected to $local_ssid" "$ret"
+      else
+        set_message "${icons_rofi[warn]}  Failed to connect to $local_ssid"
+        notify "Failed to connect to $local_ssid" "$ret"
+        rofi_list_networks
       fi
-
-    # write ssid to cache file, and get custom input
     else
-      echo "$ssid" >"$HOME"/.cache/rofi-iwctl.connect
-      set_subtitle "$ssid" "${icons_rofi[password]}"
-      echo -en "\0message\x1fEnter password for $ssid...\n"
+      set_data "$local_ssid"
+      set_subtitle "$local_ssid" "${icons_rofi[password]}"
+      set_message "Enter password for $local_ssid..."
       print_divider
     fi
     ;;
   esac
 
-fi
+elif [[ "$ROFI_RETV" == 2 ]]; then
+  # custom entry = password input
+  local_ssid="$ROFI_DATA"
 
-# CUSTOM ENTRY MADE (password)
-if [[ $ROFI_RETV == 2 ]]; then
-  ssid="$(cat "$HOME"/.cache/rofi-iwctl.connect)"
-  set_subtitle "$ssid" "${icons_rofi[password]}"
-  # ensure to tripple quote as need quotes in command
-  exec=$(iwctl -P """$@""" station $iwctl_station connect """$ssid""")
-  ret=$?
-
-  if [[ $ret -eq 0 ]]; then
-    notify "Connected to $ssid" $ret
+  if [[ -z "$local_ssid" ]]; then
+    set_message "${icons_rofi[warn]}  No network selected"
+    rofi_list_networks
   else
-    error=$(echo "$exec" | sed "$ansi_clean_all")
-    set_message "${icons_rofi[warn]}  $error."
-    notify "Incorrect Password" $ret
-    echo -en "${opt[back_available_networks]}"
-    echo -en "${icons_rofi[refresh]}  Try Again...\0info\x1f${cmd[connect]}:$ssid\n"
+    set_subtitle "$local_ssid" "${icons_rofi[password]}"
+
+    result=$(iwctl -P "$@" station "$DEVICE" connect "$local_ssid" 2>&1)
+    ret=$?
+
+    if [[ $ret -eq 0 ]]; then
+      notify "Connected to $local_ssid" "$ret"
+    else
+      error=$(printf '%s' "$result" | sed 's/\x1b\[[0-9;]*m//g')
+      set_message "${icons_rofi[warn]}  ${error:-Connection failed}"
+      notify "Incorrect password" "$ret"
+      echo -en "${opt[back_avail]}"
+      echo -en "${icons_rofi[refresh]}  Try Again...\\0info\x1f${cmd[connect]}${SEP}${local_ssid}\n"
+    fi
   fi
 fi
