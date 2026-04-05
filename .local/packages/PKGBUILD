@@ -258,7 +258,7 @@ package_paks-usr-minimal() {
     'fzf'
     'rsync'
     'trash-cli'
-    'tree'
+    # 'tree'
     'zsh-autosuggestions'
     'zsh-completions'
     'zsh-syntax-highlighting'
@@ -371,6 +371,7 @@ package_paks-gui-desktop() {
     'skeuos-gtk'
     'tela-circle-icon-theme-orange'
     'waybar'
+    'wluma'
     'wl-clipboard'
     'wl-mirror'
     'xdg-user-dirs'
@@ -401,16 +402,14 @@ package_paks-gui-desktop() {
     'gvfs-afc'
     'gvfs-gphoto2'
     'gvfs-mtp'
-    'thunar'
-    'thunar-archive-plugin'
-    'thunar-media-tags-plugin'
-    'thunar-volman'
     'tumbler'
     'mlocate'
+    'nemo'
+    'nemo-fileroller'
     'udiskie'
 
     # network
-    'browserpass-firefox'
+    # 'browserpass-firefox'
     'chromium'
     'deluge-gtk'
     'filezilla'
@@ -422,6 +421,7 @@ package_paks-gui-desktop() {
 
     # viewers
     'vimiv-qt'
+    'loupe'
     'zathura-pdf-mupdf'
     'foliate'
 
