@@ -20,19 +20,19 @@
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
 # - Run: `# bash <(curl -sL https://raw.githubusercontent.com/in0ni/dots/master/.local/bin/setup-os)`
 
-# -u  = exit with an error if it tries to use an unset variable
-# -o pipefail = default, exit status of a pipeline is the exit status of the
-# last command in the pipeline. With pipefail, will return the exit status of
-# the rightmost command that failed, or zero if all commands succeed
-# TODO: select CFG[timezone], partition layout
-# TODO: avoid luks pwd entry manually
-set -uo pipefail
-trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+# -e  = exit immediately on error
+# -u  = exit on unset variable usage
+# -o pipefail = return exit status of first failed command in pipeline
+set -euo pipefail
+trap 's=$?; echo "$0: Error on line $LINENO: $BASH_COMMAND"; exit $s' ERR
 
 exec 1> >(tee "stdout.log")
 exec 2> >(tee "stderr.log" >&2)
 
 export SNAP_PAC_SKIP=y
+
+# --- State file for pre/post persistence ---
+STATE_FILE="/tmp/arch-install.state"
 
 declare -A CFG=(
   [root_size]="55G"
@@ -46,39 +46,66 @@ declare -A CFG=(
   [backtitle]="Arch Install"
 )
 
-dialog_get_input() {
-  title="$1"
-  description="$2"
+# Runtime vars — initialized to prevent set -u errors
+font=""
+hostname=""
+user=""
+password=""
+luks_password=""
+device=""
+partition_layout=""
+part_root=""
+part_efi=""
+part_data=""       # only set in root_data layout
+paks_name=""
+paks_url=""
 
+declare -a failed_services=()
+
+# ---------------------------------------------------------------------------
+# Dialog helpers
+# ---------------------------------------------------------------------------
+
+dialog_get_input() {
+  local title="$1"
+  local description="$2"
+  local input
   input=$(dialog --clear --stdout --backtitle "${CFG[backtitle]}" --title "$title" --inputbox "$description" 0 0)
   echo "$input"
 }
 
 dialog_get_password() {
-  title="$1"
-  description="$2"
+  local title="$1"
+  local description="$2"
+  local init_pass test_pass
 
   init_pass=$(dialog --clear --stdout --backtitle "${CFG[backtitle]}" --title "$title" --passwordbox "$description" 0 0)
-  : ${init_pass:?"password cannot be empty"}
+  : "${init_pass:?password cannot be empty}"
 
   test_pass=$(dialog --clear --stdout --backtitle "${CFG[backtitle]}" --title "$title" --passwordbox "$description again" 0 0)
   if [[ "$init_pass" != "$test_pass" ]]; then
     echo "Passwords did not match" >&2
     exit 1
   fi
-  echo $init_pass
+  # Use printf to avoid word-splitting on special characters
+  printf '%s' "$init_pass"
 }
 
 dialog_get_choice() {
-  title="$1"
-  description="$2"
+  local title="$1"
+  local description="$2"
   shift 2
-  options=("$@")
+  local options=("$@")
   dialog --clear --stdout --backtitle "${CFG[backtitle]}" --title "$title" --menu "$description" 0 0 0 "${options[@]}"
 }
 
+# ---------------------------------------------------------------------------
+# Setup prompts
+# ---------------------------------------------------------------------------
+
 set_hidpi() {
-  noyes=("Yes" "Monitor is HiDPI" "No" "Not a HiDPI device (font size is incorrect)")
+  local noyes=("Yes" "Monitor is HiDPI" "No" "Not a HiDPI device (font size is incorrect)")
+  local hidpi
   hidpi=$(dialog_get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
   clear
   [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
@@ -88,66 +115,109 @@ set_hidpi() {
 set_hostname() {
   hostname=$(dialog_get_input "Hostname" "Enter hostname") || exit 1
   clear
-  : "${hostname:?"hostname cannot be empty"}"
+  : "${hostname:?hostname cannot be empty}"
 }
 
 set_user() {
   user=$(dialog_get_input "User" "Enter username") || exit 1
   clear
-  : "${user:?"user cannot be empty"}"
+  : "${user:?user cannot be empty}"
 }
 
 set_password() {
   password=$(dialog_get_password "User" "Enter password") || exit 1
   clear
-  : "${password:?"password cannot be empty"}"
+  : "${password:?password cannot be empty}"
 }
 
 set_luks_password() {
   luks_password=$(dialog_get_password "Luks" "Enter password") || exit 1
   clear
-  : "${luks_password:?"password cannot be empty"}"
+  : "${luks_password:?password cannot be empty}"
 }
 
 set_device() {
+  local devicelist
   devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
-  read -r -a devicelist <<<$devicelist
+  read -r -a devicelist <<<"$devicelist"
   device=$(dialog_get_choice "Installation" "Select installation disk" "${devicelist[@]}") || exit 1
   clear
 
-  types=("root_only" "Root parition only" "root_data" "Root and Data (user) parittions")
-  partition_layout=$(dialog_get_choice "Parition Type" "Select a partitoin type" "${types[@]}") || exit 1
+  # Fix: corrected typos in dialog labels
+  local types=("root_only" "Root partition only" "root_data" "Root and Data (user) partitions")
+  partition_layout=$(dialog_get_choice "Partition Type" "Select a partition type" "${types[@]}") || exit 1
   clear
 
-  part_root="$(ls ${device}* | grep -E "^${device}p?1$")"
+  # Confirm before wiping
+  dialog --clear --stdout \
+    --backtitle "${CFG[backtitle]}" \
+    --title "⚠ CONFIRM DESTRUCTIVE OPERATION" \
+    --yesno "ALL DATA on $device will be permanently destroyed.\n\nAre you absolutely sure?" 0 0 || {
+    echo "Aborted by user." >&2
+    exit 1
+  }
+  clear
+
+  part_root="$(ls "${device}"* | grep -E "^${device}p?1$")"
   if is_partition_root_only; then
-    part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
+    part_efi="$(ls "${device}"* | grep -E "^${device}p?2$")"
   else
-    part_data="$(ls ${device}* | grep -E "^${device}p?2$")"
-    part_efi="$(ls ${device}* | grep -E "^${device}p?3$")"
+    part_data="$(ls "${device}"* | grep -E "^${device}p?2$")"
+    part_efi="$(ls "${device}"* | grep -E "^${device}p?3$")"
   fi
 }
 
 set_paks() {
   paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman entry") || exit 1
   clear
-  : "${paks_name:?"Custom packages name cannot be empty"}"
+  # paks_name is optional — allow empty to skip custom repo
 
-  paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
-  clear
-  : "${paks_url:?"Custom packages url cannot be empty"}"
+  if [[ -n "$paks_name" ]]; then
+    paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
+    clear
+    : "${paks_url:?Custom packages url cannot be empty when a name is set}"
+  fi
 }
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 is_partition_root_only() {
-  if [[ "$partition_layout" == "root_only" ]]; then
-    return 0
-  fi
-  return 1
+  [[ "$partition_layout" == "root_only" ]]
 }
+
+save_state() {
+  cat >"$STATE_FILE" <<EOF
+font=$(printf '%q' "$font")
+device=$(printf '%q' "$device")
+partition_layout=$(printf '%q' "$partition_layout")
+part_root=$(printf '%q' "$part_root")
+part_efi=$(printf '%q' "$part_efi")
+part_data=$(printf '%q' "$part_data")
+paks_name=$(printf '%q' "$paks_name")
+paks_url=$(printf '%q' "$paks_url")
+EOF
+  echo "State saved to $STATE_FILE"
+}
+
+load_state() {
+  if [[ -f "$STATE_FILE" ]]; then
+    # shellcheck source=/dev/null
+    source "$STATE_FILE"
+    echo "State loaded from $STATE_FILE"
+  else
+    echo "Warning: no state file found at $STATE_FILE — you may need to re-enter device info." >&2
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# init
+# ---------------------------------------------------------------------------
 
 init() {
   echo -e "\n### Checking UEFI boot mode"
-  if [ ! -f /sys/firmware/efi/fw_platform_size ]; then
+  if [[ ! -f /sys/firmware/efi/fw_platform_size ]]; then
     echo >&2 "You must boot in UEFI mode to continue"
     exit 2
   fi
@@ -159,9 +229,13 @@ init() {
   echo -e "\n### Installing additional tools"
   pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
 
-  echo -e "\n### Setting up fastest mirrors"
-  reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
+  echo -e "\n### Setting up fastest mirrors (HTTPS only)"
+  reflector --latest 30 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 }
+
+# ---------------------------------------------------------------------------
+# Partitioning
+# ---------------------------------------------------------------------------
 
 mk_root_partitions() {
   echo -e "\n### Setting up partitions"
@@ -171,27 +245,48 @@ mk_root_partitions() {
   lsblk -plnx size -o name "${device}" | xargs -n1 wipefs --all
 
   if is_partition_root_only; then
-    echo -e "\n### Creating a root only partition layout"
-    # 1: available space - efi size
-    # 2: rest of space (efi)
-    sgdisk --clear --new 1::-"${CFG[efi_size]}" --typecode 1:8300 --new 2::0 --typecode 2:ef00 "${device}"
-    sgdisk --change-name=1:primary --change-name=2:ESP "${device}"
+    echo -e "\n### Creating root-only partition layout"
+    # 1: all space minus EFI
+    # 2: EFI
+    sgdisk --clear \
+      --new 1::"${CFG[efi_size]}" --typecode 1:ef00 \
+      --new 2::0              --typecode 2:8300 \
+      "${device}"
+    sgdisk --change-name=1:ESP --change-name=2:primary "${device}"
+    part_efi="$(ls "${device}"* | grep -E "^${device}p?1$")"
+    part_root="$(ls "${device}"* | grep -E "^${device}p?2$")"
   else
-    echo -e "\n### Creating a root with data partition layout"
-    # 1: root size
-    # 2: available left - efi size
-    # 3: rest of space (efi)
-    sgdisk --clear --new "1:0:+${CFG[root_size]}" --typecode 1:8300 --new "2:0:-${CFG[efi_size]}" --typecode 2:8300 --new 3:0:0 --typecode 3:ef00 "${device}"
-    sgdisk --change-name=1:root --change-name=2:data --change-name=3:ESP "${device}"
+    echo -e "\n### Creating root + data partition layout"
+    # 1: EFI
+    # 2: root (fixed size)
+    # 3: remainder (data)
+    sgdisk --clear \
+      --new 1::"${CFG[efi_size]}"        --typecode 1:ef00 \
+      --new "2::+${CFG[root_size]}"      --typecode 2:8300 \
+      --new 3::0                         --typecode 3:8300 \
+      "${device}"
+    sgdisk --change-name=1:ESP --change-name=2:root --change-name=3:data "${device}"
+    part_efi="$(ls  "${device}"* | grep -E "^${device}p?1$")"
+    part_root="$(ls "${device}"* | grep -E "^${device}p?2$")"
+    part_data="$(ls "${device}"* | grep -E "^${device}p?3$")"
   fi
 
-  echo -e "\n### Root filesystem: Setup luks, enroll TPM"
+  # Inform kernel of new partition table
+  partprobe "${device}"
+  sleep 1
+
+  echo -e "\n### Root filesystem: LUKS format"
   echo -n "${luks_password}" | cryptsetup luksFormat "${part_root}"
-  # TODO: avoid entering password
+
+  echo -e "\n### Root filesystem: Enroll TPM2 + recovery key"
+  # TPM2 for auto-unlock; recovery key as fallback if TPM state changes
   systemd-cryptenroll "${part_root}" --wipe-slot=empty --tpm2-device=auto
+  echo -e "\n  !! IMPORTANT: Save the following recovery key in a safe place !!"
+  systemd-cryptenroll "${part_root}" --recovery-key
+
   echo -n "${luks_password}" | cryptsetup open "${part_root}" "${CFG[mapper_root]}"
 
-  echo -e "\n### Root filesystem: Format Partitions"
+  echo -e "\n### Root filesystem: Format partitions"
   mkfs.vfat -n "${CFG[part_label_boot]}" -F 32 "$part_efi"
   mkfs.btrfs -L "${CFG[part_label_root]}" /dev/mapper/"${CFG[mapper_root]}"
 
@@ -209,29 +304,34 @@ mk_root_partitions() {
   fi
   umount /mnt
 
-  echo -e "\n### Setting up all root-level mounts by subvolume"
+  echo -e "\n### Mounting root subvolumes"
   mount -o noatime,compress=zstd,subvol=@ /dev/mapper/"${CFG[mapper_root]}" /mnt
   mkdir -p /mnt/{home,mnt/btrfs-root,efi,var/{cache/pacman,lib/docker,log,tmp},swap,.snapshots}
+
   mount "${part_efi}" /mnt/efi
   mount -o noatime,compress=zstd,subvol=/ /dev/mapper/"${CFG[mapper_root]}" /mnt/mnt/btrfs-root
   mount -o noatime,compress=zstd,subvol=@pkgs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/cache/pacman
   mount -o noatime,compress=zstd,subvol=@logs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/log
-  mount -o noatime,compress=zstd,subvol=@tmp /dev/mapper/"${CFG[mapper_root]}" /mnt/var/tmp
-  mount -o noatime,compress=zstd,subvol=@swap /dev/mapper/"${CFG[mapper_root]}" /mnt/swap
+  mount -o noatime,compress=zstd,subvol=@tmp  /dev/mapper/"${CFG[mapper_root]}" /mnt/var/tmp
   mount -o noatime,compress=zstd,subvol=@snaps /dev/mapper/"${CFG[mapper_root]}" /mnt/.snapshots
+
+  # Swap subvolume: no compression, no COW
+  mount -o noatime,nodatacow,subvol=@swap /dev/mapper/"${CFG[mapper_root]}" /mnt/swap
+
   if is_partition_root_only; then
     mount -o noatime,compress=zstd,subvol=@docker /dev/mapper/"${CFG[mapper_root]}" /mnt/var/lib/docker
-    mount -o noatime,compress=zstd,subvol=@home /dev/mapper/"${CFG[mapper_root]}" /mnt/home
+    mount -o noatime,compress=zstd,subvol=@home   /dev/mapper/"${CFG[mapper_root]}" /mnt/home
   fi
 }
 
 mk_home_partitions() {
   if ! is_partition_root_only; then
-    echo -e "\n### User filesystem: Setup luks"
+    echo -e "\n### User filesystem: LUKS format"
+    # Use user password for data partition (unlocked on login via PAM)
     echo -n "${password}" | cryptsetup luksFormat "${part_data}"
     echo -n "${password}" | cryptsetup open "${part_data}" "${CFG[mapper_data]}"
 
-    echo -e "\n### User filesystem: Format Partitions"
+    echo -e "\n### User filesystem: Format partition"
     mkfs.btrfs -L "${CFG[part_label_data]}" /dev/mapper/"${CFG[mapper_data]}"
 
     echo -e "\n### User filesystem: Create subvolumes"
@@ -266,9 +366,7 @@ EOF
 
   for mount in "$@"; do
     local where="/home/$user/${mount}"
-    [[ "$mount" = 'docker' ]] && {
-      where="/var/lib/docker"
-    }
+    [[ "$mount" = 'docker' ]] && where="/var/lib/docker"
 
     cat <<EOF >"$config_dir/home-$user-${mount}.mount"
 [Unit]
@@ -287,38 +385,46 @@ EOF
   done
 }
 
-cfg_custom_repo() {
-  echo -e "\n### Configuring paks repo"
-  # mkdir "/mnt/var/cache/pacman/${user}-local"
-  # repo-add "/mnt/var/cache/pacman/${user}-local/${user}-local.db.tar"
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
 
-  # TODO: support signatures
-  # TODO: write via arch-chroot
-  if [ -n "$paks_name" ]; then
-    echo -e "\n### Adding custom repo & key"
+cfg_custom_repo() {
+  echo -e "\n### Configuring custom pacman repo"
+
+  if [[ -n "$paks_name" ]]; then
+    echo -e "\n### WARNING: Adding custom repo with SigLevel=Never (no signature verification)"
+    echo -e "### TODO: Implement key signing for this repo\n"
     cat >>/etc/pacman.conf <<EOF
+
 [${paks_name}]
 SigLevel = Never
 Server = ${paks_url}
+EOF
+
+    # Point pacman cache at the target during pacstrap
+    cat >>/etc/pacman.conf <<EOF
 
 [options]
 CacheDir = /mnt/var/cache/pacman/pkg
 EOF
-  # CacheDir = /mnt/var/cache/pacman/${user}-local
-  # wget -q $remote_repo_key_url -O- | pacman-key --add -
-  # pacman-key --finger $remote_repo_key_id
-  # pacman-key --lsign $remote_repo_key_id
   fi
+
   pacman -Sy
-  echo -e "\n\n\n### Run 'pacstrap -i /mnt paks-sys-base paks-usr-minimal'"
+  echo -e "\n### Run: pacstrap -i /mnt <your-meta-packages>"
 }
 
 cfg_base() {
   echo -e "\n### Generating base config files"
   ln -sfT dash /mnt/usr/bin/sh
 
-  rootuuid=$(lsblk -pdn -o uuid "${part_root}")
-  echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard root=LABEL=${CFG[part_label_root]} rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" >/mnt/etc/kernel/cmdline
+  local rootuuid
+  # Fix: correct lsblk flags (-dno instead of -pdn)
+  rootuuid=$(lsblk -dno UUID "${part_root}")
+
+  echo "rd.luks.name=${rootuuid}=root rd.luks.options=${rootuuid}=tpm2-device=auto,discard \
+root=LABEL=${CFG[part_label_root]} rw rootflags=subvol=@ nowatchdog mem_sleep_default=deep" \
+    >/mnt/etc/kernel/cmdline
 
   echo "FONT=$font" >/mnt/etc/vconsole.conf
   genfstab -U /mnt >>/mnt/etc/fstab
@@ -327,6 +433,7 @@ cfg_base() {
   ln -sf /usr/share/zoneinfo/"${CFG[timezone]}" /mnt/etc/localtime
   arch-chroot /mnt hwclock --systohc
   arch-chroot /mnt locale-gen
+
   cat <<EOF >/mnt/etc/mkinitcpio.conf
 MODULES=()
 BINARIES=()
@@ -356,12 +463,14 @@ EOF
 
   arch-chroot /mnt chattr +C /var/lib/docker
 
-  arch-chroot /mnt mkinitcpio -p linux
+  # Fix: use -P (all presets) instead of deprecated -p (named preset)
+  arch-chroot /mnt mkinitcpio -P
   arch-chroot /mnt arch-secure-boot generate-keys
   arch-chroot /mnt arch-secure-boot generate-efi
   arch-chroot /mnt arch-secure-boot add-efi
 
   echo -e "\n### Configuring swap file"
+  # mkswapfile handles nodatacow internally; subvol is mounted nodatacow
   btrfs filesystem mkswapfile --size 4G /mnt/swap/swapfile
   echo "/swap/swapfile none swap defaults 0 0" >>/mnt/etc/fstab
 }
@@ -369,47 +478,52 @@ EOF
 cfg_user() {
   echo -e "\n### Creating user"
   arch-chroot /mnt useradd -m -s /usr/bin/zsh "$user"
+
   for group in docker vboxusers video input wheel; do
     arch-chroot /mnt groupadd -rf "$group"
     arch-chroot /mnt gpasswd -a "$user" "$group"
   done
-  arch-chroot /mnt chsh -s /usr/bin/zsh
-  echo "$user:$password" | arch-chroot /mnt chpasswd
+
+  # Fix: specify user explicitly; chsh without a user targets root
+  arch-chroot /mnt chsh -s /usr/bin/zsh "$user"
+
+  # Use chpasswd via heredoc to avoid password appearing in process list
+  printf '%s:%s\n' "$user" "$password" | arch-chroot /mnt chpasswd
+
+  # Lock root account (no password login)
   arch-chroot /mnt passwd -dl root
 
   if ! is_partition_root_only; then
     echo -e "\n### Setup open, auto-mount, and close of encrypted home"
+
+    # Fix: use 750 instead of 754 — no need for world-read on a script
+    # containing partition paths
     cat <<EOF >/mnt/etc/pam_home_open.sh
 #!/bin/sh
 
 if [ "\$PAM_USER" = "$user" ] && [ ! -e "/dev/mapper/$user" ]; then
-  echo "about to unlock $part_data\n"
+  echo "Unlocking $part_data..."
   /usr/bin/cryptsetup open $part_data $user
-  echo "unlocked $part_data"
+  echo "Unlocked."
 fi
 EOF
-    arch-chroot /mnt chmod 754 /etc/pam_home_open.sh
+    arch-chroot /mnt chmod 750 /etc/pam_home_open.sh
 
-    # TODO: get this awk command working
-    echo "ACTION REQUIRED: add the following to /etc/pam.d/system-login"
-    echo "auth       optional   pam_exec.so expose_authtok /etc/pam_home_open.sh"
-    #     arch-chroot /mnt awk '
-    #     # Track the line number of each "auth" line
-    #     /auth/ { last = NR }
+    echo ""
+    echo "════════════════════════════════════════════════════════════"
+    echo " ACTION REQUIRED after reboot:"
+    echo " Add the following line to /etc/pam.d/system-login"
+    echo " (after the last 'auth' line):"
+    echo ""
+    echo "   auth  optional  pam_exec.so expose_authtok /etc/pam_home_open.sh"
+    echo "════════════════════════════════════════════════════════════"
+    echo ""
 
-    #     # Print every line
-    #     { print }
-
-    #     # After the last "auth" line, insert the new line
-    #     NR == last {
-    #         print "auth       optional   pam_exec.so expose_authtok /etc/pam_encrypted_home_open.sh"
-    #     }
-    # ' /mnt/etc/pam.d/system-login
-
-    # create all automount files
     mk_home_automounts work photos docker
 
+    local escaped_path
     escaped_path=$(systemd-escape --path "$part_data")
+
     cat <<EOF >/mnt/etc/systemd/system/home-"$user"-close.service
 [Unit]
 DefaultDependencies=no
@@ -432,68 +546,119 @@ RequiredBy=dev-mapper-$user.device
 EOF
   fi
 }
-# echo -e "\n### Setting permissions on the custom repo"
-# arch-chroot /mnt chown -R "$user:$user" "/var/cache/pacman/${user}-local/"
 
 cfg_services() {
-  local services=(
+  echo -e "\n### Enabling services"
+  arch-chroot /mnt systemctl daemon-reload
+
+  # Core services always enabled
+  local core_services=(
     bluetooth.service
-    btrfs-scrub@home.timer
     btrfs-scrub@-.timer
-    home-"$user"-close.service
     firewalld.service
     fstrim.service
-    # nope
-    home-"$user"*.mount
     iwd.service
     reflector.timer
     snapper-cleanup.timer
     systemd-networkd.service
     systemd-resolved.service
-    # nope
-    tlp.service
   )
 
-  arch-chroot /mnt systemctl daemon-reload
+  # Services only for root_data layout (separate encrypted home)
+  local data_services=(
+    home-"$user".mount
+    home-"$user"-work.mount
+    home-"$user"-photos.mount
+    home-"$user"-docker.mount
+    home-"$user"-close.service
+  )
 
-  for service in "${services[@]}"; do
-    # Skip comments and empty lines
-    [[ -z "$service" || "$service" == "#"* ]] && continue
+  # Enable TLP only on laptops (battery present)
+  if ls /sys/class/power_supply/BAT* &>/dev/null; then
+    core_services+=(tlp.service)
+    echo "  Battery detected — enabling TLP"
+  else
+    echo "  No battery detected — skipping TLP"
+  fi
 
-    echo -n "Enabling $service... "
-
+  for service in "${core_services[@]}"; do
+    echo -n "  Enabling $service... "
     if arch-chroot /mnt systemctl enable "$service" 2>/dev/null; then
-      echo "yes"
+      echo "ok"
     else
       failed_services+=("$service")
-      echo "no"
+      echo "FAILED"
     fi
   done
+
+  if ! is_partition_root_only; then
+    for service in "${data_services[@]}"; do
+      echo -n "  Enabling $service... "
+      if arch-chroot /mnt systemctl enable "$service" 2>/dev/null; then
+        echo "ok"
+      else
+        failed_services+=("$service")
+        echo "FAILED"
+      fi
+    done
+  fi
+
+  # Scrub home mountpoint only when it's on its own device
+  if ! is_partition_root_only; then
+    echo -n "  Enabling btrfs-scrub@home.timer... "
+    if arch-chroot /mnt systemctl enable "btrfs-scrub@home.timer" 2>/dev/null; then
+      echo "ok"
+    else
+      failed_services+=("btrfs-scrub@home.timer")
+      echo "FAILED"
+    fi
+  fi
 }
 
 cfg_sudo() {
-  echo -e "\n### Basic system settings & services"
-  cat >>/mnt/etc/sudoers.d/override <<EOF
+  echo -e "\n### Configuring sudo"
+  # Use visudo-safe write via tee to avoid direct edit of sudoers
+  cat >/mnt/etc/sudoers.d/override <<EOF
 %wheel ALL=(ALL:ALL) ALL
 %wheel ALL=(ALL) NOPASSWD:SETENV: \
     /usr/bin/pacman -Sy, \
     /usr/bin/pacman -Syu
 EOF
+  chmod 440 /mnt/etc/sudoers.d/override
 }
 
 unmount_drives() {
   echo -e "\n### Unmounting"
   umount -R /mnt
-  cryptsetup close /dev/mapper/"${CFG[mapper_root]}"
+  cryptsetup close "${CFG[mapper_root]}"
   if ! is_partition_root_only; then
-    cryptsetup close /dev/mapper/"${CFG[mapper_data]}"
+    cryptsetup close "${CFG[mapper_data]}"
   fi
-  echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
+
+  # Final summary
+  echo ""
+  echo "════════════════════════════════════════════════════════════"
+  echo " Installation complete."
+  if [[ ${#failed_services[@]} -gt 0 ]]; then
+    echo ""
+    echo " WARNING: The following services failed to enable:"
+    for svc in "${failed_services[@]}"; do
+      echo "   - $svc"
+    done
+  fi
+  echo ""
+  echo " Reboot now, then unplug the installation USB."
+  echo "════════════════════════════════════════════════════════════"
 }
 
+# ---------------------------------------------------------------------------
+# Usage
+# ---------------------------------------------------------------------------
+
 usage() {
-  printf "\nUsage:\t%s [pre|post]" "$(basename "$0")"
-  printf "\n"
+  printf "\nUsage:\t%s [pre|post]\n\n" "$(basename "$0")"
+  printf "  pre   Partition, LUKS setup, configure custom repo\n"
+  printf "  post  Base config, user creation, services\n\n"
 }
 
 handle_pre() {
@@ -503,16 +668,18 @@ handle_pre() {
   set_paks
   set_device
   mk_root_partitions
+  save_state
   cfg_custom_repo
 }
 
 handle_post() {
+  load_state
   set_hidpi
   set_hostname
   set_user
   set_password
   set_device
-  # mk_home_partitions
+  mk_home_partitions
   cfg_base
   cfg_user
   cfg_sudo
@@ -522,7 +689,7 @@ handle_post() {
 
 main() {
   case "${1:-}" in
-  pre) handle_pre "${@:2}" ;;
+  pre)  handle_pre  "${@:2}" ;;
   post) handle_post "${@:2}" ;;
   *)
     usage

@@ -1,59 +1,56 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# NOTE:
-# uses lat/long enviornment variable set here:
-#   ~/.config/environment.d/02-gps.conf
-service=hyprsunset
-poll=$(sunwait poll)
+set -u
 
-service_status() {
-  systemctl --user is-active "$service" >/dev/null 2>&1 &&
-    echo "active" || echo "inactive"
-}
+readonly SERVICE="hyprsunset"
+readonly POLL="$(sunwait poll)"
 
-set_temperature() {
-  case "$poll" in
-  NIGHT) hyprctl hyprsunset temperature 3200 >/dev/null 2>&1 ;;
-  DAY) hyprctl hyprsunset identity >/dev/null 2>&1 ;;
-  esac
+service_is_active() {
+  systemctl --user is-active "$SERVICE" >/dev/null
 }
 
 toggle_service() {
-  service_status
-  if [[ $(service_status) == "active" ]]; then
-    systemctl --user stop "$service"
+  if service_is_active; then
+    systemctl --user stop "$SERVICE"
   else
-    systemctl --user start "$service"
-    set_temperature
+    systemctl --user start "$SERVICE"
   fi
+}
+
+set_temperature() {
+  case "$POLL" in
+  NIGHT) hyprctl hyprsunset temperature 3200 >/dev/null 2>&1 ;;
+  DAY) hyprctl hyprsunset identity >/dev/null 2>&1 ;;
+  *) return 1 ;;
+  esac
 }
 
 waybar_json() {
+  local percentage=0 status class="inactive"
 
-  case "$poll" in
-  DAY)
-    percentage="0"
-    ;;
-  NIGHT)
-    percentage="100"
-    ;;
+  case "$POLL" in
+  NIGHT) percentage=100 ;;
+  DAY) percentage=0 ;;
   *)
-    echo "Unable to parse \`sunwait poll\`"
-    exit 1
+    printf 'Usage error: sunwait poll returned "%s"\n' "$POLL" >&2
+    return 1
     ;;
   esac
 
-  # NOTE: should be improved
-  if [[ $(service_status) == "active" ]]; then
+  if service_is_active; then
     set_temperature
+    class="active"
   fi
 
-  tooltip="$poll ($(service_status))"
+  status=$(service_is_active && echo "active" || echo "inactive")
+  tooltip="$POLL ($status)"
 
-  echo "{\"percentage\":$percentage,\"tooltip\":\"$tooltip\",\"class\":\"$(service_status)\"}"
+  # Use double-quoted JSON; this shape satisfies Waybar json return-type.
+  printf '{"percentage":%d,"tooltip":"%s","class":"%s"}\n' \
+    "$percentage" "$tooltip" "$class"
 }
 
-case "$1" in
+case "${1:-}" in
 toggle)
   toggle_service
   ;;
@@ -61,9 +58,10 @@ waybar)
   waybar_json
   ;;
 *)
-  echo -e "Usage: $(basename $0) {toogle|waybar}\n"
-  echo -e "toggle\t\t start systemd service / set temperature"
-  echo -e "waybar\t\t print waybar json data"
+  basename="${0##*/}"
+  printf 'Usage: %s <toggle|waybar>\n' "$basename" >&2
+  printf '  toggle  Start/stop systemd service and adjust temperature.\n' >&2
+  printf '  waybar  Print Waybar JSON data.\n' >&2
   exit 1
   ;;
 esac

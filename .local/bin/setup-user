@@ -1,79 +1,110 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # Instructions:
 # 1. Ensure ssh login to new install
 # 2. Create ssh key for github, and upload pub key
 # 3. Create ssh key for srv, upload pub key
 # 4. Edit .ssh/config for github/srv
-#
-# If new system,
-set -uo pipefail
 
-# tput_red="$(tput setaf 1)"
-# tput_reset="$(tput sgr0)"
+# -e  = exit immediately on error
+# -u  = exit on unset variable usage
+# -o pipefail = return exit status of first failed pipe command
+set -euo pipefail
+trap 's=$?; echo "$0: Error on line $LINENO: $BASH_COMMAND"; exit $s' ERR
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 get_input() {
-  title="$1"
-  description="$2"
-
+  local title="$1"
+  local description="$2"
+  local input
   input=$(dialog --clear --stdout --backtitle "Setup" --title "$title" --inputbox "$description" 0 0)
   echo "$input"
 }
 
-copy_dots_home() {
-  usr_repo_name="dots"
-  usr_repo_url="git@github.com:in0ni/$usr_repo_name.git"
+# ---------------------------------------------------------------------------
+# Dotfiles
+# ---------------------------------------------------------------------------
 
-  cd "$HOME" || exit
+copy_dots_home() {
+  local usr_repo_name="dots"
+  local usr_repo_url="git@github.com:in0ni/${usr_repo_name}.git"
+
+  # Resolve git identity: prefer global config, fall back to prompts
+  local git_name git_email
+  git_name=$(git config --global user.name 2>/dev/null || get_input "Git identity" "Enter your full name")
+  git_email=$(git config --global user.email 2>/dev/null || get_input "Git identity" "Enter your email")
+
+  cd "$HOME" || exit 1
   git clone "$usr_repo_url"
-  cd "$usr_repo_name" || exit
+  cd "$usr_repo_name" || exit 1
 
   git config --local status.showUntrackedFiles no
-  git config --local user.name "Andrés González"
-  git config --local user.email "1596691+in0ni@users.noreply.github.com"
+  git config --local user.name  "$git_name"
+  git config --local user.email "$git_email"
 
-  # move files
+  # Relocate .git, then overlay repo contents onto $HOME
   mv .git ../.dots-home
   cp -a ./. ../
 
-  # clean-up
+  # Clean up the now-.git-less clone directory
   cd ../
   rm -rf "$usr_repo_name"
 
-  # TODO: run koppa mk all
+  echo ""
+  echo "════════════════════════════════════════"
+  echo " Dotfiles installed."
+  echo " TODO: run 'koppa mk all' to finalize."
+  echo "════════════════════════════════════════"
 }
 
 copy_dots_sys() {
-  # TODO: generate key pair, and add to server before starting this!
-  sys_repo_name=$(get_input "System conf files" "Enter repo name (no ''.git')") || exit 1
-  clear
-  : ${sys_repo_name:?"repo name cannot be empty"}
-  sys_repo_base_url=$(get_input "System conf files" "Enter repo url (no trailing /)") || exit 1
-  clear
-  : ${sys_repo_base_url:?"url cannot be empty"}
-  sys_repo_url="$sys_repo_base_url/$sys_repo_name"
+  # NOTE: generate a key pair and add it to the server before running this.
+  local sys_repo_name sys_repo_base_url sys_repo_url
 
-  cd "$HOME" || exit
+  sys_repo_name=$(get_input "System conf files" "Enter repo name (no '.git')") || exit 1
+  clear
+  : "${sys_repo_name:?repo name cannot be empty}"
+
+  # Strip any trailing slash to prevent double-slash in URL
+  sys_repo_base_url=$(get_input "System conf files" "Enter repo base URL (no trailing /)") || exit 1
+  clear
+  : "${sys_repo_base_url:?url cannot be empty}"
+  sys_repo_base_url="${sys_repo_base_url%/}"
+
+  sys_repo_url="${sys_repo_base_url}/${sys_repo_name}"
+
+  cd "$HOME" || exit 1
   git clone "$sys_repo_url"
-  cd "$sys_repo_name" || exit
+  cd "$sys_repo_name" || exit 1
 
   git config --local status.showUntrackedFiles no
 
-  # move files
+  # Relocate .git for bare-style overlay workflow
   mv .git ../.dots-sys
-  # sudo cp -a ./. /
 
-  # clean-up
-  # cd ../
-  # rm -rf "$sys_repo_name"
+  echo ""
+  echo "════════════════════════════════════════════════════════════"
+  echo " System dotfiles cloned."
+  echo " Next steps (manual):"
+  echo "   1. Review contents of ~/$sys_repo_name"
+  echo "   2. Run: sudo cp -a ~/$sys_repo_name/. /"
+  echo "   3. Run: rm -rf ~/$sys_repo_name"
+  echo "════════════════════════════════════════════════════════════"
 }
 
-user_service_blacklist() {
+# ---------------------------------------------------------------------------
+# User services
+# ---------------------------------------------------------------------------
+
+# Returns 0 (true) if the given service name should be OFF by default
+is_service_blacklisted() {
   local string="$1"
   local avoid=(idle-lock hyprland-session waybar-updates.service)
 
   for prefix in "${avoid[@]}"; do
-    if [[ "$string" == "$prefix"* ]]; then
-      return 0
-    fi
+    [[ "$string" == "$prefix"* ]] && return 0
   done
 
   return 1
@@ -81,49 +112,81 @@ user_service_blacklist() {
 
 select_services_user() {
   local dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
-  local files=()
-  local options=()
 
-  if [[ -d "$dir" ]]; then
-    while IFS= read -r file; do
-      # set all services as checked by default
-      files+=("$file")
-    done < <(find "$dir" -maxdepth 1 -type f -printf "%f\n")
-  else
-    echo "$dir does not exist."
+  if [[ ! -d "$dir" ]]; then
+    echo "$dir does not exist." >&2
     exit 1
   fi
 
+  local files=()
+  # Use mapfile to safely handle filenames (avoids word-splitting)
+  mapfile -t files < <(find "$dir" -maxdepth 1 -type f -printf "%f\n" | sort)
+
+  local options=()
   for file in "${files[@]}"; do
-    if user_service_blacklist "$file"; then
+    if is_service_blacklisted "$file"; then
       options+=("$file" "(!)" "off")
     else
       options+=("$file" "" "on")
     fi
   done
 
-  local result=($(dialog --clear --stdout --checklist "Select User Services:" 0 0 0 "${options[@]}"))
+  local selected=()
+  # mapfile safely captures multi-word/spaced names from dialog output
+  mapfile -t selected < <(
+    dialog --clear --stdout --checklist "Select User Services:" 0 0 0 "${options[@]}" \
+      | tr ' ' '\n'
+  )
   clear
-  echo "${result[@]}"
+
+  printf '%s\n' "${selected[@]}"
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+handle_user() {
+  copy_dots_home
+  systemctl --user daemon-reload
+
+  local selected=()
+  mapfile -t selected < <(select_services_user)
+
+  if [[ ${#selected[@]} -eq 0 ]]; then
+    echo "No services selected."
+    return
+  fi
+
+  local failed=()
+  for item in "${selected[@]}"; do
+    echo -n "  Enabling $item... "
+    if systemctl --user enable --now "$item" 2>/dev/null; then
+      echo "ok"
+    else
+      failed+=("$item")
+      echo "FAILED"
+    fi
+  done
+
+  if [[ ${#failed[@]} -gt 0 ]]; then
+    echo ""
+    echo "WARNING: The following services failed to enable:"
+    for svc in "${failed[@]}"; do
+      echo "  - $svc"
+    done
+  fi
+}
+
+handle_sys() {
+  copy_dots_sys
 }
 
 case "${1:-}" in
-user)
-  copy_dots_home
-  systemctl --user daemon-reload
-  # enable selected services
-  selected=($(select_services_user))
-
-  # load services
-  for item in "${selected[@]}"; do
-    systemctl --user enable --now $item
-  done
-  ;;
-sys)
-  copy_dots_sys
-  echo "Ready, you must manually ~/.dots-sys files to root"
-  ;;
+user) handle_user ;;
+sys)  handle_sys  ;;
 *)
   echo -e "Usage: $(basename "$0") <user|sys>\n"
+  exit 1
   ;;
 esac

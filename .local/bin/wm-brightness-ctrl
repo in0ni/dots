@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+set -u
+
+readonly FILE="${0##*/}"
+readonly DUNST_ID=99903
+readonly ICON="gpm-brightness-lcd"
+
+usage() {
+  cat <<EOF
+Usage: $FILE <up|down> [step]
+
+  up     Increase brightness
+  down   Decrease brightness
+
+  step   Positive integer, default: 1
+EOF
+}
+
+is_uint() {
+  [[ ${1:-} =~ ^[0-9]+$ ]]
+}
+
+get_brightness() {
+  brightnessctl -m | awk -F, '{gsub(/%/, "", $4); print $4}'
+}
+
+notify_brightness() {
+  local value=$1
+
+  dunstify \
+    -a "$FILE" \
+    -r "$DUNST_ID" \
+    -t 1000 \
+    -i "$ICON" \
+    -h string:x-canonical-private-synchronous:brightness \
+    -h int:value:"$value" \
+    "Brightness: ${value}%"
+}
+
+command=${1:-}
+step=${2:-1}
+
+is_uint "$step" || {
+  printf "%s: invalid step '%s'\n\n" "$FILE" "$step" >&2
+  usage >&2
+  exit 1
+}
+
+case $command in
+up)
+  brightnessctl set +"${step}%" -q
+  notify_brightness "$(get_brightness)"
+  ;;
+down)
+  brightnessctl set "${step}"%- -q
+  notify_brightness "$(get_brightness)"
+  ;;
+*)
+  usage >&2
+  exit 1
+  ;;
+esac

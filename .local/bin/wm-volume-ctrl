@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+#
+set -u
+
+readonly FILE="${0##*/}"
+readonly DUNST_ID=99902
+
+usage() {
+  cat <<EOF
+Usage: $FILE <up|down|toggle|mic-toggle> [step]
+
+  up         Increase volume
+  down       Decrease volume
+  toggle     Toggle output mute
+  mic-toggle Toggle microphone mute
+
+  step       Positive integer, default: 1
+EOF
+}
+
+is_uint() {
+  [[ ${1:-} =~ ^[0-9]+$ ]]
+}
+
+get_volume() {
+  if [[ $(pamixer --get-mute) == "true" ]]; then
+    printf '0\n'
+  else
+    pamixer --get-volume
+  fi
+}
+
+get_icon() {
+  local value=$1
+
+  if ((value == 0)); then
+    printf 'audio-volume-muted\n'
+  elif ((value < 33)); then
+    printf 'audio-volume-low\n'
+  elif ((value < 67)); then
+    printf 'audio-volume-medium\n'
+  else
+    printf 'audio-volume-high\n'
+  fi
+}
+
+notify_volume() {
+  local value=$1
+
+  dunstify \
+    -a "$FILE" \
+    -r "$DUNST_ID" \
+    -t 1000 \
+    -i "$(get_icon "$value")" \
+    -h string:x-canonical-private-synchronous:volume \
+    -h int:value:"$value" \
+    "Volume: ${value}%"
+}
+
+notify_mic() {
+  local muted icon text
+
+  muted=$(pamixer --default-source --get-mute)
+
+  if [[ $muted == "true" ]]; then
+    icon="microphone-disabled"
+    text="Microphone muted"
+  else
+    icon="microphone-sensitivity-high"
+    text="Microphone unmuted"
+  fi
+
+  dunstify \
+    -a "$APP_NAME" \
+    -r "$DUNST_ID" \
+    -t 1000 \
+    -i "$icon" \
+    -h string:x-canonical-private-synchronous:volume \
+    "$text"
+}
+
+command=${1:-}
+step=${2:-1}
+
+case $command in
+up | down)
+  is_uint "$step" || {
+    printf "%s: invalid step '%s'\n\n" "$FILE" "$step" >&2
+    usage >&2
+    exit 1
+  }
+  ;;
+esac
+
+case $command in
+up)
+  pamixer --unmute --increase "$step"
+  notify_volume "$(get_volume)"
+  ;;
+down)
+  pamixer --unmute --decrease "$step"
+  notify_volume "$(get_volume)"
+  ;;
+toggle)
+  pamixer --toggle-mute
+  notify_volume "$(get_volume)"
+  ;;
+mic-toggle)
+  pamixer --default-source --toggle-mute
+  notify_mic
+  ;;
+*)
+  usage >&2
+  exit 1
+  ;;
+esac

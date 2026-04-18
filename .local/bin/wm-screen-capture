@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -u
+
+usage() {
+  printf 'Usage: %s <area|window|monitor>\n\n' "${0##*/}"
+}
+
+handle_area() {
+  local area
+  area=$(slurp)
+  if [[ $? -ne 0 || -z "$area" ]]; then
+    exit 1
+  fi
+  grim -g "$area" - | swappy -f -
+}
+
+handle_window() {
+  local geom
+
+  geom=$(hyprctl activewindow -j | jq -r '.at[0], .at[1], .size[0], .size[1] | @text | "\(.[0]),\(.[1]) \(.[2])x\(.[3])"')
+  if [[ $? -ne 0 || -z "$geom" ]]; then
+    exit 1
+  fi
+  grim -g "$geom" - | swappy -f -
+}
+
+handle_monitor() {
+  local monitor
+
+  monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+  if [[ $? -ne 0 || -z "$monitor" ]]; then
+    exit 1
+  fi
+  grim -o "$monitor" - | swappy -f -
+}
+
+case "${1:-}" in
+area) handle_area ;;
+window) handle_window ;;
+monitor) handle_monitor ;;
+*)
+  usage >&2
+  exit 1
+  ;;
+esac

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+set -u
+
+readonly RECORDER="wl-screenrec"
+readonly ICON="simplescreenrecorder-paused"
+readonly OUT_DIR="$HOME/Pictures"
+
+# Use pkill; pidof can be racy on fast start/stop patterns.
+if pkill -0 "$RECORDER" 2>/dev/null; then
+  pkill -INT "$RECORDER"
+  exit
+fi
+
+# Use a slightly more explicit geometry flow.
+geometry=$(slurp)
+[[ $? -eq 0 && -n "$geometry" ]] || exit 1
+
+filename="$OUT_DIR/screencast-$(date '+%Y.%m.%d_%H%M%S').mp4"
+
+if "$RECORDER" -g "$geometry" -f "$filename"; then
+  notify-send "Screencast captured" "Saved to $filename" -i "$ICON"
+else
+  notify-send "Screencast failed" -i "$ICON" -u critical
+fi

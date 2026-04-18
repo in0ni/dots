@@ -1,66 +1,86 @@
 #!/usr/bin/env bash
+set -u
 
-xdg_cache="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-pomodoro"
-
-# time in mins
-mins=25
-pomodoro=$((mins * 60))
-chunks=$((pomodoro / 3))
-time_set=$(cat $xdg_cache 2>/dev/null)
+readonly STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/waybar-pomodoro"
+readonly STATE_FILE="$STATE_DIR/start"
+readonly MINS=25
+readonly POMODORO=$((MINS * 60))
+readonly CHUNK=$((POMODORO / 3))
 
 start() {
-  date +"%s" >$xdg_cache
+  mkdir -p "$STATE_DIR"
+  date +%s >"$STATE_FILE"
 }
 
 stop() {
-  echo "" >$xdg_cache
+  rm -f "$STATE_FILE"
 }
 
-case $1 in
-toggle)
-  if [[ $time_set = "" ]]; then
-    start
+is_running() {
+  [[ -f $STATE_FILE ]]
+}
+
+elapsed() {
+  local start now
+  start=$(<"$STATE_FILE")
+  now=$(date +%s)
+  printf '%s\n' "$((now - start))"
+}
+
+print_inactive() {
+  printf '{"text":"○○○","tooltip":"relax :)","class":"deactivated"}\n'
+}
+
+print_status() {
+  local seconds percent progress class mins_secs
+
+  seconds=$(elapsed)
+
+  if ((seconds >= POMODORO)); then
+    progress="◉◉◉"
+    class="end"
+  elif ((seconds >= CHUNK * 2)); then
+    progress="◉◉○"
+    class="two-third"
+  elif ((seconds >= CHUNK)); then
+    progress="◉○○"
+    class="one-third"
   else
+    progress="○○○"
+    class="start"
+  fi
+
+  ((seconds > POMODORO)) && seconds=$POMODORO
+  percent=$((seconds * 100 / POMODORO))
+  mins_secs=$(printf '%02d:%02d' $((seconds / 60)) $((seconds % 60)))
+
+  printf '{"text":"<small>%s%%</small> %s","tooltip":"%s / %s mins","class":"%s","percentage":%s}\n' \
+    "$percent" "$progress" "$mins_secs" "$MINS" "$class" "$percent"
+}
+
+case "${1:-}" in
+toggle)
+  if is_running; then
     stop
+  else
+    start
   fi
   ;;
-vstart)
+start | vstart)
   start
   ;;
 stop)
   stop
   ;;
 get-time)
-  if [[ $time_set = "" ]]; then
-    printf '{"text": "○○○", "tooltip": "relax :)", "class": "deactivated"}'
+  if is_running; then
+    print_status
   else
-    seconds_passed=$(echo "$(date +"%s")" - "$time_set" | bc)
-    if [[ $seconds_passed -gt $((chunks * 3)) ]]; then
-      progress="◉◉◉"
-      class="end"
-    elif [[ $seconds_passed -gt $((chunks * 2)) ]]; then
-      progress="◉◉○"
-      class="two-third"
-    elif [[ $seconds_passed -gt $chunks ]]; then
-      progress="◉○○"
-      class="one-third"
-    elif [[ $seconds_passed -lt $chunks ]]; then
-      progress="○○○"
-      class="start"
-      # class="1-3"
-    fi
-
-    mins_secs=$(date -d @"$seconds_passed" +"%M:%S")
-    percent=$((seconds_passed * 100 / pomodoro))
-    printf '{"text": "%s", "tooltip": "%s", "class": "%s"}' "<small>$percent%</small> $progress" "$mins_secs / $mins mins" "$class"
-
-    # if [[ $seconds_passed -gt $pomodoro ]]; then
-    # notify-send "🍅 Tomate" "Time is up, take a break!" -u critical
-    # fi
+    print_inactive
   fi
   ;;
 *)
-  echo >&2 "Usage: $0 <toggle|start|get-time>"
+  printf 'Usage: %s <toggle|start|stop|get-time>\n' "${0##*/}" >&2
   exit 1
   ;;
 esac
