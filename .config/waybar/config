@@ -47,7 +47,7 @@
     "format": "{}"
   },
   "custom/pomodoro": {
-    "interval": 1,
+    "interval": 5,
     "return-type": "json",
     "exec": "waybar-pomodoro get-time",
     "exec-if": "exit 0",
@@ -82,7 +82,7 @@
   },
   "custom/updates_software": {
     "signal": 1,
-    "interval": 60,
+    "interval": 300,
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
@@ -101,7 +101,7 @@
   },
   "custom/updates_firmware": {
     "signal": 2,
-    "interval": 60,
+    "interval": 300,
     "format": "{icon}",
     "format-icons": {
       "uptodate": "",
@@ -122,10 +122,10 @@
     "signal": 3,
     "format": "{icon}",
     "format-icons": ["", ""],
-    "interval": 10,
+    "interval": 120,
     "exec": "wm-sunset waybar",
     "return-type": "json",
-    "on-click-right": "wm-sunset toggle; pkill -SIGRTMIN+3 waybar"
+    "on-click-right": "wm-sunset toggle; pkill -RTMIN+3 waybar"
   },
   "cpu": {
     "interval": 1,
