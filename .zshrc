@@ -40,7 +40,8 @@ PROMPT='%K{0}$ssh%F{8}%?|%f%F{12}%T%f%F{7} %~%f%F{234} %f%k$(gitprompt)%F{yel
 
 ### History
 #
-HISTFILE=~/.histfile
+mkdir -p "${XDG_DATA_HOME}/zsh" "${XDG_CACHE_HOME}/zsh"
+HISTFILE="${XDG_DATA_HOME}/zsh/history"
 HISTSIZE=10000
 SAVEHIST=10000
 setopt hist_ignore_dups   # Collapse two consecutive idential commands.
@@ -100,7 +101,7 @@ unsetopt beep
 fpath=("$HOME/.local/share/zsh" $fpath)
 setopt COMPLETE_ALIASES
 autoload -Uz compinit
-compinit
+compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump"
 
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
@@ -169,5 +170,5 @@ b16_print_colors() {
   done
 }
 
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+export NVM_DIR="${XDG_CONFIG_HOME}/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm

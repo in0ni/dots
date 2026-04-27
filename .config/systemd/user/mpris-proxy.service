@@ -1,9 +1,10 @@
 [Unit]
 Description=Forward bluetooth media controls to MPRIS
+PartOf=hyprland-session.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/mpris-proxy
 
 [Install]
-WantedBy=default.target
+WantedBy=hyprland-session.target
