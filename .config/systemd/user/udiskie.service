@@ -1,0 +1,11 @@
+[Unit]
+Description=udiskie automounter for removable media
+Documentation=man:udiskie(8)
+PartOf=hyprland-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/udiskie
+
+[Install]
+WantedBy=hyprland-session.target
