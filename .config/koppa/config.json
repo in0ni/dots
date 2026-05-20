@@ -14,8 +14,7 @@
   },
   {
     "id": "gtk-3.0",
-    "path": "$HOME/.config/gtk-3.0",
-    "restart": ["systemctl", "--user", "restart", "gsettings.service"]
+    "path": "$HOME/.config/gtk-3.0"
   },
   {
     "id": "hypr",
