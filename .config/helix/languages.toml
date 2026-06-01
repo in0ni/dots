@@ -214,7 +214,7 @@ language-servers = [
 [[language]]
 name="twig"
 auto-format=true
-formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "melody"] }
+formatter = { command = "npx", args = ["--no-install", "prettier", "--stdin-filepath ${INPUT}", "--parser", "twig"] }
 language-servers = [
   "cspell",
   "llm-lsp",
