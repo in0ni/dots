@@ -119,9 +119,22 @@ zstyle ':completion:*:*:killall:*' menu        yes       select
 zstyle ':completion:*:killall:*'   force-list  always
 
 # setup dotfile aliases
-# compdef dots=git
-# compdef conf=git
-
+_dots() {
+  ((CURRENT > 2)) && {
+    _files
+    return
+  }
+  GIT_DIR="$HOME/.dots-home" GIT_WORK_TREE="$HOME" _git
+}
+_conf() {
+  ((CURRENT > 2)) && {
+    _files
+    return
+  }
+  GIT_DIR="$HOME/.dots-sys" GIT_WORK_TREE="/" _git
+}
+compdef _dots dots
+compdef _conf conf
 
 ### Key bindings
 # NOTE: showkey -a
@@ -135,8 +148,6 @@ bindkey '^[[3~'    delete-char                      # delete
 
 bindkey '^K'       up-line-or-beginning-search      # pgup
 bindkey '^J'       down-line-or-beginning-search    # pgdown
-# bindkey '^[[A'     up-line-or-beginning-search    # up
-# bindkey '^[[B'     down-line-or-beginning-search  # down
 bindkey '^[[D'     backward-char                    # left
 bindkey '^[[C'     forward-char                     # right
 bindkey '^[[H'     beginning-of-line                # home
@@ -159,7 +170,7 @@ source /usr/share/fzf/completion.zsh
 b16_print_colors() {
   bold=$(tput bold)
   reset=$(tput sgr0)
-  numbers=({0..15} 231 232)
+  numbers=({0..15} {231..234})
   for num in "${numbers[@]}"; do
     o=00$num
     setaf=$(tput setaf "$num")
