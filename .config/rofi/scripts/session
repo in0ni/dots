@@ -46,9 +46,6 @@ else
     ;;
   "${cmd[logout]}"_confirm)
     hyprctl dispatch exit
-    # TODO: perhaps rename to wm-session.target
-    systemctl --user stop hyprland-session.target
-    logout
     exit 0
     ;;
   esac
