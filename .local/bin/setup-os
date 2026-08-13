@@ -240,7 +240,7 @@ init() {
   hwclock --systohc --utc
 
   echo -e "\n### Installing additional tools"
-  pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
+  pacman -Sy --noconfirm --needed git reflector terminus-font dialog
 
   echo -e "\n### Setting up fastest mirrors (HTTPS only)"
   reflector --latest 30 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
