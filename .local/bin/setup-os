@@ -26,13 +26,10 @@
 set -euo pipefail
 trap 's=$?; echo "$0: Error on line $LINENO: $BASH_COMMAND"; exit $s' ERR
 
-exec 1> >(tee "stdout.log")
-exec 2> >(tee "stderr.log" >&2)
+exec 1> >(tee /tmp/setup-os.stdout.log)
+exec 2> >(tee /tmp/setup-os.stderr.log >&2)
 
 export SNAP_PAC_SKIP=y
-
-# --- State file for pre/post persistence ---
-STATE_FILE="/tmp/arch-install.state"
 
 declare -A CFG=(
   [root_size]="55G"
@@ -56,11 +53,12 @@ device=""
 partition_layout=""
 part_root=""
 part_efi=""
-part_data=""       # only set in root_data layout
+part_data="" # only set in root_data layout
 paks_name=""
 paks_url=""
 
 declare -a failed_services=()
+declare -a paks_selected=()
 
 # ---------------------------------------------------------------------------
 # Dialog helpers
@@ -158,25 +156,24 @@ set_device() {
   }
   clear
 
-  part_root="$(ls "${device}"* | grep -E "^${device}p?1$")"
-  if is_partition_root_only; then
-    part_efi="$(ls "${device}"* | grep -E "^${device}p?2$")"
-  else
-    part_data="$(ls "${device}"* | grep -E "^${device}p?2$")"
-    part_efi="$(ls "${device}"* | grep -E "^${device}p?3$")"
+  # Layout matches mk_root_partitions: p1=EFI, p2=root, (p3=data).
+  part_efi="$(part_name 1)"
+  part_root="$(part_name 2)"
+  if ! is_partition_root_only; then
+    part_data="$(part_name 3)"
   fi
 }
 
 set_paks() {
-  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman entry") || exit 1
+  # The custom repo drives the install (pacstrap pulls from it), so it is
+  # required — both the pacman repo name and its server URL.
+  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman repo entry") || exit 1
   clear
-  # paks_name is optional — allow empty to skip custom repo
+  : "${paks_name:?custom repo name is required}"
 
-  if [[ -n "$paks_name" ]]; then
-    paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
-    clear
-    : "${paks_url:?Custom packages url cannot be empty when a name is set}"
-  fi
+  paks_url=$(dialog_get_input "Custom Packages" "Enter the repo server URL") || exit 1
+  clear
+  : "${paks_url:?custom repo URL is required}"
 }
 
 # ---------------------------------------------------------------------------
@@ -187,28 +184,16 @@ is_partition_root_only() {
   [[ "$partition_layout" == "root_only" ]]
 }
 
-save_state() {
-  cat >"$STATE_FILE" <<EOF
-font=$(printf '%q' "$font")
-device=$(printf '%q' "$device")
-partition_layout=$(printf '%q' "$partition_layout")
-part_root=$(printf '%q' "$part_root")
-part_efi=$(printf '%q' "$part_efi")
-part_data=$(printf '%q' "$part_data")
-paks_name=$(printf '%q' "$paks_name")
-paks_url=$(printf '%q' "$paks_url")
-EOF
-  echo "State saved to $STATE_FILE"
-}
-
-load_state() {
-  if [[ -f "$STATE_FILE" ]]; then
-    # shellcheck source=/dev/null
-    source "$STATE_FILE"
-    echo "State loaded from $STATE_FILE"
-  else
-    echo "Warning: no state file found at $STATE_FILE — you may need to re-enter device info." >&2
-  fi
+# Build a partition device node from the base device + partition number,
+# following the kernel naming rule: devices whose name ends in a digit get a
+# 'p' separator (nvme0n1 -> nvme0n1p1, mmcblk0 -> mmcblk0p1), others don't
+# (sda -> sda1). Avoids interpolating the device path into a grep regex.
+part_name() {
+  local n="$1"
+  case "$device" in
+  *[0-9]) printf '%s' "${device}p${n}" ;;
+  *) printf '%s' "${device}${n}" ;;
+  esac
 }
 
 # ---------------------------------------------------------------------------
@@ -227,7 +212,7 @@ init() {
   hwclock --systohc --utc
 
   echo -e "\n### Installing additional tools"
-  pacman -Sy --noconfirm --needed git reflector terminus-font dialog wget
+  pacman -Sy --noconfirm --needed git reflector terminus-font dialog
 
   echo -e "\n### Setting up fastest mirrors (HTTPS only)"
   reflector --latest 30 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -240,7 +225,8 @@ init() {
 mk_root_partitions() {
   echo -e "\n### Setting up partitions"
   umount -R /mnt 2>/dev/null || true
-  cryptsetup luksClose luks 2>/dev/null || true
+  cryptsetup close "${CFG[mapper_root]}" 2>/dev/null || true
+  cryptsetup close "${CFG[mapper_data]}" 2>/dev/null || true
 
   lsblk -plnx size -o name "${device}" | xargs -n1 wipefs --all
 
@@ -250,25 +236,25 @@ mk_root_partitions() {
     # 2: EFI
     sgdisk --clear \
       --new 1::"${CFG[efi_size]}" --typecode 1:ef00 \
-      --new 2::0              --typecode 2:8300 \
+      --new 2::0 --typecode 2:8300 \
       "${device}"
     sgdisk --change-name=1:ESP --change-name=2:primary "${device}"
-    part_efi="$(ls "${device}"* | grep -E "^${device}p?1$")"
-    part_root="$(ls "${device}"* | grep -E "^${device}p?2$")"
+    part_efi="$(part_name 1)"
+    part_root="$(part_name 2)"
   else
     echo -e "\n### Creating root + data partition layout"
     # 1: EFI
     # 2: root (fixed size)
     # 3: remainder (data)
     sgdisk --clear \
-      --new 1::"${CFG[efi_size]}"        --typecode 1:ef00 \
-      --new "2::+${CFG[root_size]}"      --typecode 2:8300 \
-      --new 3::0                         --typecode 3:8300 \
+      --new 1::"${CFG[efi_size]}" --typecode 1:ef00 \
+      --new "2::+${CFG[root_size]}" --typecode 2:8300 \
+      --new 3::0 --typecode 3:8300 \
       "${device}"
     sgdisk --change-name=1:ESP --change-name=2:root --change-name=3:data "${device}"
-    part_efi="$(ls  "${device}"* | grep -E "^${device}p?1$")"
-    part_root="$(ls "${device}"* | grep -E "^${device}p?2$")"
-    part_data="$(ls "${device}"* | grep -E "^${device}p?3$")"
+    part_efi="$(part_name 1)"
+    part_root="$(part_name 2)"
+    part_data="$(part_name 3)"
   fi
 
   # Inform kernel of new partition table
@@ -312,7 +298,7 @@ mk_root_partitions() {
   mount -o noatime,compress=zstd,subvol=/ /dev/mapper/"${CFG[mapper_root]}" /mnt/mnt/btrfs-root
   mount -o noatime,compress=zstd,subvol=@pkgs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/cache/pacman
   mount -o noatime,compress=zstd,subvol=@logs /dev/mapper/"${CFG[mapper_root]}" /mnt/var/log
-  mount -o noatime,compress=zstd,subvol=@tmp  /dev/mapper/"${CFG[mapper_root]}" /mnt/var/tmp
+  mount -o noatime,compress=zstd,subvol=@tmp /dev/mapper/"${CFG[mapper_root]}" /mnt/var/tmp
   mount -o noatime,compress=zstd,subvol=@snaps /dev/mapper/"${CFG[mapper_root]}" /mnt/.snapshots
 
   # Swap subvolume: no compression, no COW
@@ -320,7 +306,7 @@ mk_root_partitions() {
 
   if is_partition_root_only; then
     mount -o noatime,compress=zstd,subvol=@docker /dev/mapper/"${CFG[mapper_root]}" /mnt/var/lib/docker
-    mount -o noatime,compress=zstd,subvol=@home   /dev/mapper/"${CFG[mapper_root]}" /mnt/home
+    mount -o noatime,compress=zstd,subvol=@home /dev/mapper/"${CFG[mapper_root]}" /mnt/home
   fi
 }
 
@@ -348,8 +334,11 @@ mk_home_automounts() {
   local uid=1000
   local opts="rw,noatime,compress=zstd"
   local config_dir="/mnt/etc/systemd/system"
+  local unit
 
-  cat <<EOF >"$config_dir/home-$user.mount"
+  # A .mount unit's filename MUST be the systemd-escaped mount path.
+  unit=$(systemd-escape --path --suffix=mount "/home/$user")
+  cat <<EOF >"$config_dir/$unit"
 [Unit]
 Requires=user@${uid}.service
 Before=user@${uid}.service
@@ -368,7 +357,12 @@ EOF
     local where="/home/$user/${mount}"
     [[ "$mount" = 'docker' ]] && where="/var/lib/docker"
 
-    cat <<EOF >"$config_dir/home-$user-${mount}.mount"
+    # Derive the filename from $where — deriving it from the subvol name would
+    # produce e.g. home-<user>-docker.mount for Where=/var/lib/docker, which
+    # systemd rejects (it must escape to var-lib-docker.mount).
+    unit=$(systemd-escape --path --suffix=mount "$where")
+
+    cat <<EOF >"$config_dir/$unit"
 [Unit]
 Requires=user@${uid}.service
 Before=user@${uid}.service
@@ -390,28 +384,54 @@ EOF
 # ---------------------------------------------------------------------------
 
 cfg_custom_repo() {
-  echo -e "\n### Configuring custom pacman repo"
+  echo -e "\n### Configuring custom pacman repo '${paks_name}'"
+  echo -e "### WARNING: Adding custom repo with SigLevel=Never (no signature verification)"
+  echo -e "### TODO: Implement key signing for this repo\n"
 
-  if [[ -n "$paks_name" ]]; then
-    echo -e "\n### WARNING: Adding custom repo with SigLevel=Never (no signature verification)"
-    echo -e "### TODO: Implement key signing for this repo\n"
-    cat >>/etc/pacman.conf <<EOF
+  cat >>/etc/pacman.conf <<EOF
 
 [${paks_name}]
 SigLevel = Never
 Server = ${paks_url}
 EOF
 
-    # Point pacman cache at the target during pacstrap
-    cat >>/etc/pacman.conf <<EOF
+  echo -e "\n### Syncing package databases"
+  pacman -Sy
+}
 
-[options]
-CacheDir = /mnt/var/cache/pacman/pkg
-EOF
+# Present a checklist of every package the custom repo provides and record the
+# chosen package names in paks_selected. At least one selection is required.
+select_paks() {
+  echo -e "\n### Reading package list from repo '${paks_name}'"
+
+  local -a items=()
+  local repo name version _rest
+  # `pacman -Sl <repo>` prints: "<repo> <name> <version> [installed]"
+  while read -r repo name version _rest; do
+    items+=("$name" "$version" "off")
+  done < <(pacman -Sl "$paks_name")
+
+  if [[ ${#items[@]} -eq 0 ]]; then
+    echo >&2 "No packages found in repo '${paks_name}' — check the name and URL."
+    exit 1
   fi
 
-  pacman -Sy
-  echo -e "\n### Run: pacstrap -i /mnt <your-meta-packages>"
+  local selection
+  selection=$(dialog --clear --stdout \
+    --backtitle "${CFG[backtitle]}" \
+    --title "Packages (${paks_name})" \
+    --checklist "Select package(s) to install (SPACE toggles, ENTER confirms)" \
+    0 0 0 \
+    "${items[@]}") || exit 1
+  clear
+
+  # checklist prints space-separated tags; package names never contain spaces
+  read -r -a paks_selected <<<"$selection"
+
+  if [[ ${#paks_selected[@]} -eq 0 ]]; then
+    echo >&2 "No packages selected — at least one is required."
+    exit 1
+  fi
 }
 
 cfg_base() {
@@ -564,12 +584,15 @@ cfg_services() {
     systemd-resolved.service
   )
 
-  # Services only for root_data layout (separate encrypted home)
+  # Services only for root_data layout (separate encrypted home).
+  # Mount unit names must match mk_home_automounts' escaped-path filenames
+  # (in particular /var/lib/docker -> var-lib-docker.mount, not
+  # home-<user>-docker.mount).
   local data_services=(
-    home-"$user".mount
-    home-"$user"-work.mount
-    home-"$user"-photos.mount
-    home-"$user"-docker.mount
+    "$(systemd-escape --path --suffix=mount "/home/$user")"
+    "$(systemd-escape --path --suffix=mount "/home/$user/work")"
+    "$(systemd-escape --path --suffix=mount "/home/$user/photos")"
+    "$(systemd-escape --path --suffix=mount "/var/lib/docker")"
     home-"$user"-close.service
   )
 
@@ -652,50 +675,53 @@ unmount_drives() {
 }
 
 # ---------------------------------------------------------------------------
-# Usage
+# Install
 # ---------------------------------------------------------------------------
 
-usage() {
-  printf "\nUsage:\t%s [pre|post]\n\n" "$(basename "$0")"
-  printf "  pre   Partition, LUKS setup, configure custom repo\n"
-  printf "  post  Base config, user creation, services\n\n"
+pacstrap_system() {
+  # Cache downloads on the target's @pkgs subvol (mounted at
+  # /mnt/var/cache/pacman) so they persist into the installed system. Set here,
+  # after mk_root_partitions has mounted /mnt, so the path actually exists.
+  mkdir -p /mnt/var/cache/pacman/pkg
+  cat >>/etc/pacman.conf <<EOF
+
+[options]
+CacheDir = /mnt/var/cache/pacman/pkg
+EOF
+
+  echo -e "\n### Installing selected packages with pacstrap"
+  printf '  - %s\n' "${paks_selected[@]}"
+  # -K initializes a fresh keyring in the new root (to verify official
+  # packages); the selected meta-packages pull in base, kernel, etc.
+  pacstrap -K /mnt "${paks_selected[@]}"
 }
 
-handle_pre() {
-  init
-  set_hidpi
-  set_luks_password
-  set_paks
-  set_device
-  mk_root_partitions
-  save_state
-  cfg_custom_repo
-}
+# ---------------------------------------------------------------------------
+# Main — single unattended run
+# ---------------------------------------------------------------------------
 
-handle_post() {
-  load_state
+main() {
+  # --- Input: gather everything up front (nothing destructive yet) ---
+  init            # UEFI check, clock, mirrors; install dialog/terminus/etc.
   set_hidpi
   set_hostname
   set_user
   set_password
-  set_device
+  set_luks_password
+  set_paks
+  set_device      # disk + layout + destructive-wipe confirmation
+  cfg_custom_repo # add repo + pacman -Sy (needed to list its packages)
+  select_paks     # final dialog: pick the package(s) to pacstrap
+
+  # --- Execute: fully unattended from here, no further prompts ---
+  mk_root_partitions
+  pacstrap_system
   mk_home_partitions
   cfg_base
   cfg_user
   cfg_sudo
   cfg_services
   unmount_drives
-}
-
-main() {
-  case "${1:-}" in
-  pre)  handle_pre  "${@:2}" ;;
-  post) handle_post "${@:2}" ;;
-  *)
-    usage
-    exit 1
-    ;;
-  esac
 }
 
 main "$@"
