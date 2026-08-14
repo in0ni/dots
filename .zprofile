@@ -10,8 +10,8 @@ systemctl --user import-environment GPG_TTY # SSH_AUTH_SOCK
 
 # If running from tty1 start wm
 if [[ -z $DISPLAY && "$TTY" == "/dev/tty1" ]]; then
-  if [[ "$(hostnamectl hostname)" == mc-* ]] && [[ -x /usr/local/bin/tui-session-picker ]]; then
-    exec /usr/local/bin/tui-session-picker
+  if [[ "$(hostnamectl hostname)" == mc-* ]] && [[ -x ~/.local/bin/tui-session-picker ]]; then
+    exec ~/.local/bin/tui-session-picker
   else
     exec systemd-cat -t hyprland start-hyprland
   fi

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+while true; do
+  CHOICE=$(dialog --clear \
+    --no-cancel \
+    --title "Select Session" \
+    --default-item "1" \
+    --timeout 10 \
+    --menu "" 15 40 5 \
+    "1" "Entertainment" \
+    "2" "Games" \
+    "3" "Desktop" \
+    "4" "Shutdown" \
+    "5" "Logout" \
+    3>&1 1>&2 2>&3)
+
+  [ $? -ne 0 ] || [ -z "$CHOICE" ] && CHOICE="1"
+
+  case "$CHOICE" in
+  1) kodi-standalone ;;
+  2)
+    startx ~/.local/bin/start-games
+    reset
+    ;;
+  3)
+    systemd-cat -t hyprland start-hyprland
+    reset
+    ;;
+  4) systemctl poweroff ;;
+  5) exit 0 ;;
+  esac
+done
