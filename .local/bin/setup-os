@@ -31,9 +31,6 @@ exec 2> >(tee /tmp/setup-os.stderr.log >&2)
 
 export SNAP_PAC_SKIP=y
 
-# --- State file for pre/post persistence ---
-STATE_FILE="/tmp/arch-install.state"
-
 declare -A CFG=(
   [root_size]="55G"
   [efi_size]="525M"
@@ -61,6 +58,7 @@ paks_name=""
 paks_url=""
 
 declare -a failed_services=()
+declare -a paks_selected=()
 
 # ---------------------------------------------------------------------------
 # Dialog helpers
@@ -167,15 +165,15 @@ set_device() {
 }
 
 set_paks() {
-  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman entry") || exit 1
+  # The custom repo drives the install (pacstrap pulls from it), so it is
+  # required — both the pacman repo name and its server URL.
+  paks_name=$(dialog_get_input "Custom Packages" "Enter name for pacman repo entry") || exit 1
   clear
-  # paks_name is optional — allow empty to skip custom repo
+  : "${paks_name:?custom repo name is required}"
 
-  if [[ -n "$paks_name" ]]; then
-    paks_url=$(dialog_get_input "Custom Packages" "Enter a server full URL") || exit 1
-    clear
-    : "${paks_url:?Custom packages url cannot be empty when a name is set}"
-  fi
+  paks_url=$(dialog_get_input "Custom Packages" "Enter the repo server URL") || exit 1
+  clear
+  : "${paks_url:?custom repo URL is required}"
 }
 
 # ---------------------------------------------------------------------------
@@ -196,32 +194,6 @@ part_name() {
   *[0-9]) printf '%s' "${device}p${n}" ;;
   *) printf '%s' "${device}${n}" ;;
   esac
-}
-
-save_state() {
-  cat >"$STATE_FILE" <<EOF
-font=$(printf '%q' "$font")
-device=$(printf '%q' "$device")
-partition_layout=$(printf '%q' "$partition_layout")
-part_root=$(printf '%q' "$part_root")
-part_efi=$(printf '%q' "$part_efi")
-part_data=$(printf '%q' "$part_data")
-paks_name=$(printf '%q' "$paks_name")
-paks_url=$(printf '%q' "$paks_url")
-EOF
-  echo "State saved to $STATE_FILE"
-}
-
-load_state() {
-  if [[ -f "$STATE_FILE" ]]; then
-    # shellcheck source=/dev/null
-    source "$STATE_FILE"
-    echo "State loaded from $STATE_FILE"
-    return 0
-  else
-    echo "Warning: no state file found at $STATE_FILE — you may need to re-enter device info." >&2
-    return 1
-  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -412,29 +384,54 @@ EOF
 # ---------------------------------------------------------------------------
 
 cfg_custom_repo() {
-  echo -e "\n### Configuring custom pacman repo"
+  echo -e "\n### Configuring custom pacman repo '${paks_name}'"
+  echo -e "### WARNING: Adding custom repo with SigLevel=Never (no signature verification)"
+  echo -e "### TODO: Implement key signing for this repo\n"
 
-  if [[ -n "$paks_name" ]]; then
-    echo -e "\n### WARNING: Adding custom repo with SigLevel=Never (no signature verification)"
-    echo -e "### TODO: Implement key signing for this repo\n"
-    cat >>/etc/pacman.conf <<EOF
+  cat >>/etc/pacman.conf <<EOF
 
 [${paks_name}]
 SigLevel = Never
 Server = ${paks_url}
 EOF
+
+  echo -e "\n### Syncing package databases"
+  pacman -Sy
+}
+
+# Present a checklist of every package the custom repo provides and record the
+# chosen package names in paks_selected. At least one selection is required.
+select_paks() {
+  echo -e "\n### Reading package list from repo '${paks_name}'"
+
+  local -a items=()
+  local repo name version _rest
+  # `pacman -Sl <repo>` prints: "<repo> <name> <version> [installed]"
+  while read -r repo name version _rest; do
+    items+=("$name" "$version" "off")
+  done < <(pacman -Sl "$paks_name")
+
+  if [[ ${#items[@]} -eq 0 ]]; then
+    echo >&2 "No packages found in repo '${paks_name}' — check the name and URL."
+    exit 1
   fi
 
-  # Point pacman cache at the target during pacstrap so packages land on the
-  # @pkgs subvol (mounted at /mnt/var/cache/pacman), regardless of custom repo.
-  cat >>/etc/pacman.conf <<EOF
+  local selection
+  selection=$(dialog --clear --stdout \
+    --backtitle "${CFG[backtitle]}" \
+    --title "Packages (${paks_name})" \
+    --checklist "Select package(s) to install (SPACE toggles, ENTER confirms)" \
+    0 0 0 \
+    "${items[@]}") || exit 1
+  clear
 
-[options]
-CacheDir = /mnt/var/cache/pacman/pkg
-EOF
+  # checklist prints space-separated tags; package names never contain spaces
+  read -r -a paks_selected <<<"$selection"
 
-  pacman -Sy
-  echo -e "\n### Run: pacstrap -i /mnt <your-meta-packages>"
+  if [[ ${#paks_selected[@]} -eq 0 ]]; then
+    echo >&2 "No packages selected — at least one is required."
+    exit 1
+  fi
 }
 
 cfg_base() {
@@ -678,63 +675,53 @@ unmount_drives() {
 }
 
 # ---------------------------------------------------------------------------
-# Usage
+# Install
 # ---------------------------------------------------------------------------
 
-usage() {
-  printf "\nUsage:\t%s [pre|post]\n\n" "$(basename "$0")"
-  printf "  pre   Partition, LUKS setup, configure custom repo\n"
-  printf "  post  Base config, user creation, services\n\n"
+pacstrap_system() {
+  # Cache downloads on the target's @pkgs subvol (mounted at
+  # /mnt/var/cache/pacman) so they persist into the installed system. Set here,
+  # after mk_root_partitions has mounted /mnt, so the path actually exists.
+  mkdir -p /mnt/var/cache/pacman/pkg
+  cat >>/etc/pacman.conf <<EOF
+
+[options]
+CacheDir = /mnt/var/cache/pacman/pkg
+EOF
+
+  echo -e "\n### Installing selected packages with pacstrap"
+  printf '  - %s\n' "${paks_selected[@]}"
+  # -K initializes a fresh keyring in the new root (to verify official
+  # packages); the selected meta-packages pull in base, kernel, etc.
+  pacstrap -K /mnt "${paks_selected[@]}"
 }
 
-handle_pre() {
-  init
+# ---------------------------------------------------------------------------
+# Main — single unattended run
+# ---------------------------------------------------------------------------
+
+main() {
+  # --- Input: gather everything up front (nothing destructive yet) ---
+  init            # UEFI check, clock, mirrors; install dialog/terminus/etc.
   set_hidpi
-  set_luks_password
-  set_paks
-  set_device
-  mk_root_partitions
-  save_state
-  cfg_custom_repo
-}
-
-handle_post() {
-  # If pre-phase state loads cleanly, font + device/partition layout are
-  # already restored — don't re-prompt (and don't re-show the destructive
-  # wipe confirmation from set_device). Only fall back to the prompts when
-  # there's no state to restore.
-  if load_state; then
-    # Reapply the console font chosen in the pre phase (state may be from a
-    # fresh session where setfont hasn't run yet).
-    if [[ -n "$font" ]]; then
-      setfont "$font"
-    fi
-  else
-    set_hidpi
-    set_device
-  fi
-
-  # Never persisted in the state file — always prompt.
   set_hostname
   set_user
   set_password
+  set_luks_password
+  set_paks
+  set_device      # disk + layout + destructive-wipe confirmation
+  cfg_custom_repo # add repo + pacman -Sy (needed to list its packages)
+  select_paks     # final dialog: pick the package(s) to pacstrap
+
+  # --- Execute: fully unattended from here, no further prompts ---
+  mk_root_partitions
+  pacstrap_system
   mk_home_partitions
   cfg_base
   cfg_user
   cfg_sudo
   cfg_services
   unmount_drives
-}
-
-main() {
-  case "${1:-}" in
-  pre) handle_pre "${@:2}" ;;
-  post) handle_post "${@:2}" ;;
-  *)
-    usage
-    exit 1
-    ;;
-  esac
 }
 
 main "$@"
