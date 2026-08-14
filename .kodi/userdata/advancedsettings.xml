@@ -1,7 +1,7 @@
 <advancedsettings>
   <videodatabase>
     <type>mysql</type>
-    <host>mfmc.local</host>
+    <host>mc-mf.local</host>
     <port>3306</port>
     <user>kodi</user>
     <pass>kodi</pass>
@@ -9,7 +9,7 @@
 
   <musicdatabase>
     <type>mysql</type>
-    <host>mfmc.local</host>
+    <host>mc-mf.local</host>
     <port>3306</port>
     <user>kodi</user>
     <pass>kodi</pass>
