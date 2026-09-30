@@ -29,7 +29,7 @@ helix_cd() {
     sleep 0.2
     hyprctl "$term2"
     sleep 0.2
-    hyprctl dispatch resizeactive 0 60%
+    hyprctl dispatch resizeactive 0 50%
     sleep 0.2
     hyprctl dispatch movefocus u
   }
