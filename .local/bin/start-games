@@ -1,0 +1,13 @@
+#!/bin/sh
+export XDG_SESSION_TYPE=x11
+export QT_QPA_PLATFORM=xcb
+export SDL_VIDEODRIVER=x11
+export GDK_BACKEND=x11
+unset CLUTTER_BACKEND
+
+xrandr --output HDMI-1 --mode 1920x1080
+
+openbox &
+sleep 0.5
+swayosd-server &
+exec es-de

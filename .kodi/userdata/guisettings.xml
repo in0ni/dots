@@ -492,7 +492,7 @@
             <sortattributes>1</sortattributes>
         </videonavtitles>
         <videonavtvshows>
-            <viewmode>65586</viewmode>
+            <viewmode>131572</viewmode>
             <sortmethod>29</sortmethod>
             <sortorder>1</sortorder>
             <sortattributes>1</sortattributes>
@@ -510,7 +510,7 @@
             <level>0</level>
             <showhigherlevels>true</showhigherlevels>
         </eventlog>
-        <systemtotaluptime>23152</systemtotaluptime>
+        <systemtotaluptime>91377</systemtotaluptime>
     </general>
     <defaultvideosettings>
         <interlacemethod>1</interlacemethod>
@@ -561,6 +561,6 @@
     </myvideos>
     <audio>
         <mute>false</mute>
-        <fvolumelevel>0.555555</fvolumelevel>
+        <fvolumelevel>0.611109</fvolumelevel>
     </audio>
 </settings>
