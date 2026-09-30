@@ -38,11 +38,11 @@ if [[ $ROFI_RETV == 0 ]]; then
 elif [[ $ROFI_RETV == 1 ]]; then
   case $ROFI_INFO in
   "${cmd[gen]}")
-    gopass pwgen -y -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+    gopass pwgen -y 24 | head -1 | tr -d "[:space:]" | wl-copy
     exit 0
     ;;
   "${cmd[genweak]}")
-    gopass pwgen -1 24 | head -1 | tr -d "[:space:]" | wl-copy
+    gopass pwgen 24 | head -1 | tr -d "[:space:]" | wl-copy
     exit 0
     ;;
   "${cmd[copy]}":*)
