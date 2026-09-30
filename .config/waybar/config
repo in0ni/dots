@@ -157,6 +157,9 @@
     "format-icons": [""]
   },
   "battery": {
+    "interval": 60,
+    "bat": "BAT0",
+    "adapter": "AC",
     "states": {
       "great": 100,
       "good": 75,
