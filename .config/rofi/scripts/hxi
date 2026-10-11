@@ -14,24 +14,34 @@ projs=~/.config/hxi.projs
 uw2_tickets=~/Work/un/tickets
 uw2_repos=~/Work/un/repos
 
+# Hyprland >= 0.55 uses a Lua config; `hyprctl dispatch` now evaluates its
+# argument as Lua (hl.dispatch(...)), so the legacy "exec foo" / "movefocus u"
+# strings no longer parse. [[...]] is a Lua long string, so the command may
+# contain double quotes without escaping.
+hypr_exec() { hyprctl dispatch "hl.dsp.exec_cmd([[$1]])"; }
+
 helix_cd() {
-  kitten="dispatch exec kitty --directory=$1"
+  kitten="kitty --directory=$1"
   hx="$kitten -T \"$icon ~ $2 (editor)\" --hold helix"
   term1="$kitten -T \"$icon ~ $2 (term1)\""
   term2="$kitten -T \"$icon ~ $2 (term2)\""
 
   coproc {
-    hyprctl "$hx"
+    hypr_exec "$hx"
     sleep 0.2
-    hyprctl "$term1"
+    hypr_exec "$term1"
     sleep 0.2
-    hyprctl dispatch layoutmsg togglesplit
+    hyprctl dispatch 'hl.dsp.layout("togglesplit")'
     sleep 0.2
-    hyprctl "$term2"
+    hypr_exec "$term2"
     sleep 0.2
-    hyprctl dispatch resizeactive 0 50%
+    # was: resizeactive 0 50% -- the % was relative to the active window's own
+    # height, and the Lua dispatcher takes pixels, so compute the delta here.
+    # Without relative=true, x/y are an absolute size ("Invalid size" on 0).
+    h=$(hyprctl activewindow -j | jq -r '.size[1]')
+    hyprctl dispatch "hl.dsp.window.resize({ x = 0, y = $((h / 2)), relative = true })"
     sleep 0.2
-    hyprctl dispatch movefocus u
+    hyprctl dispatch 'hl.dsp.focus({ direction = "up" })'
   }
 }
 

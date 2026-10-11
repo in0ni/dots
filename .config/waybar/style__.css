@@ -19,7 +19,7 @@
 label.module,
 box.module > *,
 scale.module highlight {
-  padding: 0.35em 0.65em;
+  padding: 0.25em 0.65em;
   /* slight dimming of color */
   opacity: 0.85;
 }
@@ -31,7 +31,7 @@ scale.module highlight {
 #custom-updates_firmware,
 #idle_inhibitor,
 #custom-x1profile {
-  padding: 0.35em;
+  padding: 0.25em;
 }
 
 /* accomodate spacing for custom buttons on both sides */
