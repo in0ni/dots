@@ -248,6 +248,7 @@ name = "markdown"
 auto-format = true
 language-servers = [
   "cspell",
+  "marksman",
   "llm-lsp",
 ]
 
