@@ -44,38 +44,38 @@ mkdir -p "${XDG_DATA_HOME}/zsh" "${XDG_CACHE_HOME}/zsh"
 HISTFILE="${XDG_DATA_HOME}/zsh/history"
 HISTSIZE=10000
 SAVEHIST=10000
-setopt hist_ignore_dups   # Collapse two consecutive idential commands.
-setopt hist_find_no_dups  # Ignore duplicates when searching history.
-setopt share_history      # Read lines other shells write too.
-setopt hist_ignore_space  # Lines that begin with space are not recorded.
-setopt hist_verify        # Don't auto-execute selected history entry.
+setopt EXTENDED_HISTORY  # Write the history file in the ':start:elapsed;command' format.
+setopt HIST_IGNORE_DUPS  # Do not record an event that was just recorded again.
+setopt HIST_FIND_NO_DUPS # Do not display a previously found event.
+setopt HIST_IGNORE_SPACE # Do not record an event starting with a space.
+setopt HIST_VERIFY       # Do not execute immediately upon history expansion.
 
 ### Aliases
 #
 
 # disks
-command -v dfrs      &> /dev/null && alias df='dfrs'
-command -v dua       &> /dev/null && alias du='dua'
-command -v dua       &> /dev/null && alias dui='dua interactive'
+command -v dfrs &>/dev/null && alias df='dfrs'
+command -v dua &>/dev/null && alias du='dua'
+command -v dua &>/dev/null && alias dui='dua interactive'
 
 # search
-command -v fd        &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
-command -v rg        &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
+command -v fd &>/dev/null && alias fd='fd --hidden --follow' || alias fd='find . -name'
+command -v rg &>/dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null' || alias rg='grep --color=auto --exclude-dir=.git -R'
 
 # ls
-command -v eza       &> /dev/null && alias ls='eza -gF --git --group-directories-first'         || alias ls='ls --color=auto --group-directories-first -h'
-command -v eza       &> /dev/null && alias la='ll -a'                                           || alias la='ll -A'
-command -v eza       &> /dev/null && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
-command -v eza       &> /dev/null && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
+command -v eza &>/dev/null && alias ls='eza -gF --git --group-directories-first' || alias ls='ls --color=auto --group-directories-first -h'
+command -v eza &>/dev/null && alias la='ll -a' || alias la='ll -A'
+command -v eza &>/dev/null && alias lk='ll -s=size' || alias lk='ll -r --sort=size'
+command -v eza &>/dev/null && alias lm='ll -s=modified' || alias lm='ll -r --sort=time'
 
 # editor
-command -v helix     &> /dev/null && alias vi='helix'                                           || alias vi='vim'
-command -v helix     &> /dev/null && alias hx='helix'
+command -v helix &>/dev/null && alias vi='helix' || alias vi='vim'
+command -v helix &>/dev/null && alias hx='helix'
 
 # misc
-command -v batman    &> /dev/null && alias man='batman'
-command -v trash-put &> /dev/null && alias rm='trash-put'
-command -v gitui     &> /dev/null && alias gu='gitui'
+command -v batman &>/dev/null && alias man='batman'
+command -v trash-put &>/dev/null && alias rm='trash-put'
+command -v gitui &>/dev/null && alias gu='gitui'
 # command -v xplr      &> /dev/null    && alias cdx='cd "$(xplr --print-pwd-as-result)"'
 
 alias o="xdg-open"
@@ -107,16 +107,16 @@ autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-zstyle ':completion:*'             completer   _complete _ignored
-zstyle :compinstall                filename    '${HOME}/.zshrc'
-zstyle ':completion:*'             menu        select
-zstyle ':completion:*:default'     list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*:pacman:*'    force-list  always
-zstyle ':completion:*:*:pacman:*'  menu        yes       select
-zstyle ':completion:*:*:kill:*'    menu        yes       select
-zstyle ':completion:*:kill:*'      force-list  always
-zstyle ':completion:*:*:killall:*' menu        yes       select
-zstyle ':completion:*:killall:*'   force-list  always
+zstyle ':completion:*' completer _complete _ignored
+zstyle :compinstall filename '${HOME}/.zshrc'
+zstyle ':completion:*' menu select
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:pacman:*' force-list always
+zstyle ':completion:*:*:pacman:*' menu yes select
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:killall:*' force-list always
 
 # setup dotfile aliases
 _dots() {
@@ -143,23 +143,23 @@ compdef _conf conf
 bindkey -e
 # typeset -g -A key
 
-bindkey '^?'       backward-delete-char             # backspace
-bindkey '^[[3~'    delete-char                      # delete
+bindkey '^?' backward-delete-char # backspace
+bindkey '^[[3~' delete-char       # delete
 
-bindkey '^K'       up-line-or-beginning-search      # pgup
-bindkey '^J'       down-line-or-beginning-search    # pgdown
-bindkey '^[[D'     backward-char                    # left
-bindkey '^[[C'     forward-char                     # right
-bindkey '^[[H'     beginning-of-line                # home
-bindkey '^[[F'     end-of-line                      # end
-bindkey '^H'       backward-word
-bindkey '^L'       forward-word
-bindkey '^[[Z'     reverse-menu-complete
+bindkey '^K' up-line-or-beginning-search   # pgup
+bindkey '^J' down-line-or-beginning-search # pgdown
+bindkey '^[[D' backward-char               # left
+bindkey '^[[C' forward-char                # right
+bindkey '^[[H' beginning-of-line           # home
+bindkey '^[[F' end-of-line                 # end
+bindkey '^H' backward-word
+bindkey '^L' forward-word
+bindkey '^[[Z' reverse-menu-complete
 
 ### Sourced
 # NOTE: recommended by zsh-syntax-highlighting that this be at the end,
 #       so moving both here
-# 
+#
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # fzf
@@ -175,9 +175,9 @@ b16_print_colors() {
     o=00$num
     setaf=$(tput setaf "$num")
     setab=$(tput setab "$num")
-    echo -e "#${o:${#o}-3:3} $setaf"\
-    "The ${bold}quick brown ${reset}${setaf}fox jumped over the lazy fox 0123456789 () [ ] { } < >"\
-    "$setab     $reset"
+    echo -e "#${o:${#o}-3:3} $setaf" \
+      "The ${bold}quick brown ${reset}${setaf}fox jumped over the lazy fox 0123456789 () [ ] { } < >" \
+      "$setab     $reset"
   done
 }
 
