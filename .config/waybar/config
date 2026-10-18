@@ -10,7 +10,6 @@
   "modules-right": [
     "custom/updates_firmware",
     "idle_inhibitor",
-    "power-profiles-daemon",
     "custom/x1profile",
     "cpu",
     "memory",
@@ -145,7 +144,7 @@
   "disk": {
     "interval": 5,
     "format": "{percentage_used} ",
-    "path": "/",
+    "paths": ["/"],
     "states": {
       "critical": 90
     }
