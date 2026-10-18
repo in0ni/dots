@@ -1,5 +1,5 @@
 [als.time]
-thresholds = { 0 = "night", 7 = "dark", 9 = "dim", 11 = "normal", 13 = "bright", 16 = "normal", 18 = "dark", 20 = "night" }
+levels = { 0 = 0, 7 = 15, 9 = 35, 11 = 60, 13 = 85, 16 = 60, 18 = 15, 20 = 0 }
 
 [[output.backlight]]
 name = "eDP-1"
