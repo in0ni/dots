@@ -144,7 +144,7 @@ hl.bind("SUPER + ALT + j", hl.dsp.window.move({ monitor = "d" }))
 for i = 1, 10 do
     local key = i % 10 -- 10 maps to key 0
     hl.bind("SUPER + " .. key,           hl.dsp.focus({ workspace = i }))
-    hl.bind("SUPER + SHIFT + " .. key,   hl.dsp.window.move({ workspace = i, silent = true }))
+    hl.bind("SUPER + SHIFT + " .. key,   hl.dsp.window.move({ workspace = i, follow = false }))
 end
 
 -- Scroll through existing workspaces with Super + scroll
