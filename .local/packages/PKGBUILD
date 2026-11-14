@@ -22,8 +22,8 @@ pkgname=(
 )
 # version=YY
 # release=MM.ddx
-pkgver=25
-pkgrel=12.04
+pkgver=26
+pkgrel=10.111
 
 pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
@@ -83,14 +83,15 @@ package_paks-hw-mfmc() {
     # Open-source Vulkan driver for AMD GPUs
     'vulkan-radeon'
     # Vulkan loader
+    'vulkan-tools'
     'vulkan-icd-loader'
+    'power-profiles-daemon'
+    'r8125-dkms'
     #
     # HW acceleration
     #
     # VA-API hardware video acceleration
     'libva-mesa-driver'
-    # required for xpadneo (dkms)
-    'xpadneo-dkms'
     'linux-headers'
     'linux-lts-headers'
     'linux-headers'
@@ -306,6 +307,8 @@ package_paks-usr-admin() {
     'gopass'
     'openssh'
     'wget'
+    'mesa-utils'
+    'libva-utils'
 
     # filesystems
     'exfat-utils'
@@ -370,7 +373,7 @@ package_paks-gui-desktop() {
     'rofi-wayland'
     'skeuos-gtk'
     'tela-circle-icon-theme-orange'
-    'waybar'
+    'waybar-git'
     'wluma'
     'wl-clipboard'
     'wl-mirror'
@@ -395,6 +398,7 @@ package_paks-gui-desktop() {
     'slurp'
     'swappy'
     'wl-screenrec-git'
+    'yt-dlp'
 
     # files
     'file-roller'
@@ -411,13 +415,14 @@ package_paks-gui-desktop() {
     # network
     # 'browserpass-firefox'
     'chromium'
-    'deluge-gtk'
     'filezilla'
     'firefox'
     'iwgtk'
     'magic-wormhole'
     'signal-desktop'
     'telegram-desktop'
+    'transmission-cli'
+    'transmission-remote-gtk'
 
     # viewers
     'vimiv-qt'
@@ -480,7 +485,6 @@ package_paks-gui-workstation() {
 
     # tools
     'android-tools'
-    'clipgrab'
     'ddrescue'
     'easytag'
     'nmap'
@@ -536,13 +540,22 @@ package_paks-gui-mediacenter() {
   depends=(
     'paks-gui-desktop'
 
-    # system
-    # 'deluged-service'
+    # services
     'mariadb'
     'nfs-utils'
+    'autosuspend'
+    'openbox'
+    'swayosd'
+    'radarr-bin'
+    'recyclarr-bin'
+    'sonarr-bin'
+    'unpackerr'
 
     # media
     'kodi'
+    'xorg-server'
+    'xorg-xinit'
+    'xorg-xrandr'
 
     # gaming: utils
     # 'electron'
@@ -551,13 +564,11 @@ package_paks-gui-mediacenter() {
     'retroarch'
     'retroarch-assets-ozone'
     'retroarch-assets-xmb'
+    'game-devices-udev'
 
     # gaming: emulators
-    # 'dolphin-emu'
-    # 'lime3ds'
-    # 'mupen64plus'
-    # 'pcsx2-latest-bin'
-    # 'ppsspp'
+    'eden'
+    'rpcs3-git'
     # 
     # libretro
     'libretro-beetle-psx-hw'
