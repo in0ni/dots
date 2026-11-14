@@ -65,8 +65,9 @@ hl.bind("CTRL + SHIFT + print", hl.dsp.exec_cmd("wm-screen-capture area"))
 hl.bind("CTRL + print",         hl.dsp.exec_cmd("wm-screen-record"))
 
 -- Submaps
-local submapResize     = "\u{f31e} - resize"      --  - resize
-local submapBrightness = "\u{f185} - brightnes"   --  - brightnes
+local submapResize     = "\u{f31e} - Resize"      --  - resize
+local submapBrightness = "\u{f185} - Brightnes"   --  - brightnes
+local submapBtProfile  = "\u{f025} - BT Profile" --  - bluetooth profile
 
 hl.define_submap(submapResize, function()
     hl.bind("h",         hl.dsp.window.resize({ x = -15, y = 0, relative = true }), REPEAT)
@@ -92,8 +93,17 @@ hl.define_submap(submapBrightness, function()
     hl.bind("return", hl.dsp.submap("reset"))
 end)
 
+hl.define_submap(submapBtProfile, function()
+    hl.bind("k",         hl.dsp.exec_cmd("wm-bt-profile headset"),   REPEAT)
+    hl.bind("j",         hl.dsp.exec_cmd("wm-bt-profile music"), REPEAT)
+
+    hl.bind("escape", hl.dsp.submap("reset"))
+    hl.bind("return", hl.dsp.submap("reset"))
+end)
+
 hl.bind("SUPER + r", hl.dsp.submap(submapResize))
 hl.bind("SUPER + t", hl.dsp.submap(submapBrightness))
+hl.bind("SUPER + z", hl.dsp.submap(submapBtProfile))
 
 -- Window Manager
 hl.bind("ALT + SHIFT + tab",   hl.dsp.exec_cmd("rofi -show window"))

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+set -u
+
+readonly FILE="${0##*/}"
+readonly DUNST_ID=99903
+
+usage() {
+  cat <<EOF
+Usage: $FILE <headset|music>
+
+  headset  Switch the Bluetooth headset to HFP (microphone, call quality)
+  music    Switch the Bluetooth headset to A2DP (no microphone, high quality)
+EOF
+}
+
+notify() {
+  local icon=$1 text=$2
+
+  dunstify \
+    -a "$FILE" \
+    -r "$DUNST_ID" \
+    -t 2000 \
+    -i "$icon" \
+    "$text"
+}
+
+get_card() {
+  pactl list short cards | awk '$2 ~ /^bluez_card\./ { print $2; exit }'
+}
+
+command=${1:-}
+
+case $command in
+headset)
+  profile="headset-head-unit"
+  icon="audio-headset"
+  text="Headset mode (mic on)"
+  ;;
+music)
+  profile="a2dp-sink"
+  icon="audio-headphones"
+  text="Music quality (mic off)"
+  ;;
+*)
+  usage >&2
+  exit 1
+  ;;
+esac
+
+card=$(get_card)
+
+if [[ -z $card ]]; then
+  notify "dialog-warning" "No Bluetooth headset connected"
+  exit 1
+fi
+
+if pactl set-card-profile "$card" "$profile"; then
+  notify "$icon" "$text"
+else
+  notify "dialog-error" "Failed to set $profile on $card"
+  exit 1
+fi
