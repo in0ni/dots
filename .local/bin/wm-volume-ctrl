@@ -71,7 +71,7 @@ notify_mic() {
   fi
 
   dunstify \
-    -a "$APP_NAME" \
+    -a "$FILE" \
     -r "$DUNST_ID" \
     -t 1000 \
     -i "$icon" \
