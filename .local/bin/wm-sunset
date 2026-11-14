@@ -3,7 +3,37 @@
 set -u
 
 readonly SERVICE="hyprsunset"
-readonly POLL="$(sunwait poll)"
+# tzdata location table
+readonly ZONE_TAB="/usr/share/zoneinfo/zone1970.tab"
+
+# sunwait has no location by default; use the coordinates tzdata
+tz_coords() {
+  local tz
+  tz=$(timedatectl show -p Timezone --value 2>/dev/null)
+  [[ -n $tz ]] || return 1
+
+  awk -v tz="$tz" '
+    function dms(s, n,   sign, deg, min, sec) {
+      sign = substr(s, 1, 1)
+      deg  = substr(s, 2, n)
+      min  = substr(s, 2 + n, 2)
+      sec  = length(s) > 1 + n + 2 ? substr(s, 4 + n, 2) : 0
+      return (sign == "-" ? -1 : 1) * (deg + min / 60 + sec / 3600)
+    }
+    $3 == tz {
+      match($2, /^[+-][0-9]+/)
+      lat = dms(substr($2, 1, RLENGTH), 2)
+      lon = dms(substr($2, RLENGTH + 1), 3)
+      printf "%.4f%s %.4f%s\n",
+        (lat < 0 ? -lat : lat), (lat < 0 ? "S" : "N"),
+        (lon < 0 ? -lon : lon), (lon < 0 ? "W" : "E")
+      exit
+    }' "$ZONE_TAB"
+}
+
+readonly COORDS="$(tz_coords)"
+# shellcheck disable=SC2086 # COORDS is "LAT LON", two arguments
+readonly POLL="$(sunwait poll $COORDS)"
 
 service_is_active() {
   systemctl --user is-active "$SERVICE" >/dev/null
