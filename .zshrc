@@ -118,20 +118,19 @@ zstyle ':completion:*:kill:*' force-list always
 zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*' force-list always
 
-# setup dotfile aliases
-_dots() {
-  ((CURRENT > 2)) && {
-    _files
-    return
-  }
-  GIT_DIR="$HOME/.dots-home" GIT_WORK_TREE="$HOME" _git
+# setup dotfile aliases: full git completion, minus untracked files ($HOME and /
+# are far too big to list)
+_git_bare() {
+  local -x GIT_DIR=$1 GIT_WORK_TREE=$2
+  local service=git _git_bare=1
+  _git
 }
-_conf() {
-  ((CURRENT > 2)) && {
-    _files
-    return
-  }
-  GIT_DIR="$HOME/.dots-sys" GIT_WORK_TREE="/" _git
+_dots() { _git_bare "$HOME/.dots-home" "$HOME" }
+_conf() { _git_bare "$HOME/.dots-sys" / }
+# _git only defines its helpers when they don't already exist
+__git_other_files() {
+  (( $+_git_bare )) && return 1
+  __git_files --others untracked-files 'untracked file' $*
 }
 compdef _dots dots
 compdef _conf conf
