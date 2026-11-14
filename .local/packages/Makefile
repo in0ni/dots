@@ -4,11 +4,11 @@ all: clean build publish clean
 
 .PHONY: build
 build: ## Build the meta-package
-	PKGEXT='.pkg.tar.zst' makepkg -sf
+	PKGDEST=$(CURDIR) PKGEXT='.pkg.tar.zst' makepkg -sf
 
 .PHONY: install
 install: ## Install the meta-package
-	SNAP_PAC_SKIP=true sudo -E pacman --noconfirm -U paks-base-*.pkg.tar.zst
+	SNAP_PAC_SKIP=true sudo -E pacman --noconfirm -U paks-sys-base-*.pkg.tar.zst
 
 .PHONY: refresh
 refresh: ## Refresh the backup lists
@@ -20,13 +20,12 @@ refresh: ## Refresh the backup lists
 
 .PHONY: publish
 publish: ## Publish the meta-package in the local repo
-	for split in {sys,hw,usr,gui}; do \
-		pkg=paks-$$split-*.pkg.tar.zst; \
-		gpg --detach-sign --yes $$pkg; \
-		repo-add -s /var/cache/pacman/paks/paks.db.tar $$pkg; \
-		cp $$pkg* /var/cache/pacman/paks/; \
+	for pkg in paks-*.pkg.tar.zst; do \
+		gpg --detach-sign --yes $$pkg || exit 1; \
 	done
-	rsync -avh /var/cache/pacman/paks/. srv:/var/www/html/paks --delete; \
+	repo-add -s /var/cache/pacman/paks/paks.db.tar paks-*.pkg.tar.zst
+	cp paks-*.pkg.tar.zst* /var/cache/pacman/paks/
+	rsync -avh /var/cache/pacman/paks/. srv:/var/www/html/paks --delete
 
 # .PHONY: aurs
 # aurs: ## Publish the meta-package in the local repo
