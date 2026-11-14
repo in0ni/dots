@@ -1,6 +1,10 @@
 {
   "layer": "top",
-  "modules-left": ["hyprland/workspaces", "hyprland/submap", "hyprland/window"],
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/submap",
+    "hyprland/window"
+  ],
   "modules-center": [
     "custom/pomodoro",
     "clock",
@@ -76,7 +80,11 @@
     "return-type": "json",
     "exec": "waybar-x1profile get-profile",
     "exec-if": "exit 0",
-    "format-icons": ["", "", ""],
+    "format-icons": [
+      "",
+      "",
+      ""
+    ],
     "format": "{icon}"
   },
   "custom/updates_software": {
@@ -120,7 +128,10 @@
   "custom/sunset": {
     "signal": 3,
     "format": "{icon}",
-    "format-icons": ["", ""],
+    "format-icons": [
+      "",
+      ""
+    ],
     "interval": 120,
     "exec": "wm-sunset waybar",
     "return-type": "json",
@@ -144,7 +155,9 @@
   "disk": {
     "interval": 5,
     "format": "{percentage_used} ",
-    "paths": ["/"],
+    "paths": [
+      "/"
+    ],
     "states": {
       "critical": 90
     }
@@ -153,7 +166,9 @@
     "interval": 1,
     "critical-threshold": 80,
     "format": "{temperatureC}° {icon}",
-    "format-icons": [""]
+    "format-icons": [
+      ""
+    ]
   },
   "battery": {
     "interval": 60,
@@ -171,7 +186,9 @@
     "format-plugged": "{capacity} ",
     "format-full": "{capacity} ",
     "format-alt": "{time} {icon}",
-    "format-icons": [""]
+    "format-icons": [
+      ""
+    ]
   },
   "network": {
     "interval": 2,
@@ -204,7 +221,11 @@
       "headset": "",
       "phone": "",
       "car": "",
-      "default": [" ", "", ""]
+      "default": [
+        " ",
+        "",
+        ""
+      ]
     },
     "on-click-right": "pavucontrol"
   },
