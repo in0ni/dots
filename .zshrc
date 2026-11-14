@@ -89,8 +89,19 @@ alias less=$PAGER
 alias ishrink='convert -resize 1200 -quality 90'
 alias sudo='sudo -E '
 alias ssh='kitty +kitten ssh'
-alias dots='/usr/bin/git --git-dir=$HOME/.dots-home/ --work-tree=$HOME'
-alias conf='/usr/bin/git --git-dir=$HOME/.dots-sys/ --work-tree=/'
+
+# dotfile repos: git, plus `gu` (gitui) and `ls` (all tracked files)
+_git_bare_run() {
+  local gitdir=$1 worktree=$2
+  shift 2
+  case $1 in
+    gu) shift; gitui -d $gitdir -w $worktree "$@" ;;
+    ls) shift; /usr/bin/git --git-dir=$gitdir --work-tree=$worktree ls-tree --full-tree --name-only -r HEAD "$@" ;;
+    *) /usr/bin/git --git-dir=$gitdir --work-tree=$worktree "$@" ;;
+  esac
+}
+dots() { _git_bare_run "$HOME/.dots-home" "$HOME" "$@" }
+conf() { _git_bare_run "$HOME/.dots-sys" / "$@" }
 
 #
 # zsh
@@ -132,6 +143,7 @@ __git_other_files() {
   (( $+_git_bare )) && return 1
   __git_files --others untracked-files 'untracked file' $*
 }
+zstyle ':completion:*:*:(dots|conf):*' user-commands gu:'open in gitui' ls:'list all tracked files'
 compdef _dots dots
 compdef _conf conf
 
