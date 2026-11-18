@@ -1,24 +1,15 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034  # icon/title/icon_notify/icons_rofi are consumed by common/util
+set -uo pipefail
 #
 # Written by Andrés González
 #
 # Inspired by rofi-bluetooth by Nick Clyde (clydedroid)
-# Dependencies (arch): rofi, bluez-utils (bluetoothctl)
+# Dependencies (arch): rofi, bluez-utils (bluetoothctl), util-linux (rfkill), libnotify
 #
-# TODO: systemd service
-# TODO: add refresh, only when discovering
-# TODO: look into using all icons below, might be too much
-# TODO: multi-line notifications, or parse cmd output and simplify
-# TODO: disable all features when powered off
-# TODO: handle turning on/off service
-# TODO: use coproc for all actions that take time
-# TODO: pairing (low priority, never needed so far):
-#   - run pair async with a "Pairing…" label, then auto trust + connect
-#   - ensure a scan is running first (devices must be seen recently)
-#   - no agent installed: on auth failure open `kitty -e bluetoothctl` to
-#     enter/confirm the PIN (alt: bt-agent from bluez-tools as user service)
+# Pending work: see TODO.md (# Bluetoothctl)
 
-icon=
+icon=$''
 title=Bluetooth
 icon_notify=blueman
 
@@ -37,63 +28,99 @@ declare -A dev=(
   [trust]=Trusted
 )
 
-# Fontawesome, some currently unused
-declare -A icons_rofi
-icons_rofi[toggle_on]=
-icons_rofi[toggle_off]=
-icons_rofi[back]=
-icons_rofi[pending]=
-source "$(dirname "$0")/common/utils"
+# Fontawesome
+declare -A icons_rofi=(
+  [toggle_on]=$''
+  [toggle_off]=$''
+  [back]=$''
+  [pending]=$''
+  [service]=$''
+  [warn]=$''
+)
+
+# shellcheck disable=SC1091  # common/util is a local shared library
+source "$(dirname "$0")/common/util"
 
 back=back
+start_service=start_service
 scan_timeout=30
 scan_pidfile="${XDG_RUNTIME_DIR:-/tmp}/rofi-bluetoothctl-scan.pid"
+
 is_service_active() {
-  if systemctl is-active bluetooth.service --quiet; then
-    return 0
-  else
-    return 1
-  fi
+  systemctl is-active bluetooth.service --quiet
+}
+
+has_controller() {
+  [[ -n $(bluetoothctl list 2>/dev/null) ]]
 }
 
 # STATE TESTS
+# NOTE: here-strings instead of `cmd | grep -q`: with pipefail, grep -q exiting
+# early SIGPIPEs the producer and the test would report a false negative.
 is_ctrl_state_on() {
-  if bluetoothctl show | grep -q "$1: yes"; then
-    return 0
-  else
-    return 1
-  fi
+  grep -q "$1: yes" <<<"$(bluetoothctl show)"
 }
 
 is_dev_state_on() {
-  device_info=$(bluetoothctl info "$1")
-  if echo "$device_info" | grep -q "$2: yes"; then
-    return 0
-  else
+  grep -q "$2: yes" <<<"$(bluetoothctl info "$1")"
+}
+
+# Starts bluetooth.service (polkit prompt). Runs detached and prints nothing,
+# so rofi closes and the polkit dialog can take focus; reopens the menu on success.
+start_bluetooth_service() {
+  {
+    if systemctl start bluetooth.service; then
+      notify "Bluetooth service started"
+      sleep 1
+      rofi -show bluetoothctl
+    else
+      notify "Failed to start bluetooth service" 1
+    fi
+  } &>/dev/null &
+  disown
+}
+
+# Unblocks bluetooth via rfkill if needed and waits for the controller to come back.
+# Returns 1 if it cannot be unblocked (hard block / timeout).
+ensure_unblocked() {
+  local state
+  state=$(rfkill list bluetooth)
+  grep -q 'blocked: yes' <<<"$state" || return 0
+
+  if grep -q 'Hard blocked: yes' <<<"$state"; then
+    notify "Bluetooth is hard blocked (hardware switch / BIOS)" 1
     return 1
   fi
+
+  notify "Bluetooth soft blocked (rfkill), unblocking..."
+  rfkill unblock bluetooth || {
+    notify "rfkill unblock failed" 1
+    return 1
+  }
+
+  # wait up to 5s for the controller to be usable again
+  for _ in {1..10}; do
+    ! grep -q 'blocked: yes' <<<"$(rfkill list bluetooth)" && has_controller && return 0
+    sleep 0.5
+  done
+  notify "Controller did not come back after rfkill unblock" 1
+  return 1
 }
 
 # STATE TOGGLES
 # toggles powered state
 toggle_power() {
+  local cmd ret msg=""
   if is_ctrl_state_on "${ctrl[power]}"; then
     cmd=$(bluetoothctl power off)
     ret=$?
   else
-    if rfkill list bluetooth | grep -q 'blocked: yes'; then
-      # TODO: check this, seems like requires sudo, so perhaps useless.
-      notify "Device disabled (rfkill), enabling device..."
-      rfkill unblock bluetooth && sleep 3
-    fi
-
-    # TODO: unable to get output on two lines, as it should be
+    ensure_unblocked || return 1
     cmd=$(bluetoothctl power on)
     ret=$?
   fi
 
   # on success keep only the status line; on failure show everything
-  local msg
   if [[ $ret == 0 ]]; then
     msg=$(grep "Changing power" <<<"$cmd")
   fi
@@ -137,6 +164,7 @@ toggle_scan() {
 
 # Toggles pairable state
 toggle_pairable() {
+  local cmd ret
   if is_ctrl_state_on "${ctrl[pair]}"; then
     cmd=$(bluetoothctl pairable off)
     ret=$?
@@ -150,6 +178,7 @@ toggle_pairable() {
 
 # Toggles discoverable state
 toggle_discoverable() {
+  local cmd ret
   if is_ctrl_state_on "${ctrl[discover]}"; then
     cmd=$(bluetoothctl discoverable off)
     ret=$?
@@ -181,6 +210,7 @@ toggle_connection() {
 
 # Toggles device paired state; sets $removed=1 when the device was removed
 toggle_paired() {
+  local cmd ret
   if is_dev_state_on "$1" "${dev[pair]}"; then
     cmd=$(bluetoothctl remove "$1")
     ret=$?
@@ -193,8 +223,9 @@ toggle_paired() {
   notify "$cmd" $ret
 }
 
-# Toggles device connection
+# Toggles device trust
 toggle_trust() {
+  local cmd ret
   if is_dev_state_on "$1" "${dev[trust]}"; then
     cmd=$(bluetoothctl untrust "$1")
     ret=$?
@@ -207,6 +238,7 @@ toggle_trust() {
 }
 
 list_devices() {
+  local output
   output=$(bluetoothctl devices | awk '/^Device/{
     # get substr of $0 starting at index $3
     name=substr($0, index($0, $3))
@@ -220,52 +252,60 @@ list_devices() {
 toggle() {
   local glyph info label=$1
   [[ $2 == 0 ]] && glyph=${icons_rofi[toggle_on]} || glyph=${icons_rofi[toggle_off]}
-  [[ -n $3 ]] && info="$1":"$3" || info="$1"
-  if [[ -n $4 ]]; then
+  [[ -n ${3:-} ]] && info="$1":"$3" || info="$1"
+  if [[ -n ${4:-} ]]; then
     glyph=${icons_rofi[pending]}
     label=$4
   fi
   echo -en "$glyph  $label\0info\x1f$info\n"
 }
 
-show_menu() {
-  if is_service_active; then
-    is_ctrl_state_on "${ctrl[power]}"
-    toggle "${ctrl[power]}" $?
-
-    if is_ctrl_state_on "${ctrl[power]}"; then
-      if ! is_ctrl_state_on "${ctrl[scan]}"; then
-        toggle "${ctrl[scan]}" 1
-      elif our_scan_pid >/dev/null; then
-        toggle "${ctrl[scan]}" 0
-      else
-        toggle "${ctrl[scan]}" 0 "" "${ctrl[scan]} (other program)"
-      fi
-
-      is_ctrl_state_on "${ctrl[pair]}"
-      toggle "${ctrl[pair]}" $?
-
-      is_ctrl_state_on "${ctrl[discover]}"
-      toggle "${ctrl[discover]}" $?
-
-      print_divider
-      list_devices
-    fi
-  else
-    set_message "Bluetooth service is <b>off</b>"
-    # TODO: allow starting from here
-    # echo -en "Start bluetooth service (systemd)\0info"
-  fi
+# non-selectable informational row (rofi quits if a script returns no entries)
+print_notice() {
+  echo -en "${icons_rofi[warn]}  $1\0nonselectable\x1ftrue\n"
 }
 
-set_title $title
-set_message ""
+show_menu() {
+  if ! is_service_active; then
+    set_message "Bluetooth service is <b>off</b>"
+    echo -en "${icons_rofi[service]}  Start bluetooth service\0info\x1f$start_service\n"
+    return
+  fi
+
+  if ! has_controller; then
+    set_message "No bluetooth controller found"
+    print_notice "Check: rfkill list bluetooth / journalctl -u bluetooth"
+    return
+  fi
+
+  is_ctrl_state_on "${ctrl[power]}"
+  toggle "${ctrl[power]}" $?
+
+  if is_ctrl_state_on "${ctrl[power]}"; then
+    if ! is_ctrl_state_on "${ctrl[scan]}"; then
+      toggle "${ctrl[scan]}" 1
+    elif our_scan_pid >/dev/null; then
+      toggle "${ctrl[scan]}" 0
+    else
+      toggle "${ctrl[scan]}" 0 "" "${ctrl[scan]} (other program)"
+    fi
+
+    is_ctrl_state_on "${ctrl[pair]}"
+    toggle "${ctrl[pair]}" $?
+
+    is_ctrl_state_on "${ctrl[discover]}"
+    toggle "${ctrl[discover]}" $?
+
+    print_divider
+    list_devices
+  fi
+}
 
 device_menu() {
   mac=$1
   name=$(bluetoothctl devices | grep "$mac" | cut -d ' ' -f 3-)
 
-  set_subtitle "$name"
+  set_subtitle "$name" ""
 
   # shellcheck disable=SC2086,SC2027
   is_dev_state_on "$mac" ""${dev[connect]}""
@@ -285,6 +325,20 @@ device_menu() {
   print_divider
   echo -en "${icons_rofi[back]}  Back\0info\x1f$back\n"
 }
+
+ROFI_RETV=${ROFI_RETV:-0}
+ROFI_INFO=${ROFI_INFO:-}
+removed=0
+pending=""
+
+# starting the service closes rofi: print nothing at all
+if [[ $ROFI_RETV == 1 && $ROFI_INFO == "$start_service" ]]; then
+  start_bluetooth_service
+  exit 0
+fi
+
+set_prompt "$title"
+set_message ""
 
 if [[ $ROFI_RETV == 0 ]]; then
   show_menu
@@ -317,7 +371,7 @@ elif [[ $ROFI_RETV == 1 ]]; then
   "${dev[pair]}":*)
     mac=${ROFI_INFO#*"${dev[pair]}":}
     toggle_paired "$mac"
-    if [[ ${removed:-0} == 1 ]]; then
+    if [[ $removed == 1 ]]; then
       show_menu
     else
       device_menu "$mac"
