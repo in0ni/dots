@@ -1,88 +1,195 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
+set -uo pipefail
+
+# ---------------------------------------------------------------------------
+# rofi-udiskie: mount/unmount removable media via rofi + udiskie
+#
+#   Enter   mount (unlocking LUKS first) / unmount (and lock)
+#   Alt+1   open a terminal in the mount path (mounts first if needed)
+#   Alt+2   eject: unmount, lock and power off the drive
+# ---------------------------------------------------------------------------
 
 icon=
 title=uDiskie
-source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
+icon_notify=drive-removable-media
 
-declare -A cmd
-cmd[lsmounts]=list_mounts
-cmd[mount]=mount
-cmd[umount]=umount
+declare -A icons_rofi
+icons_rofi[mounted]=
+icons_rofi[unmounted]=
+icons_rofi[locked]=
+icons_rofi[not_found]=
 
-set_title "$title"
+# shellcheck disable=SC1091  # common/util is a local shared library
+source "$(dirname "$0")/common/util"
 
+# device paths and states never contain ':'; the label is always last
+SEP=':'
+
+declare -A state=(
+  [mounted]=mounted
+  [unmounted]=unmounted
+  [locked]=locked
+)
+
+# password prompt run by udiskie-mount; {...} fields are formatted by udiskie,
+# so literal braces must be doubled
+password_prompt="rofi -dmenu -password -p '${icons_rofi[locked]}  Password' \
+  -mesg 'Unlock {device_file}' -theme-str 'listview {{ enabled: false; }}'"
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+# first mountpoint of a device or, for LUKS, of its cleartext child
+mount_path_of() {
+  lsblk -nrpo MOUNTPOINT "$1" 2>/dev/null | awk 'NF { print; exit }'
+}
+
+# runs detached from rofi, so it can close immediately
+background() {
+  coproc { "$@"; } >/dev/null 2>&1
+}
+
+# a second rofi (password prompt) can't start until this one has exited
+wait_rofi() {
+  while kill -0 "$rofi_pid" 2>/dev/null; do sleep 0.05; done
+}
+
+do_mount() {
+  local dev=$1 label=$2 output ret path
+  wait_rofi
+  # -r: also mount the cleartext device after unlocking LUKS
+  output=$(udiskie-mount -r -p "$password_prompt" "$dev" 2>&1)
+  ret=$?
+  path=$(mount_path_of "$dev")
+  if [[ $ret -ne 0 || -z "$path" ]]; then
+    notify "Failed to mount $label${output:+$'\n'$output}" 1
+    return 1
+  fi
+  notify "Mounted $label at $path"
+}
+
+do_umount() {
+  local dev=$1 label=$2 output ret
+  output=$(udiskie-umount --lock "$dev" 2>&1)
+  ret=$?
+  if [[ $ret -ne 0 ]]; then
+    notify "Failed to unmount $label${output:+$'\n'$output}" 1
+    return 1
+  fi
+  notify "Unmounted $label"
+}
+
+do_terminal() {
+  local dev=$1 st=$2 label=$3
+  if [[ $st != "${state[mounted]}" ]]; then
+    do_mount "$dev" "$label" || return
+  fi
+  setsid -f kitty --directory "$(mount_path_of "$dev")" >/dev/null 2>&1
+}
+
+do_eject() {
+  local dev=$1 label=$2 output ret
+  output=$(udiskie-umount --lock --detach "$dev" 2>&1)
+  ret=$?
+  if [[ $ret -ne 0 ]]; then
+    notify "Failed to eject $label${output:+$'\n'$output}" 1
+    return 1
+  fi
+  notify "Ejected $label, safe to remove"
+}
+
+# ---------------------------------------------------------------------------
+# List builder
+# ---------------------------------------------------------------------------
+# shellcheck disable=SC2046
 list_devices() {
-  echo -e "$(udiskie-info -a | awk -F': ' '/^device/ {print $2}')"
+  local t=$'\t'
+  udiskie-info -a -o "{device_file}$t{is_filesystem}$t{is_luks}$t{is_unlocked}$t{is_mounted}$t{device_size}$t{id_type}$t{id_label}$t{drive_model}" |
+    awk -F'\t' \
+      -v sep="$SEP" \
+      -v st_mounted="${state[mounted]}" \
+      -v st_unmounted="${state[unmounted]}" \
+      -v st_locked="${state[locked]}" \
+      $(build_icon_vars mounted unmounted locked not_found) \
+      '
+    function human(b,   u, i) {
+      split("B K M G T P", u, " ")
+      for (i = 1; b >= 1024 && i < 6; i++) b /= 1024
+      b = sprintf(i == 1 || b >= 100 ? "%d" : "%.1f", b)
+      sub(/\.0$/, "", b)
+      return b u[i]
+    }
+    function esc(s) {
+      gsub(/&/, "\\&amp;", s); gsub(/</, "\\&lt;", s); gsub(/>/, "\\&gt;", s)
+      return s
+    }
+    {
+      dev = $1; fs = $2; luks = $3; unlocked = $4; mounted = $5
+      size = $6; type = $7; label = $8; model = $9
+
+      # an unlocked container is represented by its cleartext filesystem
+      if (luks == "True" && unlocked == "True") next
+      if (luks != "True" && fs != "True") next
+
+      if (label == "") label = (model != "None" && model != "") ? model : dev
+      sub(/.*\//, "", label)
+
+      if (luks == "True") {
+        st = st_locked; ico = icon_locked; type = "encrypted"
+      } else if (mounted == "True") {
+        st = st_mounted; ico = icon_mounted
+      } else {
+        st = st_unmounted; ico = icon_unmounted
+      }
+
+      path = ""
+      if (st == st_mounted) {
+        cmd = "lsblk -nrpo MOUNTPOINT \"" dev "\""
+        while ((cmd | getline line) > 0) if (path == "" && line != "") path = line
+        close(cmd)
+      }
+
+      details = human(size) "  ·  " type (path != "" ? "  ·  " path : "")
+      printf "<b>%s  %s</b>   %s", ico, esc(label), esc(details)
+      printf "\\0info\x1f%s%s%s%s%s\n", st, sep, dev, sep, label
+      found = 1
+    }
+    END {
+      if (!found)
+        printf "%s   No removable devices\\0nonselectable\x1ftrue\n", icon_not_found
+    }'
 }
 
-list_mounts() {
-  udiskie-info -a | awk -F': ' '/^mount_path/ {print $2}'
-}
+# ---------------------------------------------------------------------------
+# Main dispatch
+# ---------------------------------------------------------------------------
 
-mount_device() {
-  local device=$1
-  udiskie-mount "$device"
-}
+# defaults — ROFI_RETV and ROFI_INFO may be unset on first invocation
+ROFI_RETV="${ROFI_RETV:-0}"
+ROFI_INFO="${ROFI_INFO:-}"
+rofi_pid=$PPID
 
-unmount_device() {
-  local mount_point=$1
-  udiskie-umount "$mount_point"
-}
-
-unlock_luks() {
-  local device=$1
-  udisksctl unlock -b "$device"
-}
-
-main_menu() {
-  echo -en "List Mounts\0info\x1f${cmd[lsmounts]}\n"
-  echo -en "Mount\0info\x1f${cmd[mount]}\n"
-  echo -en "Unmount\0info\x1f${cmd[umount]}\n"
-}
-
-select_device() {
-  local prompt=$1
-  list_devices | rofi -dmenu -p "$prompt"
-}
-
-select_mount() {
-  local prompt=$1
-  list_mounts | rofi -dmenu -p "$prompt"
-}
-
-# Main loop
-# while true; do
-#   choice=$(main_menu)
-#   case $choice in
-#   Mount)
-#     device=$(select_device "Select device to mount")
-#     [ -n "$device" ] && mount_device "$device"
-#     ;;
-#   Unmount)
-#     mount_point=$(select_mount "Select mount to unmount")
-#     [ -n "$mount_point" ] && unmount_device "$mount_point"
-#     ;;
-#   "Unlock LUKS")
-#     device=$(select_device "Select LUKS device to unlock")
-#     [ -n "$device" ] && unlock_luks "$device"
-#     ;;
-#   "List Mounts")
-#     list_mounts | rofi -dmenu -p "Current Mounts"
-#     ;;
-#   Exit)
-#     exit 0
-#     ;;
-#   esac
-# done
-
-# initial list
-if [[ $ROFI_RETV == 0 ]]; then
-  main_menu
-elif [[ $ROFI_RETV == 1 ]]; then
-  case $ROFI_INFO in
-  "${cmd[lsmount]}")
-    list_mounts
-    exit 0
-    ;;
-  esac
+if [[ "$ROFI_RETV" == 0 ]]; then
+  set_prompt "$title"
+  echo -en "\\0use-hot-keys\\x1ftrue\\n"
+  echo -en "\\0markup-rows\\x1ftrue\\n"
+  set_message "<b>Enter</b> (un)mount  ·  <b>Alt+1</b> term   ·   <b>Alt+2</b> eject"
+  echo -en "$(list_devices)"
+  exit 0
 fi
+
+[[ -z "$ROFI_INFO" ]] && exit 0
+IFS="$SEP" read -r st dev label <<<"$ROFI_INFO"
+
+case "$ROFI_RETV" in
+1)
+  if [[ $st == "${state[mounted]}" ]]; then
+    background do_umount "$dev" "$label"
+  else
+    background do_mount "$dev" "$label"
+  fi
+  ;;
+10) background do_terminal "$dev" "$st" "$label" ;;
+11) background do_eject "$dev" "$label" ;;
+esac
