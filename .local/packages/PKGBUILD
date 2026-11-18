@@ -23,7 +23,7 @@ pkgname=(
 # version=YY
 # release=MM.ddx
 pkgver=26
-pkgrel=10.111
+pkgrel=11.18
 
 pkgdesc='Meta-packages different device builds/configuration using a shared base.'
 arch=('any')
@@ -432,6 +432,7 @@ package_paks-gui-desktop() {
 
     # media
     'alsa-utils'
+    'bluez'
     'bluez-utils'
     'gst-plugins-bad'
     'pamixer'
