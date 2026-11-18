@@ -2,10 +2,11 @@
 
 icon=
 title="Helix Projects"
-# icon_notify=dialog-password-panel
-source "$(dirname "$0")/common/utils" "$icon" "$title"
+icon_notify=helix
+# shellcheck disable=SC1091  # common/util is a local shared library
+source "$(dirname "$0")/common/util"
 
-set_title "$title"
+set_prompt "$title"
 
 # manually managed projects
 projs=~/.config/hxi.projs

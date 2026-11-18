@@ -5,13 +5,14 @@
 icon=
 title=Timezone
 icon_notify=state-ok
-source "$(dirname "$0")/common/utils" "$icon" "$title" "$icon_notify"
+# shellcheck disable=SC1091  # common/util is a local shared library
+source "$(dirname "$0")/common/util"
 
 declare -A cmd
 cmd[list_timezones]=list-timezones
 cmd[change_timezone]=change-timezone
 
-set_title $title
+set_prompt "$title"
 
 list_timezones() {
   output=$(

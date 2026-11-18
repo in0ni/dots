@@ -6,9 +6,9 @@
 #   $icon_notify  — notification icon name
 #   $icons_rofi   — associative array of icon glyphs
 
-: "${icon:?'icon' must be set before sourcing utils}"
-: "${title:?'title' must be set before sourcing utils}"
-: "${icon_notify:?'icon_notify' must be set before sourcing utils}"
+: "${icon:?'icon' must be set before sourcing util}"
+: "${title:?'title' must be set before sourcing util}"
+: "${icon_notify:?'icon_notify' must be set before sourcing util}"
 
 set_prompt() {
   echo -en "\\0prompt\\x1f${icon}  $1\\n"
