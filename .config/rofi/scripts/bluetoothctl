@@ -5,7 +5,6 @@
 # Inspired by rofi-bluetooth by Nick Clyde (clydedroid)
 # Dependencies (arch): rofi, bluez-utils (bluetoothctl)
 #
-# FIXME: when unpairing a device, should return to main menu
 # TODO: systemd service
 # TODO: add refresh, only when discovering
 # TODO: look into using all icons below, might be too much
@@ -13,6 +12,11 @@
 # TODO: disable all features when powered off
 # TODO: handle turning on/off service
 # TODO: use coproc for all actions that take time
+# TODO: pairing (low priority, never needed so far):
+#   - run pair async with a "Pairing…" label, then auto trust + connect
+#   - ensure a scan is running first (devices must be seen recently)
+#   - no agent installed: on auth failure open `kitty -e bluetoothctl` to
+#     enter/confirm the PIN (alt: bt-agent from bluez-tools as user service)
 
 icon=
 title=Bluetooth
@@ -38,9 +42,12 @@ declare -A icons_rofi
 icons_rofi[toggle_on]=
 icons_rofi[toggle_off]=
 icons_rofi[back]=
+icons_rofi[pending]=
 source "$(dirname "$0")/common/utils"
 
 back=back
+scan_timeout=30
+scan_pidfile="${XDG_RUNTIME_DIR:-/tmp}/rofi-bluetoothctl-scan.pid"
 is_service_active() {
   if systemctl is-active bluetooth.service --quiet; then
     return 0
@@ -85,19 +92,45 @@ toggle_power() {
     ret=$?
   fi
 
-  # TODO: check string here...
-  notify "$(echo "$cmd" | grep "Changing power")" $ret
+  # on success keep only the status line; on failure show everything
+  local msg
+  if [[ $ret == 0 ]]; then
+    msg=$(grep "Changing power" <<<"$cmd")
+  fi
+  notify "${msg:-$cmd}" $ret
+}
+
+# prints pid of the scan process started by this script, if still running
+our_scan_pid() {
+  local pid
+  [[ -r $scan_pidfile ]] || return 1
+  read -r pid <"$scan_pidfile"
+  # guard against stale pidfile / pid reuse
+  if [[ -n $pid ]] && grep -qa 'scan' "/proc/$pid/cmdline" 2>/dev/null; then
+    echo "$pid"
+    return 0
+  fi
+  rm -f "$scan_pidfile"
+  return 1
 }
 
 # Toggles scanning state
+# NOTE: bluez discovery is per-client, so only a scan started here can be stopped here
 toggle_scan() {
+  local pid
   if is_ctrl_state_on "${ctrl[scan]}"; then
-    cmd=$(kill $(pgrep -f "bluetoothctl scan on"))
-    notify "Stop scanning..." $?
-    sleep 1
+    if pid=$(our_scan_pid); then
+      kill "$pid"
+      notify "Stopped scanning" $?
+      rm -f "$scan_pidfile"
+      sleep 1
+    else
+      notify "Discovery was started by another program, stop it there" 1
+    fi
   else
-    cmd=$(bluetoothctl scan on &>/dev/null &)
-    notify "Scanning..." $?
+    bluetoothctl --timeout "$scan_timeout" scan on &>/dev/null &
+    echo $! >"$scan_pidfile"
+    notify "Scanning for ${scan_timeout}s..."
     sleep 1
   fi
 }
@@ -128,29 +161,31 @@ toggle_discoverable() {
   notify "$cmd" $ret
 }
 
-# Toggles device connection
-# TODO: use coproc
+# Toggles device connection (async); sets $pending to a label for the redraw
 toggle_connection() {
-  coproc {
-    if is_dev_state_on "$1" "${dev[connect]}"; then
-      cmd=$(bluetoothctl disconnect "$1")
-      ret=$?
-    else
-      cmd=$(bluetoothctl connect "$1")
-      ret=$?
-    fi
+  local action
+  if is_dev_state_on "$1" "${dev[connect]}"; then
+    action=disconnect
+    pending="Disconnecting…"
+  else
+    action=connect
+    pending="Connecting…"
+  fi
 
-    notify "$cmd" $ret
-  }
+  # fully detached so rofi isn't kept waiting on our stdout
+  {
+    cmd=$(bluetoothctl "$action" "$1")
+    notify "$cmd" $?
+  } &>/dev/null &
 }
 
-# Toggles device paired state
+# Toggles device paired state; sets $removed=1 when the device was removed
 toggle_paired() {
   if is_dev_state_on "$1" "${dev[pair]}"; then
     cmd=$(bluetoothctl remove "$1")
     ret=$?
+    [[ $ret == 0 ]] && removed=1
   else
-    echo "$1"
     cmd=$(bluetoothctl pair "$1")
     ret=$?
   fi
@@ -181,10 +216,16 @@ list_devices() {
   echo -e "$output"
 }
 
+# Usage: toggle <state-name> <test-exit-code> [mac] [pending-label]
 toggle() {
-  [[ $2 == 0 ]] && icon=${icons_rofi[toggle_on]} || icon=${icons_rofi[toggle_off]}
+  local glyph info label=$1
+  [[ $2 == 0 ]] && glyph=${icons_rofi[toggle_on]} || glyph=${icons_rofi[toggle_off]}
   [[ -n $3 ]] && info="$1":"$3" || info="$1"
-  echo -en "$icon  $1\0info\x1f$info\n"
+  if [[ -n $4 ]]; then
+    glyph=${icons_rofi[pending]}
+    label=$4
+  fi
+  echo -en "$glyph  $label\0info\x1f$info\n"
 }
 
 show_menu() {
@@ -193,8 +234,13 @@ show_menu() {
     toggle "${ctrl[power]}" $?
 
     if is_ctrl_state_on "${ctrl[power]}"; then
-      is_ctrl_state_on "${ctrl[scan]}"
-      toggle "${ctrl[scan]}" $?
+      if ! is_ctrl_state_on "${ctrl[scan]}"; then
+        toggle "${ctrl[scan]}" 1
+      elif our_scan_pid >/dev/null; then
+        toggle "${ctrl[scan]}" 0
+      else
+        toggle "${ctrl[scan]}" 0 "" "${ctrl[scan]} (other program)"
+      fi
 
       is_ctrl_state_on "${ctrl[pair]}"
       toggle "${ctrl[pair]}" $?
@@ -224,7 +270,7 @@ device_menu() {
   # shellcheck disable=SC2086,SC2027
   is_dev_state_on "$mac" ""${dev[connect]}""
   # shellcheck disable=SC2086,SC2027
-  toggle ""${dev[connect]}"" $? "$mac"
+  toggle ""${dev[connect]}"" $? "$mac" "${pending:-}"
 
   # shellcheck disable=SC2086,SC2027
   is_dev_state_on "$mac" ""${dev[pair]}""
@@ -271,7 +317,11 @@ elif [[ $ROFI_RETV == 1 ]]; then
   "${dev[pair]}":*)
     mac=${ROFI_INFO#*"${dev[pair]}":}
     toggle_paired "$mac"
-    device_menu "$mac"
+    if [[ ${removed:-0} == 1 ]]; then
+      show_menu
+    else
+      device_menu "$mac"
+    fi
     ;;
   "${dev[trust]}":*)
     mac=${ROFI_INFO#*"${dev[trust]}":}
