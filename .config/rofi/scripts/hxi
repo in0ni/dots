@@ -19,31 +19,59 @@ uw2_repos=~/Work/un/repos
 # argument as Lua (hl.dispatch(...)), so the legacy "exec foo" / "movefocus u"
 # strings no longer parse. [[...]] is a Lua long string, so the command may
 # contain double quotes without escaping.
-hypr_exec() { hyprctl dispatch "hl.dsp.exec_cmd([[$1]])"; }
+# dispatch Lua; surface errors as notifications instead of discarding them
+hypr() {
+  local out
+  out=$(hyprctl dispatch "$1" 2>&1)
+  [[ $out == ok ]] || notify "hyprctl dispatch failed: $1"$'\n'"$out" 1
+}
+hypr_exec() { hypr "hl.dsp.exec_cmd([[$1]])"; }
 
+# helix's share of the height (dwindle split ratio = 2 * share: 1.0 = 50%, 1.5 = 75%; range 0.1-1.9)
+hx_ratio=1.5
+
+client_addrs() { hyprctl clients -j | jq -r '.[].address' | sort; }
+
+# Launches $1 and blocks until its window has mapped (max 5s).
+# Fixed sleeps raced kitty's startup: layout messages landed before the window
+# existed, or windows mapped out of order, scrambling the tree.
+spawn_and_wait() {
+  local before
+  before=$(client_addrs)
+  hypr_exec "$1"
+  for _ in {1..50}; do
+    sleep 0.1
+    [[ -n $(comm -13 <(echo "$before") <(client_addrs)) ]] && return 0
+  done
+  notify "Window did not open: $1" 1
+  return 1
+}
+
+# Layout (dwindle):  +-----------------+
+#                    |      helix      |
+#                    +--------+--------+
+#                    | term1  | term2  |
+#                    +--------+--------+
+# preselect sets the split direction for the *next* window explicitly, instead
+# of relying on force_split + aspect ratio + togglesplit. A newly mapped window
+# gets focus, so each preselect applies to the window opened just before.
 helix_cd() {
   kitten="kitty --directory=$1"
   hx="$kitten -T \"$icon ~ $2 (editor)\" --hold helix"
   term1="$kitten -T \"$icon ~ $2 (term1)\""
   term2="$kitten -T \"$icon ~ $2 (term2)\""
 
-  coproc {
-    hypr_exec "$hx"
-    sleep 0.2
-    hypr_exec "$term1"
-    sleep 0.2
-    hyprctl dispatch 'hl.dsp.layout("togglesplit")'
-    sleep 0.2
-    hypr_exec "$term2"
-    sleep 0.2
-    # was: resizeactive 0 50% -- the % was relative to the active window's own
-    # height, and the Lua dispatcher takes pixels, so compute the delta here.
-    # Without relative=true, x/y are an absolute size ("Invalid size" on 0).
-    h=$(hyprctl activewindow -j | jq -r '.size[1]')
-    hyprctl dispatch "hl.dsp.window.resize({ x = 0, y = $((h / 2)), relative = true })"
-    sleep 0.2
-    hyprctl dispatch 'hl.dsp.focus({ direction = "up" })'
-  }
+  # detached so rofi closes immediately
+  {
+    spawn_and_wait "$hx" || exit 1
+    hypr 'hl.dsp.layout("preselect d")'
+    spawn_and_wait "$term1" || exit 1
+    hypr 'hl.dsp.layout("preselect r")'
+    spawn_and_wait "$term2" || exit 1
+    hypr 'hl.dsp.focus({ direction = "up" })'
+    # 0.57 syntax: "splitratio <value> exact" (value first; "exact <value>" fails to parse)
+    hypr "hl.dsp.layout(\"splitratio $hx_ratio exact\")"
+  } &>/dev/null &
 }
 
 if [[ $ROFI_RETV == 0 ]]; then
