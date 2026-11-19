@@ -94,6 +94,27 @@ is_known_network() {
   iwctl known-networks "$1" show &>/dev/null
 }
 
+# Turns an iwd-connect error ("<dbus error name>: <message>") into a short
+# human-readable reason. iwd reports a wrong PSK as a generic Failed, so that
+# case can only say "wrong password?" when a password was actually used.
+describe_connect_error() {
+  local err=$1 used_password=${2:-}
+  case "$err" in
+  *net.connman.iwd.InvalidFormat*) echo "Invalid password format (WPA needs 8-63 characters)" ;;
+  *net.connman.iwd.Failed*)
+    [[ -n $used_password ]] && echo "Connection failed (wrong password?)" || echo "Connection failed" ;;
+  *net.connman.iwd.Aborted*) echo "Connection aborted" ;;
+  *net.connman.iwd.InProgress*) echo "A connection attempt is already in progress" ;;
+  *net.connman.iwd.Busy*) echo "Device busy, try again" ;;
+  *net.connman.iwd.NotSupported*) echo "Network type not supported" ;;
+  *net.connman.iwd.NoAgent*) echo "No agent to provide credentials" ;;
+  *NoReply* | *Timeout*) echo "Timed out" ;;
+  "network not found"*) echo "Network not in range, try scanning" ;;
+  "") echo "Connection failed" ;;
+  *) printf '%s\n' "${err##*: }" ;;
+  esac
+}
+
 station_scan() {
   local ret
   iwctl station "$DEVICE" scan
@@ -130,7 +151,7 @@ list_available_networks() {
         signal = length(signal)
 
         if (ssid == "" && NR == 5) {
-          printf "%s  No networks found...", icon_not_found
+          printf "%s  No networks found, try scanning...\\0nonselectable\x1ftrue\n", icon_not_found
           exit
         }
 
@@ -325,13 +346,15 @@ elif [[ "$ROFI_RETV" == 1 ]]; then
       notify "802.1X network $local_ssid needs a provisioning file in /var/lib/iwd" 1
       rofi_list_networks
     elif is_known_network "$local_ssid" || [[ "$local_security" == "open" ]]; then
-      iwctl station "$DEVICE" connect "$local_ssid"
+      # no passphrase needed; output captured so errors never leak into rofi rows
+      result=$("$iwd_connect" "$DEVICE" "$local_ssid" 2>&1 </dev/null)
       ret=$?
       if [[ $ret -eq 0 ]]; then
         notify "Connected to $local_ssid" "$ret"
       else
-        set_message "${icons_rofi[warn]}  Failed to connect to $local_ssid"
-        notify "Failed to connect to $local_ssid" "$ret"
+        reason=$(describe_connect_error "$result")
+        set_message "${icons_rofi[warn]}  $local_ssid: $reason"
+        notify "Failed to connect to $local_ssid: $reason" "$ret"
         rofi_list_networks
       fi
     else
@@ -360,9 +383,9 @@ elif [[ "$ROFI_RETV" == 2 ]]; then
     if [[ $ret -eq 0 ]]; then
       notify "Connected to $local_ssid" "$ret"
     else
-      error=$(printf '%s' "$result" | sed 's/\x1b\[[0-9;]*m//g')
-      set_message "${icons_rofi[warn]}  ${error:-Connection failed}"
-      notify "Incorrect password" "$ret"
+      reason=$(describe_connect_error "$result" "$password")
+      set_message "${icons_rofi[warn]}  $local_ssid: $reason"
+      notify "Failed to connect to $local_ssid: $reason" "$ret"
       echo -en "${opt[back_avail]}"
       echo -en "${icons_rofi[refresh]}  Try Again...\\0info\x1f${cmd[connect]}${SEP}${local_ssid}\n"
     fi
