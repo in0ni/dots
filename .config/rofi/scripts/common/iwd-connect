@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Connect an iwd station to a network, answering the passphrase request as an agent.
+
+Usage: iwd-connect <device> <ssid>   (passphrase on stdin; never on the command line)
+
+Exit 0 on success; on failure prints the iwd error ("<name>: <message>") to stderr.
+Exists because `iwctl --passphrase` exposes the passphrase in /proc/<pid>/cmdline.
+"""
+import sys
+
+import dbus
+import dbus.mainloop.glib
+import dbus.service
+from gi.repository import GLib
+
+IWD = "net.connman.iwd"
+AGENT_PATH = "/rofi/iwctl/agent"
+CONNECT_TIMEOUT = 60  # seconds
+
+
+class Agent(dbus.service.Object):
+    def __init__(self, bus, passphrase):
+        super().__init__(bus, AGENT_PATH)
+        self.passphrase = passphrase
+
+    @dbus.service.method(f"{IWD}.Agent", in_signature="o", out_signature="s")
+    def RequestPassphrase(self, network):
+        return self.passphrase
+
+    @dbus.service.method(f"{IWD}.Agent", in_signature="", out_signature="")
+    def Release(self):
+        pass
+
+    @dbus.service.method(f"{IWD}.Agent", in_signature="s", out_signature="")
+    def Cancel(self, reason):
+        pass
+
+
+def find_network(bus, device, ssid):
+    objs = dbus.Interface(bus.get_object(IWD, "/"), "org.freedesktop.DBus.ObjectManager").GetManagedObjects()
+    station = next(
+        (p for p, ifs in objs.items() if f"{IWD}.Device" in ifs and ifs[f"{IWD}.Device"].get("Name") == device),
+        None,
+    )
+    if station is None:
+        raise LookupError(f"device not found: {device}")
+    for path, ifs in objs.items():
+        net = ifs.get(f"{IWD}.Network")
+        if net and net.get("Device") == station and net.get("Name") == ssid:
+            return path
+    raise LookupError(f"network not found: {ssid} (try scanning)")
+
+
+def main():
+    if len(sys.argv) != 3:
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    device, ssid = sys.argv[1:]
+    passphrase = sys.stdin.read().rstrip("\n")
+
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
+    try:
+        network = find_network(bus, device, ssid)
+    except (LookupError, dbus.DBusException) as e:
+        print(e, file=sys.stderr)
+        return 1
+
+    Agent(bus, passphrase)
+    manager = dbus.Interface(bus.get_object(IWD, "/net/connman/iwd"), f"{IWD}.AgentManager")
+    manager.RegisterAgent(dbus.ObjectPath(AGENT_PATH))
+
+    loop = GLib.MainLoop()
+    result = {"rc": 1}
+
+    def ok():
+        result["rc"] = 0
+        loop.quit()
+
+    def err(e):
+        print(f"{e.get_dbus_name()}: {e.get_dbus_message()}", file=sys.stderr)
+        loop.quit()
+
+    # async: the same process must keep serving RequestPassphrase while Connect is pending
+    dbus.Interface(bus.get_object(IWD, network), f"{IWD}.Network").Connect(
+        reply_handler=ok, error_handler=err, timeout=CONNECT_TIMEOUT
+    )
+    loop.run()
+
+    try:
+        manager.UnregisterAgent(dbus.ObjectPath(AGENT_PATH))
+    except dbus.DBusException:
+        pass
+    return result["rc"]
+
+
+if __name__ == "__main__":
+    sys.exit(main())

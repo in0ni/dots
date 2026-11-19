@@ -27,13 +27,19 @@ icons_rofi[secure]=
 icons_rofi[show]=
 icons_rofi[warn]=
 
+# rofi passes custom input (the password) as $1, i.e. in /proc/<pid>/cmdline.
+# Re-exec at once with it moved to stdin, so it is only exposed for milliseconds.
+if [[ ${ROFI_RETV:-0} == 2 && -z ${IWCTL_PW_STDIN:-} ]]; then
+  IWCTL_PW_STDIN=1 exec "$0" <<<"${1:-}"
+fi
+
 # shellcheck disable=SC1091  # common/util is a local shared library
 source "$(dirname "$0")/common/util"
+iwd_connect="$(dirname "$0")/common/iwd-connect"
 
-# unit separator — safe delimiter for ROFI_INFO payloads (cannot appear in SSIDs)
-# TODO: this recommended separator does not work.
-# SEP=$'\x1f'
-SEP=':'
+# record separator for ROFI_INFO payloads. ':' broke SSIDs containing a colon;
+# \x1f can't be used because rofi itself splits row options on it.
+SEP=$'\x1e'
 
 # ---------------------------------------------------------------------------
 # Device detection
@@ -149,7 +155,7 @@ list_available_networks() {
         if (length(active))
           printf "\\0info\x1f%s\n", cmd_disconnect
         else
-          printf "\\0info\x1f%s%s%s%s\n", cmd_connect, sep, ssid, sep, security
+          printf "\\0info\x1f%s%s%s%s%s\n", cmd_connect, sep, ssid, sep, security
       }'
   )
   # TODO: look into removing the output=$()
@@ -251,6 +257,8 @@ ROFI_DATA="${ROFI_DATA:-}"
 
 set_prompt "$title"
 set_message ""
+# clear the pending password target on every run; only the password prompt sets it
+set_data ""
 
 if [[ "$ROFI_RETV" == 0 ]]; then
   rofi_list_networks
@@ -311,7 +319,12 @@ elif [[ "$ROFI_RETV" == 1 ]]; then
     local_ssid="${FIELDS[1]}"
     local_security="${FIELDS[2]:-}"
 
-    if is_known_network "$local_ssid" || [[ "$local_security" == "open" ]]; then
+    if [[ "$local_security" == "8021x" ]] && ! is_known_network "$local_ssid"; then
+      # enterprise networks need a provisioning file; a passphrase prompt can't work
+      set_message "${icons_rofi[warn]}  $local_ssid is 802.1X (enterprise): needs /var/lib/iwd/$local_ssid.8021x"
+      notify "802.1X network $local_ssid needs a provisioning file in /var/lib/iwd" 1
+      rofi_list_networks
+    elif is_known_network "$local_ssid" || [[ "$local_security" == "open" ]]; then
       iwctl station "$DEVICE" connect "$local_ssid"
       ret=$?
       if [[ $ret -eq 0 ]]; then
@@ -340,7 +353,8 @@ elif [[ "$ROFI_RETV" == 2 ]]; then
   else
     set_subtitle "$local_ssid" "${icons_rofi[password]}"
 
-    result=$(iwctl -P "$@" station "$DEVICE" connect "$local_ssid" 2>&1)
+    IFS= read -r password || true
+    result=$("$iwd_connect" "$DEVICE" "$local_ssid" 2>&1 <<<"$password")
     ret=$?
 
     if [[ $ret -eq 0 ]]; then
