@@ -33,6 +33,9 @@ if [[ ${ROFI_RETV:-0} == 2 && -z ${IWCTL_PW_STDIN:-} ]]; then
   IWCTL_PW_STDIN=1 exec "$0" <<<"${1:-}"
 fi
 
+icons_rofi[power]=
+icons_rofi[service]=
+
 # shellcheck disable=SC1091  # common/util is a local shared library
 source "$(dirname "$0")/common/util"
 iwd_connect="$(dirname "$0")/common/iwd-connect"
@@ -53,11 +56,18 @@ detect_device() {
     }'
 }
 
-DEVICE=$(detect_device)
-if [[ -z "$DEVICE" ]]; then
-  echo -en "  No wireless device found"
-  exit 1
-fi
+# rows of a iwctl table (header/separators stripped), ANSI removed
+iwctl_rows() {
+  iwctl "$@" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | awk 'NR > 4 && NF'
+}
+
+# adapters (phys) that are powered off
+adapters_off() { iwctl_rows adapter list | awk '$2 == "off" { print $1 }'; }
+
+# Powered column of a device: on|off
+device_powered() { iwctl_rows device list | awk -v d="$1" '$1 == d { print $3 }'; }
+
+DEVICE=""
 
 # ---------------------------------------------------------------------------
 # ANSI cleaning (single sed expression)
@@ -77,6 +87,9 @@ declare -A cmd=(
   [list_avail]=list-available
   [list_known]=list-known
   [scan]=scan
+  [active]=active-network
+  [power_on]=power-on
+  [start_service]=start-service
 )
 
 declare -A opt=(
@@ -115,12 +128,92 @@ describe_connect_error() {
   esac
 }
 
+# Starts a scan and returns immediately; the list is redrawn right away and
+# Refresh picks up the new results once the scan is done.
 station_scan() {
-  local ret
-  iwctl station "$DEVICE" scan
-  ret=$?
-  set_message "Scanning for networks, should refresh..."
-  notify "Scanning for networks..." "$ret"
+  local out
+  if ! out=$(iwctl station "$DEVICE" scan 2>&1) && [[ $out != *"in progress"* ]]; then
+    # shellcheck disable=SC2001  # regex (ANSI codes), not a plain substitution
+    out=$(sed 's/\x1b\[[0-9;]*m//g' <<<"$out")
+    set_message "${icons_rofi[warn]}  Scan failed: ${out:-unknown error}"
+    return 1
+  fi
+  set_message "Scanning... use Refresh to update the list"
+}
+
+# Starts iwd.service (polkit prompt). Detached and prints nothing, so rofi closes
+# and the polkit dialog can take focus; reopens the menu on success.
+start_iwd_service() {
+  {
+    if systemctl start iwd.service; then
+      notify "iwd service started"
+      sleep 2
+      rofi -show iwctl
+    else
+      notify "Failed to start iwd service" 1
+    fi
+  } &>/dev/null &
+  disown
+}
+
+# Turns Wi-Fi fully on: rfkill soft block -> adapter power -> device power
+wifi_power_on() {
+  local a dev
+  if grep -q 'Soft blocked: yes' <<<"$(rfkill list wlan 2>/dev/null)"; then
+    rfkill unblock wlan || { notify "rfkill unblock wlan failed" 1; return 1; }
+    sleep 1
+  fi
+  for a in $(adapters_off); do
+    iwctl adapter "$a" set-property Powered on || { notify "Failed to power on adapter $a" 1; return 1; }
+  done
+  # wait up to 5s for the device to appear and come up
+  for _ in {1..25}; do
+    dev=$(detect_device)
+    if [[ -n $dev ]]; then
+      [[ $(device_powered "$dev") == off ]] && iwctl device "$dev" set-property Powered on
+      [[ $(device_powered "$dev") == on ]] && { notify "Wi-Fi on"; return 0; }
+    fi
+    sleep 0.2
+  done
+  notify "Wi-Fi did not come up" 1
+  return 1
+}
+
+print_notice() {
+  echo -en "${icons_rofi[warn]}  $1\0nonselectable\x1ftrue\n"
+}
+
+# Checks service / rfkill / power / device. On failure prints an explanatory menu
+# (always with at least one row: rofi quits on an empty list) and returns 1.
+# On success sets $DEVICE.
+wifi_ready() {
+  local rf
+  if ! systemctl is-active --quiet iwd.service; then
+    set_message "iwd service is <b>off</b>"
+    echo -en "${icons_rofi[service]}  Start iwd service\0info\x1f${cmd[start_service]}\n"
+    return 1
+  fi
+
+  rf=$(rfkill list wlan 2>/dev/null)
+  if grep -q 'Hard blocked: yes' <<<"$rf"; then
+    set_message "Wi-Fi is hard blocked (hardware switch / BIOS)"
+    print_notice "Check: rfkill list wlan"
+    return 1
+  fi
+
+  DEVICE=$(detect_device)
+  if grep -q 'Soft blocked: yes' <<<"$rf" || [[ -n $(adapters_off) ]] ||
+    [[ -n $DEVICE && $(device_powered "$DEVICE") == off ]]; then
+    set_message "Wi-Fi is <b>off</b>"
+    echo -en "${icons_rofi[power]}  Turn on Wi-Fi\0info\x1f${cmd[power_on]}\n"
+    return 1
+  fi
+
+  if [[ -z $DEVICE ]]; then
+    set_message "No wireless device found"
+    print_notice "Check: iwctl device list / journalctl -u iwd"
+    return 1
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -134,7 +227,7 @@ list_available_networks() {
       head -n -1 |
       awk \
         -v sep="$SEP" \
-        -v cmd_disconnect="${cmd[disconnect]}" \
+        -v cmd_active="${cmd[active]}" \
         -v cmd_connect="${cmd[connect]}" \
         $(build_icon_vars active insecure secure radio_on radio_off not_found) \
         '
@@ -174,7 +267,7 @@ list_available_networks() {
         printf "  %s", ssid
 
         if (length(active))
-          printf "\\0info\x1f%s\n", cmd_disconnect
+          printf "\\0info\x1f%s%s%s\n", cmd_active, sep, ssid
         else
           printf "\\0info\x1f%s%s%s%s%s\n", cmd_connect, sep, ssid, sep, security
       }'
@@ -253,6 +346,18 @@ known_network_menu() {
   echo -en "${icons_rofi[delete]}  Forget\\0info\x1f${cmd[forget]}${SEP}${ssid}\n"
 }
 
+# menu for the connected network: disconnect needs an explicit second click
+active_network_menu() {
+  local ssid="$1"
+  set_subtitle "$ssid" "${icons_rofi[active]}"
+  echo -en "${opt[back_avail]}"
+  print_divider
+  echo -en "${icons_rofi[not_found]}  Disconnect\0info\x1f${cmd[disconnect]}\n"
+  if is_known_network "$ssid"; then
+    echo -en "${icons_rofi[saved]}  Known network settings...\0info\x1f${cmd[known]}${SEP}${ssid}\n"
+  fi
+}
+
 rofi_list_networks() {
   networks_menu
   list_available_networks
@@ -276,10 +381,23 @@ ROFI_RETV="${ROFI_RETV:-0}"
 ROFI_INFO="${ROFI_INFO:-}"
 ROFI_DATA="${ROFI_DATA:-}"
 
+# starting the service closes rofi: print nothing at all
+if [[ $ROFI_RETV == 1 && $ROFI_INFO == "${cmd[start_service]}" ]]; then
+  start_iwd_service
+  exit 0
+fi
+
 set_prompt "$title"
 set_message ""
 # clear the pending password target on every run; only the password prompt sets it
 set_data ""
+
+if [[ $ROFI_RETV == 1 && $ROFI_INFO == "${cmd[power_on]}" ]]; then
+  wifi_power_on
+  ROFI_RETV=0 # fall through to the main list (or the reason it is still off)
+fi
+
+wifi_ready || exit 0
 
 if [[ "$ROFI_RETV" == 0 ]]; then
   rofi_list_networks
@@ -287,7 +405,7 @@ if [[ "$ROFI_RETV" == 0 ]]; then
 elif [[ "$ROFI_RETV" == 1 ]]; then
   parse_info
 
-  case "${FIELDS[0]}" in
+  case "${FIELDS[0]:-}" in
   "${cmd[list_avail]}")
     rofi_list_networks
     ;;
@@ -295,6 +413,10 @@ elif [[ "$ROFI_RETV" == 1 ]]; then
   "${cmd[scan]}")
     station_scan
     rofi_list_networks
+    ;;
+
+  "${cmd[active]}")
+    active_network_menu "${FIELDS[1]}"
     ;;
 
   "${cmd[list_known]}")
@@ -363,6 +485,11 @@ elif [[ "$ROFI_RETV" == 1 ]]; then
       set_message "Enter password for $local_ssid..."
       print_divider
     fi
+    ;;
+
+  *)
+    # unknown/empty selection: never return an empty list (rofi would quit)
+    rofi_list_networks
     ;;
   esac
 
