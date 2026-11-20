@@ -1,30 +1,80 @@
 #!/usr/bin/env bash
+set -uo pipefail
 
 icon=
+# shellcheck disable=SC2034  # consumed by common/util
 title=Passwords
+# shellcheck disable=SC2034  # consumed by common/util
 icon_notify=dialog-password-panel
 # shellcheck disable=SC1091  # common/util is a local shared library
 source "$(dirname "$0")/common/util"
 
-clear_timeout=30
+declare -A cmd=(
+  [gen]=pwgen
+  [genweak]=pwgenweak
+  [copy]=pwcopy
+)
 
-declare -A cmd
-cmd[gen]=pwgen
-cmd[genweak]=pwgenweak
-cmd[copy]=pwcopy
+# gopass clears the clipboard itself after core.cliptimeout; use the same timeout
+# for everything this script puts on the clipboard / primary selection
+clip_timeout() {
+  local t
+  t=$(gopass config core.cliptimeout 2>/dev/null)
+  [[ $t =~ ^[0-9]+$ ]] && echo "$t" || echo 45
+}
+
+# clears a selection after $2 seconds, but only if it still holds $3
+# (don't wipe something the user copied in the meantime)
+clear_later() {
+  local sel=$1 timeout=$2 value=$3 flag=()
+  [[ $sel == primary ]] && flag=(--primary)
+  sleep "$timeout"
+  [[ $(wl-paste "${flag[@]}" --no-newline 2>/dev/null) == "$value" ]] && wl-copy "${flag[@]}" --clear
+}
+
+# Password -> clipboard (gopass copies it and clears it after core.cliptimeout).
+# Username -> primary selection, cleared by us after the same timeout.
+# Convention: the username is stored as a "username:" (or "Username:") field.
+copy_entry() {
+  local entry=$1
+  {
+    local out user timeout
+    timeout=$(clip_timeout)
+    # -C: copy the password to the clipboard and print the whole entry
+    if ! out=$(gopass show -C "$entry" 2>&1); then
+      notify "Could not decrypt $entry"$'\n'"$(tail -n1 <<<"$out")" 1
+      exit 1
+    fi
+    user=$(awk 'match($0, /^[Uu]sername:[ \t]*/) { print substr($0, RLENGTH + 1); exit }' <<<"$out")
+    [[ -n $user ]] || exit 0
+
+    printf '%s' "$user" | wl-copy --primary
+    clear_later primary "$timeout" "$user" && notify "Username cleared ($entry)"
+  } &>/dev/null &
+  disown
+}
+
+# Generates a 24 char password (extra args go to `gopass pwgen`), copies it with
+# the sensitive hint and clears it after the gopass clip timeout.
+generate_password() {
+  local pw timeout
+  pw=$(gopass pwgen "$@" 24 | head -n1 | tr -d '[:space:]')
+  if [[ -z $pw ]]; then
+    notify "Password generation failed" 1
+    return 1
+  fi
+  timeout=$(clip_timeout)
+  printf '%s' "$pw" | wl-copy --sensitive
+  notify "Generated password copied, clears in ${timeout}s"
+  { clear_later clipboard "$timeout" "$pw" && notify "Generated password cleared"; } &>/dev/null &
+  disown
+}
+
+ROFI_RETV=${ROFI_RETV:-0}
+ROFI_INFO=${ROFI_INFO:-}
 
 set_prompt "$title"
 
-copy_passwords() {
-  coproc {
-    gopass show -C "$1" | awk -F': ' '/^Username/{print $2}' | xargs wl-copy --primary
-    sleep "$clear_timeout"
-    wl-copy --primary --clear
-    notify "Password Cleared"
-  }
-}
-
-# initial list
 if [[ $ROFI_RETV == 0 ]]; then
   echo -en "  Generate Password\0info\x1f${cmd[gen]}\n"
   echo -en "  Generate Password (no symbols)\0info\x1f${cmd[genweak]}\n"
@@ -34,22 +84,17 @@ if [[ $ROFI_RETV == 0 ]]; then
   }')
   echo -e "$output"
 
-# TODO: use gopass to check validity of selection?
-# 		perhaps redundant as '1' here ensures no custom selection
 elif [[ $ROFI_RETV == 1 ]]; then
+  # printing nothing below closes rofi
   case $ROFI_INFO in
   "${cmd[gen]}")
-    gopass pwgen -y 24 | head -1 | tr -d "[:space:]" | wl-copy
-    exit 0
+    generate_password -y
     ;;
   "${cmd[genweak]}")
-    gopass pwgen 24 | head -1 | tr -d "[:space:]" | wl-copy
-    exit 0
+    generate_password
     ;;
   "${cmd[copy]}":*)
-    key=${ROFI_INFO#*"${cmd[copy]}":}
-    copy_passwords "$key"
-    exit 0
+    copy_entry "${ROFI_INFO#*"${cmd[copy]}":}"
     ;;
   esac
 fi
