@@ -30,7 +30,8 @@ scale.module highlight {
 #custom-updates_software,
 #custom-updates_firmware,
 #idle_inhibitor,
-#custom-x1profile {
+#custom-x1profile,
+#custom-systatus {
   padding: 0.25em;
 }
 
@@ -51,6 +52,16 @@ scale.module highlight {
 #bluetooth,
 #pulseaudio {
   padding: 0.4em;
+}
+
+#custom-systatus.ok {
+  opacity: 0.5;
+}
+#custom-systatus.warning {
+  opacity: 0.85;
+}
+#custom-systatus.critical {
+  color: #"!{v16_01_red}!";
 }
 
 #custom-x1profile.performance {

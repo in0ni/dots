@@ -7,14 +7,14 @@
   ],
   "modules-center": [
     "custom/pomodoro",
-    "clock",
     "custom/sunset",
+    "clock",
+    "custom/updates_firmware",
     "custom/updates_software"
   ],
   "modules-right": [
-    "custom/updates_firmware",
-    "idle_inhibitor",
     "custom/x1profile",
+    "custom/systatus",
     "cpu",
     "memory",
     "disk",
@@ -23,7 +23,8 @@
     "network",
     "bluetooth",
     "pulseaudio",
-    "tray"
+    "tray",
+    "idle_inhibitor"
   ],
   "hyprland/workspaces": {
     "format": "{icon}",
@@ -86,6 +87,20 @@
       ""
     ],
     "format": "{icon}"
+  },
+  "custom/systatus": {
+    "signal": 4,
+    "interval": 60,
+    "return-type": "json",
+    "exec": "waybar-systatus status",
+    "exec-if": "exit 0",
+    "format": "{icon}",
+    "format-icons": {
+      "ok": "",
+      "warning": "",
+      "critical": ""
+    },
+    "on-click-right": "pkill -RTMIN+4 waybar"
   },
   "custom/updates_software": {
     "signal": 1,
