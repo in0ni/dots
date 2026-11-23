@@ -1,7 +1,10 @@
 [Unit]
 Description=Check and cache software/firmware updates.
-Wants=network-online.target
-After=network-online.target
 
 [Service]
+Type=oneshot
+# network-online.target is a system unit; a user unit can't wait on it, so ask
+# networkd directly. '-' = run anyway on timeout; the script then reports the
+# failed checks as an error instead of "Up to date".
+ExecStartPre=-/usr/lib/systemd/systemd-networkd-wait-online --any --timeout=60
 ExecStart=%h/.local/bin/waybar-updates refresh all

@@ -132,7 +132,7 @@
     },
     "return-type": "json",
     "exec": "waybar-updates display firmware",
-    "on-click-right": "waybar-updates refresh firmware; pkill -RTMIN+1 waybar"
+    "on-click-right": "waybar-updates refresh firmware; pkill -RTMIN+2 waybar"
   },
   "clock": {
     "interval": 1,
