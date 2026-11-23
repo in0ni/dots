@@ -31,10 +31,6 @@ trim_lines() {
   fi
 }
 
-json_escape() {
-  jq -Rsa .
-}
-
 normalize_tooltip() {
   local text=$1
   text=${text%$'\n'}
@@ -42,13 +38,42 @@ normalize_tooltip() {
   printf '%s' "$text"
 }
 
+# write_cache <file> <tooltip> <alt> [error...]
+# With no errors, the result is also saved as the last good result
+# (last_ok/last_ok_at; waybar ignores these extra keys). With errors, the cache
+# gets alt=error and a tooltip listing the failures above the last good result,
+# so a failed check never reads as "Up to date".
 write_cache() {
   local file=$1 tooltip=$2 alt=$3
+  shift 3
+  local now last_ok='' last_ok_at='' err
+
+  printf -v now '%(%a %b %d %H:%M)T' -1
+
+  if (($# == 0)); then
+    last_ok=$(normalize_tooltip "$tooltip")
+    last_ok_at=$now
+  else
+    if [[ -f $file ]]; then
+      last_ok=$(jq -r '.last_ok // empty' "$file" 2>/dev/null)
+      last_ok_at=$(jq -r '.last_ok_at // empty' "$file" 2>/dev/null)
+    fi
+
+    alt='error'
+    tooltip="Check failed ($now):"
+    for err; do
+      tooltip+=$'\n'"  $err"
+    done
+    if [[ -n $last_ok ]]; then
+      tooltip+=$'\n\n'"Last successful check (${last_ok_at}):"$'\n'"$last_ok"
+    fi
+  fi
+
   tooltip=$(normalize_tooltip "$tooltip")
 
-  printf '{"tooltip":%s,"alt":%s}\n' \
-    "$(printf '%s' "$tooltip" | json_escape)" \
-    "$(printf '%s' "$alt" | json_escape)" >"$file"
+  jq -cn --arg tooltip "$tooltip" --arg alt "$alt" \
+    --arg last_ok "$last_ok" --arg last_ok_at "$last_ok_at" \
+    '{$tooltip, $alt, $last_ok, $last_ok_at}' >"$file"
 }
 
 read_cache() {
@@ -71,21 +96,48 @@ append_block() {
 }
 
 update_software() {
-  local pac='' aur_updates='' svr=''
+  local pac='' aur_updates='' svr='' rc
   local pac_count=0 aur_count=0 svr_count=0
   local tooltip='' alt='uptodate'
+  local errors=()
 
-  pac=$(checkupdates --nocolor 2>/dev/null || true)
+  # checkupdates: 0 = updates, 2 = none, anything else = error (e.g. offline)
+  pac=$(checkupdates --nocolor 2>/dev/null)
+  rc=$?
+  case $rc in
+  0) ;;
+  2) pac='' ;;
+  *) errors+=("pac: checkupdates failed (exit $rc)") ;;
+  esac
   pac_count=$(count_lines "$pac")
 
   if command -v aur >/dev/null 2>&1 && aur repo -d paks >/dev/null 2>&1; then
-    aur_updates=$(aur repo -d paks --list 2>/dev/null | aur vercmp 2>/dev/null || true)
+    # aur vercmp exits 0 with or without updates; pipefail catches either side failing
+    aur_updates=$(
+      set -o pipefail
+      aur repo -d paks --list 2>/dev/null | aur vercmp 2>/dev/null
+    )
+    rc=$?
+    ((rc == 0)) || errors+=("aur: query failed (exit $rc)")
     aur_count=$(count_lines "$aur_updates")
   fi
 
   if grep -q 'srv' "$HOME/.ssh/config" 2>/dev/null; then
-    svr=$(ssh srv checkupdates 2>/dev/null || true)
+    # ssh passes through checkupdates' exit code; 255 = ssh itself failed
+    svr=$(ssh srv checkupdates 2>/dev/null)
+    rc=$?
+    case $rc in
+    0) ;;
+    2) svr='' ;;
+    255) errors+=("svr: ssh failed (exit $rc)") ;;
+    *) errors+=("svr: checkupdates failed (exit $rc)") ;;
+    esac
     svr_count=$(count_lines "$svr")
+  fi
+
+  if ((${#errors[@]} > 0)); then
+    write_cache "$SOFTWARE_CACHE" '' 'error' "${errors[@]}"
+    return
   fi
 
   if ((pac_count == 0 && aur_count == 0 && svr_count == 0)); then
@@ -115,21 +167,39 @@ update_software() {
 }
 
 update_firmware() {
-  local raw='' parsed='' count=0 tooltip='' alt='uptodate'
+  local raw='' parsed='' count=0 tooltip='' alt='uptodate' rc
+  local errors=()
 
-  fwupdmgr refresh 2>/dev/null || true
-  raw=$(fwupdmgr get-updates --json 2>/dev/null || true)
+  # refresh: 0 = downloaded, 2 = metadata already current; stdout goes to the journal
+  fwupdmgr refresh 2>/dev/null
+  rc=$?
+  ((rc == 0 || rc == 2)) || errors+=("lvfs: metadata refresh failed (exit $rc)")
 
-  parsed=$(
-    printf '%s' "$raw" | jq -r '
-      [.Devices[]? as $d
-        | $d.Releases[]?
-        | "\($d.Name)\n   - \(.Version): \(.Summary)"
-      ] | .[]
-    ' 2>/dev/null || true
-  )
+  # get-updates: 0 = updates, 2 = none
+  raw=$(fwupdmgr get-updates --json 2>/dev/null)
+  rc=$?
+  case $rc in
+  0)
+    if count=$(printf '%s' "$raw" | jq -e '[.Devices[]? | .Releases[]?] | length' 2>/dev/null); then
+      parsed=$(
+        printf '%s' "$raw" | jq -r '
+          .Devices[]? as $d
+          | $d.Releases[]?
+          | "\($d.Name)\n   - \(.Version): \(.Summary)"
+        '
+      )
+    else
+      errors+=("fwupd: unreadable get-updates output")
+    fi
+    ;;
+  2) count=0 ;;
+  *) errors+=("fwupd: get-updates failed (exit $rc)") ;;
+  esac
 
-  count=$(count_lines "$parsed")
+  if ((${#errors[@]} > 0)); then
+    write_cache "$FIRMWARE_CACHE" '' 'error' "${errors[@]}"
+    return
+  fi
 
   if ((count == 0)); then
     tooltip='Up to date'
