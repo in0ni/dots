@@ -1,0 +1,13 @@
+{
+  "platform": {
+    "spellCheckerLanguages": [
+      "es",
+      "en"
+    ]
+  },
+  "performance": {
+    "electronCLIFlags": [
+      ["enable-features", "WebRTCPipeWireCapturer,WebRtcPipeWireCamera"]
+    ]
+  }
+}
