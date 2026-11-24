@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
+# waybar-x1profile: ACPI platform profile indicator (ThinkPad x-hosts only)
+set -u
 
-[[ $(hostnamectl --static) == x* ]] || exit 0
+readonly PROFILE_FILE=/sys/firmware/acpi/platform_profile
 
-case "${1:-}" in
-get-profile)
-  profile_file=/sys/firmware/acpi/platform_profile
-  [[ -r $profile_file ]] || exit 0
+usage() {
+  printf 'Usage: %s get-profile\n' "${0##*/}" >&2
+  exit 1
+}
 
-  profile=$(<"$profile_file")
+get_profile() {
+  local profile percentage
 
-  case "$profile" in
+  # bash's $HOSTNAME comes from gethostname(): no hostnamectl/D-Bus call per poll.
+  # Gate kept on purpose: other machines (e.g. Surface) also expose platform_profile.
+  [[ $HOSTNAME == x* ]] || exit 0
+  [[ -r $PROFILE_FILE ]] || exit 0
+
+  profile=$(<"$PROFILE_FILE")
+
+  case $profile in
   low-power) percentage=0 ;;
   balanced) percentage=50 ;;
   performance) percentage=100 ;;
@@ -18,5 +28,9 @@ get-profile)
 
   printf '{"tooltip":"%s","class":"%s","percentage":%s}\n' \
     "$profile" "$profile" "$percentage"
-  ;;
+}
+
+case "${1:-}" in
+get-profile) get_profile ;;
+*) usage ;;
 esac
